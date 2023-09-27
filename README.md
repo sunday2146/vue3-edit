@@ -92,7 +92,20 @@
         background: #f9f9f9;
       ">
       <img src="readme/sponsors/mdy-banner.png" alt="go-view" style="width: 270px;" width="270px"/>
-    </a>  
+    </a>
+    <br/>
+    <br/>
+    <a
+      href="https://iotdoc.sagoo.cn/"
+      target="_blank"
+      style="
+        padding: 10px 20px;
+        display: inline-block;
+        border-radius: 10px;
+        background: #f9f9f9;
+      ">
+      <img src="readme/sponsors/shaguo-banner.png" alt="go-view" style="width: 270px;" width="270px"/>
+    </a>
   </div>
 </div>
 

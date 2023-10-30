@@ -116,7 +116,7 @@ export const useChartDataPondFetch = () => {
       const requestDataPondItem = computed(() => {
         return requestGlobalConfig.requestDataPond.find(item => item.dataPondId === pondKey)
       }) as ComputedRef<RequestDataPondItemType>
-      if (requestDataPondItem) {
+      if (requestDataPondItem.value) {
         newPondItemInterval(chartEditStore.requestGlobalConfig, requestDataPondItem, mittDataPondMap.get(pondKey))
       }
     }

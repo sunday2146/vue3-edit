@@ -37,7 +37,7 @@
               :title="item.title"
               @click="selectChartHandle(item)"
             >
-              <Icon v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="20" />
+              <GoIconify v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="20" />
               <chart-glob-image v-else class="list-item-img" :chartConfig="item" />
               <n-text class="list-item-fs" depth="2">{{ item.title }}</n-text>
             </div>
@@ -79,7 +79,7 @@ import { isString, addEventListener, removeEventListener } from '@/utils'
 import { fetchConfigComponent, fetchChartComponent } from '@/packages/index'
 import { componentInstall, loadingStart, loadingFinish, loadingError } from '@/utils'
 import { ChartGlobImage } from '@/components/Pages/ChartGlobImage'
-import { Icon } from '@iconify/vue'
+import { GoIconify } from '@/components/GoIconify'
 
 const props = defineProps({
   menuOptions: {

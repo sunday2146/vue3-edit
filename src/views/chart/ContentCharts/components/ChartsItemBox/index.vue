@@ -23,7 +23,7 @@
           </n-text>
         </div>
         <div class="list-center go-flex-center go-transition" draggable="true">
-          <Icon v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="48" />
+          <GoIconify v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="48" style="height: auto" />
           <chart-glob-image v-else class="list-img" :chartConfig="item" />
         </div>
         <div class="list-bottom">
@@ -64,7 +64,7 @@ import { createComponent } from '@/packages'
 import { ConfigType, CreateComponentType, PackagesCategoryEnum } from '@/packages/index.d'
 import { ChatCategoryEnum } from '@/packages/components/Photos/index.d'
 import { fetchConfigComponent, fetchChartComponent } from '@/packages/index'
-import { Icon } from '@iconify/vue'
+import { GoIconify } from '@/components/GoIconify'
 import { icon } from '@/plugins'
 
 import omit from 'lodash/omit'

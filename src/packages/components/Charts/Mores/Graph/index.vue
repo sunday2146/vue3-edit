@@ -3,7 +3,7 @@
     ref="vChartRef"
     :init-options="initOptions"
     :theme="themeColor"
-    :option="option"
+    :option="(option as EChartsOption)"
     :manual-update="isPreview()"
     autoresize
   ></v-chart>
@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import { ref, computed, PropType, watch } from 'vue'
 import VChart from 'vue-echarts'
+import { EChartsOption } from 'echarts'
 import { useCanvasInitOptions } from '@/hooks/useCanvasInitOptions.hook'
 import dataJson from './data.json'
 import { use } from 'echarts/core'

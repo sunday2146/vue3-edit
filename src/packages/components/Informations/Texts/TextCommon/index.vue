@@ -70,6 +70,7 @@ const click = () => {
   display: flex;
   align-items: center;
   justify-content: v-bind('textAlign');
+  overflow: hidden;
 
   .content {
     color: v-bind('fontColor');

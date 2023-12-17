@@ -26,7 +26,7 @@ export default ({ mode }) => defineConfig({
       },
       {
         find: 'vue-i18n',
-        replacement: 'vue-i18n/dist/vue-i18n.cjs.js', //解决i8n警告
+        replacement: 'vue-i18n/dist/vue-i18n.cjs.js' //解决i8n警告
       }
     ],
     dedupe: ['vue']
@@ -56,7 +56,14 @@ export default ({ mode }) => defineConfig({
     }
   },
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          // 排除 iconify 图标影子组件编译报错
+          isCustomElement: tag => tag.startsWith('iconify-icon')
+        }
+      }
+    }),
     monacoEditorPlugin({
       languageWorkers: ['editorWorkerService', 'typescript', 'json', 'html']
     }),

@@ -44,9 +44,12 @@ import { LayoutHeaderPro } from '@/layout/components/LayoutHeaderPro'
 import { useContextMenu } from './hooks/useContextMenu.hook'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
 import { useChartHistoryStore } from '@/store/modules/chartHistoryStore/chartHistoryStore'
+import { EditCanvasConfigEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
+import { useRoute } from 'vue-router'
 
 const chartHistoryStoreStore = useChartHistoryStore()
 const chartEditStore = useChartEditStore()
+const routerParamsInfo = useRoute()
 
 // 记录初始化
 chartHistoryStoreStore.canvasInit(chartEditStore.getEditCanvas)
@@ -66,6 +69,11 @@ const {
   mousePosition,
   handleMenuSelect
 } = useContextMenu()
+
+const routeQuery: any = routerParamsInfo.query
+
+chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.WIDTH, routeQuery.w)
+chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.HEIGHT, routeQuery.h)
 </script>
 
 <style lang="scss" scoped>

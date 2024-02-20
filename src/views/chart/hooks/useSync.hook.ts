@@ -14,7 +14,7 @@ import throttle from 'lodash/throttle'
 // 接口状态
 import { ResultEnum } from '@/enums/httpEnum'
 // 接口
-import { saveProjectApi, fetchProjectApi, uploadFile, updateProjectApi } from '@/api/path'
+import {saveProjectApi, fetchProjectApi, uploadFile, updateProjectApi, uploadImageByBase64} from '@/api/path'
 // 画布枚举
 import { SyncEnum } from '@/enums/editPageEnum'
 import { CreateComponentType, CreateComponentGroupType, ConfigType } from '@/packages/index.d'
@@ -277,13 +277,17 @@ export const useSync = () => {
     if(!fetchRouteParamsLocation()) return
 
     let projectId = chartEditStore.getProjectInfo[ProjectInfoEnum.PROJECT_ID];
-    if(projectId === null || projectId === ''){
-      window['$message'].error('数据初未始化成功,请刷新页面！')
-      return
-    }
+    console.log(projectId, 777)
+    // debugger
+    // if(projectId === null || projectId === ''){
+    //   window['$message'].error('数据初未始化成功,请刷新页面！')
+    //   return
+    // }
 
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.START)
 
+    let uploadRes: object | undefined = {}
+    let postObj: object | undefined = {}
     // 异常处理：缩略图上传失败不影响JSON的保存
     try {
       if (updateImg) {
@@ -297,10 +301,15 @@ export const useSync = () => {
         })
 
         // 上传预览图
-        let uploadParams = new FormData()
-        uploadParams.append('object', base64toFile(canvasImage.toDataURL(), `${fetchRouteParamsLocation()}_index_preview.png`))
-        const uploadRes = await uploadFile(uploadParams)
+        // let uploadParams = new FormData()
+        // uploadParams.append('object', base64toFile(canvasImage.toDataURL(), `${fetchRouteParamsLocation()}_index_preview.png`))
+        // const uploadRes = await uploadFile(uploadParams)
+        await uploadImageByBase64(canvasImage.toDataURL()).then((result: any) => {
+          uploadRes = result
+          postObj = result.data
+        })
         // 保存预览图
+        console.log(uploadRes,uploadRes.data, 7777)
         if(uploadRes && uploadRes.code === ResultEnum.SUCCESS) {
           if (uploadRes.data.fileurl) {
             await updateProjectApi({
@@ -320,10 +329,23 @@ export const useSync = () => {
     }
 
     // 保存数据
-    let params = new FormData()
-    params.append('projectId', projectId)
-    params.append('content', JSONStringify(chartEditStore.getStorageInfo() || {}))
-    const res= await saveProjectApi(params)
+    const data = {
+      // name: this.work.title,
+      isTemplate: false,
+      coverImage: postObj.id,
+      coverImagePreviewUrl: postObj.downloadUrl,
+      programType: 'page',
+      // width: this.work.width,
+      // height: this.work.height,
+      // pageTotal: this.work.pages.length,
+      // timeTotal: countTime(this.work.pages),
+      // sources: countSour(this.work.pages),
+      content: JSONStringify(chartEditStore.getStorageInfo() || {})
+    }
+    // let params = new FormData()
+    // params.append('projectId', projectId)
+    // params.append('content', JSONStringify(chartEditStore.getStorageInfo() || {}))
+    const res= await saveProjectApi(data)
 
     if (res && res.code === ResultEnum.SUCCESS) {
       // 成功状态

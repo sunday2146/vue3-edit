@@ -7,6 +7,8 @@ import { SystemStoreEnum, SystemStoreUserInfoEnum } from '@/store/modules/system
 import { redirectErrorPage, getLocalStorage, routerTurnByName, isPreview } from '@/utils'
 import { fetchAllowList } from './axios.config'
 import includes from 'lodash/includes'
+import { useRoute } from 'vue-router'
+
 
 export interface MyResponseType<T> {
   code: ResultEnum
@@ -23,6 +25,7 @@ const axiosInstance = axios.create({
   timeout: ResultEnum.TIMEOUT
 }) as unknown as MyRequestInstance
 
+const routerParamsInfo = useRoute()
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 白名单校验
@@ -34,8 +37,9 @@ axiosInstance.interceptors.request.use(
       routerTurnByName(PageEnum.BASE_LOGIN_NAME)
       return config
     }
+
     const userInfo = info[SystemStoreEnum.USER_INFO]
-    config.headers[userInfo[SystemStoreUserInfoEnum.TOKEN_NAME] || 'token'] =  userInfo[SystemStoreUserInfoEnum.USER_TOKEN] || ''
+    config.headers['Authorization'] =  userInfo[SystemStoreUserInfoEnum.USER_TOKEN] || ''
     return config
   },
   (err: AxiosError) => {

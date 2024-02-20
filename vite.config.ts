@@ -46,7 +46,11 @@ export default ({ mode }) => defineConfig({
     open: true,
     port: 3000,
     proxy: {
-      [axiosPre]: {
+      '/island-ams': {
+        target: loadEnv(mode, process.cwd()).VITE_DEV_PATH,
+        changeOrigin: true
+      },
+      '/system': {
         // @ts-ignore
         target: loadEnv(mode, process.cwd()).VITE_DEV_PATH,
         changeOrigin: true,

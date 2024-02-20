@@ -4,7 +4,7 @@
       <template #icon>
         <component :is="item.icon"></component>
       </template>
-      <span>{{ item.title() }}</span>
+      <span>{{ item.title() }}1113</span>
     </n-button>
   </n-space>
 

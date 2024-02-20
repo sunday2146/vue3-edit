@@ -24,5 +24,19 @@ import {
 import { MessageContent } from '@/components/Plugins/MessageContent'
 import { DialogContent } from '@/components/Plugins/DialogContent'
 import { LoadingContent } from '@/components/Plugins/LoadingContent'
+import {useSystemStore} from "@/store/modules/systemStore/systemStore";
+import { SystemStoreEnum, SystemStoreUserInfoEnum } from '@/store/modules/systemStore/systemStore.d'
+import { setLocalStorage } from '@/utils'
 
+import { useRoute } from 'vue-router'
+const routerParamsInfo = useRoute()
+const systemStore = useSystemStore()
+console.log(routerParamsInfo, 988)
+if (routerParamsInfo && routerParamsInfo.query && routerParamsInfo.query.token) {
+  setLocalStorage(SystemStoreUserInfoEnum.USER_TOKEN, routerParamsInfo.query.token)
+  systemStore.setItem(SystemStoreEnum.USER_INFO, {
+    [SystemStoreUserInfoEnum.USER_TOKEN]: routerParamsInfo.query.token,
+    [SystemStoreUserInfoEnum.TOKEN_NAME]: routerParamsInfo.query.token,
+  })
+}
 </script>

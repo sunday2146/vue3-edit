@@ -42,9 +42,8 @@ export const fetchProjectApi = async (data: object) => {
 export const saveProjectApi = async (data: object) => {
   try {
     const res = await http(RequestHttpEnum.POST)(
-      `${ModuleTypeEnum.PROJECT}/save/data`,
-      data,
-      ContentTypeEnum.FORM_URLENCODED
+      `${ModuleTypeEnum.ISLANDAMS}/led/program`,
+      data
     )
     return res
   } catch {
@@ -92,6 +91,22 @@ export const uploadFile = async (data: object) => {
       fileName: string,
       fileurl: string,
     }>(`${ModuleTypeEnum.PROJECT}/upload`, data, ContentTypeEnum.FORM_DATA)
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}
+
+// * 上传节目制作封面
+export const uploadImageByBase64 = async (data: string) => {
+  try {
+    const res = await http(RequestHttpEnum.POST)<{
+      /**
+       * 文件地址
+       */
+      fileName: string,
+      fileurl: string,
+    }>(`${ModuleTypeEnum.SYSTEM}/mediaInfo/uploadImageByBase64`, data)
     return res
   } catch {
     httpErrorHandle()

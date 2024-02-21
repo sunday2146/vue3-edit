@@ -32,6 +32,22 @@
 
       <n-divider vertical />
 
+      <div>
+        <n-text @click="handleFocusTimeTotal">
+          播放时长
+        </n-text>
+        <n-input
+            ref="inputTimeTotalRef"
+            size="small"
+            type="text"
+            style="width: 90px"
+            maxlength="9"
+            placeholder="请输入项目名称"
+            v-model:value.trim="timeTotal"
+            @keyup.enter="handleBlurTimeTotal"
+            @blur="handleBlurTimeTotal"
+        ></n-input>
+      </div>
       <!-- 保存 -->
       <n-tooltip placement="bottom" trigger="hover">
         <template #trigger>
@@ -52,8 +68,8 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, ref, Ref, reactive, computed } from 'vue'
-import { renderIcon, goDialog, goHome } from '@/utils'
+import {toRefs, ref, Ref, reactive, computed, nextTick} from 'vue'
+import {renderIcon, goDialog, goHome, fetchRouteParamsLocation, httpErrorHandle} from '@/utils'
 import { icon } from '@/plugins'
 import { useRemoveKeyboard } from '../../hooks/useKeyboard.hook'
 import { useSync } from '../../hooks/useSync.hook'
@@ -62,6 +78,9 @@ import { useChartHistoryStore } from '@/store/modules/chartHistoryStore/chartHis
 import { HistoryStackEnum } from '@/store/modules/chartHistoryStore/chartHistoryStore.d'
 import { useChartLayoutStore } from '@/store/modules/chartLayoutStore/chartLayoutStore'
 import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'
+import { EditCanvasConfigEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
+import {updateProjectApi} from "@/api/path";
+import {ResultEnum} from "@/enums/httpEnum";
 
 const { LayersIcon, BarChartIcon, PrismIcon, HomeIcon, ArrowBackIcon, ArrowForwardIcon } = icon.ionicons5
 const { SaveIcon } = icon.carbon
@@ -70,6 +89,9 @@ const { dataSyncUpdate } = useSync()
 const { getLayers, getCharts, getDetails } = toRefs(useChartLayoutStore())
 const chartEditStore = useChartEditStore()
 const chartHistoryStore = useChartHistoryStore()
+
+const inputTimeTotalRef = ref(null)
+const timeTotal = ref(chartEditStore.getEditCanvasConfig.timeTotal)
 
 interface ItemType<T> {
   key: T
@@ -99,6 +121,23 @@ const btnList = reactive<ItemType<ChartLayoutStoreEnum>[]>([
   }
 ])
 
+const handleFocusTimeTotal = () => {
+  nextTick(() => {
+    inputTimeTotalRef.value && (inputTimeTotalRef.value as any).focus()
+  })
+}
+const handleBlurTimeTotal = async () => {
+  chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, timeTotal.value || '')
+  // const res = (await updateProjectApi({
+  //   id: fetchRouteParamsLocation(),
+  //   projectName: title.value
+  // }))
+  // if (res && res.code === ResultEnum.SUCCESS) {
+  //   dataSyncUpdate()
+  // } else {
+  //   httpErrorHandle()
+  // }
+}
 const isBackStack = computed(()=> chartHistoryStore.getBackStack.length> 1)
 
 const isForwardStack = computed(()=> chartHistoryStore.getForwardStack.length> 0)

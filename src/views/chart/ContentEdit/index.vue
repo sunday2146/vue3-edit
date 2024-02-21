@@ -93,6 +93,7 @@ import {
   getTransformStyle,
   getBlendModeStyle,
   colorCustomMerge,
+  fetchRouteParamsLocation,
   addWindowUnload
 } from '@/utils'
 import { useContextMenu } from '@/views/chart/hooks/useContextMenu.hook'
@@ -189,12 +190,14 @@ const rangeStyle = computed(() => {
     height: 'inherit'
   }
 })
-
+const id = fetchRouteParamsLocation()
 onMounted(() => {
   // 键盘事件
   useAddKeyboard()
   // 获取数据
-  dataSyncFetch()
+  if(id !== '0') {
+    dataSyncFetch()
+  }
   // 定时更新数据
   // intervalDataSyncUpdate()
 })

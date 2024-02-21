@@ -2,7 +2,7 @@ import { onUnmounted } from 'vue';
 import html2canvas from 'html2canvas'
 import { getUUID, httpErrorHandle, fetchRouteParamsLocation, base64toFile, JSONStringify, JSONParse } from '@/utils'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
-import { EditCanvasTypeEnum, ChartEditStoreEnum, ProjectInfoEnum, ChartEditStorage } from '@/store/modules/chartEditStore/chartEditStore.d'
+import { EditCanvasTypeEnum, ChartEditStoreEnum, ProjectInfoEnum, ChartEditStorage, EditCanvasConfigEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
 import { useChartHistoryStore } from '@/store/modules/chartHistoryStore/chartHistoryStore'
 import { StylesSetting } from '@/components/Pages/ChartItemSetting'
 import { useSystemStore } from '@/store/modules/systemStore/systemStore'
@@ -225,16 +225,18 @@ export const useSync = () => {
    */
   const updateStoreInfo = (projectData: {
     id: string,
-    projectName: string,
+    name: string,
     indexImage: string,
     remarks: string,
+    timeTotal: string,
     state: number
   }) => {
-    const { id, projectName, remarks, indexImage, state } = projectData
+    const { id, name, remarks, indexImage, state, timeTotal } = projectData
     // ID
     chartEditStore.setProjectInfo(ProjectInfoEnum.PROJECT_ID, id)
     // 名称
-    chartEditStore.setProjectInfo(ProjectInfoEnum.PROJECT_NAME, projectName)
+    chartEditStore.setProjectInfo(ProjectInfoEnum.PROJECT_NAME, name)
+    chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, timeTotal)
     // 描述
     chartEditStore.setProjectInfo(ProjectInfoEnum.REMARKS, remarks)
     // 缩略图
@@ -253,6 +255,7 @@ export const useSync = () => {
       const res = await fetchProjectApi({ projectId: fetchRouteParamsLocation() })
       if (res && res.code === ResultEnum.SUCCESS) {
         if (res.data) {
+          // @ts-ignore
           updateStoreInfo(res.data)
           // 更新全局数据
           await updateComponent(JSONParse(res.data.content))
@@ -276,18 +279,25 @@ export const useSync = () => {
   const dataSyncUpdate = throttle(async (updateImg = true) => {
     if(!fetchRouteParamsLocation()) return
 
+    const nameTitle = chartEditStore.getEditCanvasConfig[EditCanvasConfigEnum.PROJECT_NAME];
+    const width = chartEditStore.getEditCanvasConfig[EditCanvasConfigEnum.WIDTH];
+    const height = chartEditStore.getEditCanvasConfig[EditCanvasConfigEnum.HEIGHT];
+    const timeTotal = chartEditStore.getEditCanvasConfig[EditCanvasConfigEnum.TIME_TOTAL];
     let projectId = chartEditStore.getProjectInfo[ProjectInfoEnum.PROJECT_ID];
+    let uploadRes: object | undefined = {}
+    let postObj: any = {}
     console.log(projectId, 777)
     // debugger
     // if(projectId === null || projectId === ''){
     //   window['$message'].error('数据初未始化成功,请刷新页面！')
     //   return
     // }
-
+    if(nameTitle === null || nameTitle === ''){
+      window['$message'].error('请输入节目名称！')
+      return
+    }
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.START)
 
-    let uploadRes: object | undefined = {}
-    let postObj: object | undefined = {}
     // 异常处理：缩略图上传失败不影响JSON的保存
     try {
       if (updateImg) {
@@ -309,20 +319,20 @@ export const useSync = () => {
           postObj = result.data
         })
         // 保存预览图
-        console.log(uploadRes,uploadRes.data, 7777)
-        if(uploadRes && uploadRes.code === ResultEnum.SUCCESS) {
-          if (uploadRes.data.fileurl) {
-            await updateProjectApi({
-              id: fetchRouteParamsLocation(),
-              indexImage: `${uploadRes.data.fileurl}`
-            })
-          } else {
-            await updateProjectApi({
-              id: fetchRouteParamsLocation(),
-              indexImage: `${systemStore.getFetchInfo.OSSUrl}${uploadRes.data.fileName}`
-            })
-          }
-        }
+        // console.log(uploadRes,uploadRes.data, 7777)
+        // if(uploadRes && uploadRes.code === ResultEnum.SUCCESS) {
+        //   if (uploadRes.data.fileurl) {
+        //     await updateProjectApi({
+        //       id: fetchRouteParamsLocation(),
+        //       indexImage: `${uploadRes.data.fileurl}`
+        //     })
+        //   } else {
+        //     await updateProjectApi({
+        //       id: fetchRouteParamsLocation(),
+        //       indexImage: `${systemStore.getFetchInfo.OSSUrl}${uploadRes.data.fileName}`
+        //     })
+        //   }
+        // }
       }
     } catch (e) {
       console.log(e)
@@ -330,15 +340,16 @@ export const useSync = () => {
 
     // 保存数据
     const data = {
-      // name: this.work.title,
+      id: fetchRouteParamsLocation(),
+      name: nameTitle,
       isTemplate: false,
       coverImage: postObj.id,
       coverImagePreviewUrl: postObj.downloadUrl,
       programType: 'page',
-      // width: this.work.width,
-      // height: this.work.height,
-      // pageTotal: this.work.pages.length,
-      // timeTotal: countTime(this.work.pages),
+      width,
+      height,
+      pageTotal: 1,
+      timeTotal,
       // sources: countSour(this.work.pages),
       content: JSONStringify(chartEditStore.getStorageInfo() || {})
     }

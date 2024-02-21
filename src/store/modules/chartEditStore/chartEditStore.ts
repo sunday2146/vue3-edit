@@ -97,6 +97,7 @@ export const useChartEditStore = defineStore({
     editCanvasConfig: {
       // 项目名称
       projectName: undefined,
+      timeTotal: '15',
       // 默认宽度
       width: 1920,
       // 默认高度

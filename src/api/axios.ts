@@ -22,7 +22,7 @@ export interface MyRequestInstance extends Axios {
 
 const axiosInstance = axios.create({
   baseURL: `${import.meta.env.PROD ? import.meta.env.VITE_PRO_PATH : ''}${axiosPre}`,
-  timeout: ResultEnum.TIMEOUT
+  timeout: ResultEnum.TIMEOUT as number
 }) as unknown as MyRequestInstance
 
 const routerParamsInfo = useRoute()
@@ -54,7 +54,7 @@ axiosInstance.interceptors.response.use(
     if (isPreview()) {
       return Promise.resolve(res.data)
     }
-    const { code } = res.data as { code: number }
+    const { code } = res.data as { code: number | string }
 
     if (code === undefined || code === null) return Promise.resolve(res.data)
 
@@ -71,10 +71,10 @@ axiosInstance.interceptors.response.use(
     }
 
     // 固定错误码重定向
-    if (ErrorPageNameMap.get(code)) {
-      redirectErrorPage(code)
-      return Promise.resolve(res.data)
-    }
+    // if (ErrorPageNameMap.get(code)) {
+    //   redirectErrorPage(code)
+    //   return Promise.resolve(res.data)
+    // }
 
     // 提示错误
     window['$message'].error(window['$t']((res.data as any).msg))

@@ -7,7 +7,7 @@
       工作空间 -
       <n-button v-show="!focus" secondary size="tiny">
         <span class="title">
-          {{ comTitle }}
+          {{ comTitle || '新项目' }}
         </span>
       </n-button>
     </n-text>
@@ -53,7 +53,7 @@ watchEffect(() => {
 const comTitle = computed(() => {
   // eslint-disable-next-line vue/no-side-effects-in-computed-properties
   title.value = title.value.replace(/\s/g, '')
-  const newTitle = title.value.length ? title.value : '新项目'
+  const newTitle = title.value.length ? title.value : ''
   setTitle(`工作空间-${newTitle}`)
   chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.PROJECT_NAME, newTitle)
   return newTitle

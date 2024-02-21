@@ -35,8 +35,8 @@ console.log(routerParamsInfo, 988)
 if (routerParamsInfo && routerParamsInfo.query && routerParamsInfo.query.token) {
   setLocalStorage(SystemStoreUserInfoEnum.USER_TOKEN, routerParamsInfo.query.token)
   systemStore.setItem(SystemStoreEnum.USER_INFO, {
-    [SystemStoreUserInfoEnum.USER_TOKEN]: routerParamsInfo.query.token,
-    [SystemStoreUserInfoEnum.TOKEN_NAME]: routerParamsInfo.query.token,
+    [SystemStoreUserInfoEnum.USER_TOKEN]: routerParamsInfo.query.token as string,
+    [SystemStoreUserInfoEnum.TOKEN_NAME]: routerParamsInfo.query.token as string,
   })
 }
 </script>

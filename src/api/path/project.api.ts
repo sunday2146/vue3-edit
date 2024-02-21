@@ -29,9 +29,9 @@ export const createProjectApi = async (data: object) => {
 }
 
 // * 获取项目
-export const fetchProjectApi = async (data: object) => {
+export const fetchProjectApi = async (data: { projectId: string }) => {
   try {
-    const res = await http(RequestHttpEnum.GET)<ProjectDetail>(`${ModuleTypeEnum.PROJECT}/getData`, data)
+    const res = await http(RequestHttpEnum.GET)<ProjectDetail>(`${ModuleTypeEnum.ISLANDAMS}/led/program/${data.projectId}`)
     return res
   } catch {
     httpErrorHandle()
@@ -39,9 +39,10 @@ export const fetchProjectApi = async (data: object) => {
 }
 
 // * 保存项目
-export const saveProjectApi = async (data: object) => {
+export const saveProjectApi = async (data: {
+  id: string }) => {
   try {
-    const res = await http(RequestHttpEnum.POST)(
+    const res = await http(Number(data.id) ? RequestHttpEnum.PUT : RequestHttpEnum.POST)(
       `${ModuleTypeEnum.ISLANDAMS}/led/program`,
       data
     )
@@ -100,13 +101,14 @@ export const uploadFile = async (data: object) => {
 // * 上传节目制作封面
 export const uploadImageByBase64 = async (data: string) => {
   try {
+    // @ts-ignore
     const res = await http(RequestHttpEnum.POST)<{
       /**
        * 文件地址
        */
       fileName: string,
       fileurl: string,
-    }>(`${ModuleTypeEnum.SYSTEM}/mediaInfo/uploadImageByBase64`, data)
+    }>(`${ModuleTypeEnum.SYSTEM}/mediaInfo/uploadImageByBase64`, data as any)
     return res
   } catch {
     httpErrorHandle()

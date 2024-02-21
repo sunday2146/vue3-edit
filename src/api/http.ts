@@ -17,7 +17,7 @@ export const get = <T = any>(url: string, params?: object) => {
   })
 }
 
-export const post = <T = any>(url: string, data?: object, headersType?: string) => {
+export const post = <T = any>(url: string, data?: object | string, headersType?: string) => {
   return axiosInstance<T>({
     url: url,
     method: RequestHttpEnum.POST,

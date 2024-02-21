@@ -81,6 +81,7 @@ export enum EditCanvasConfigEnum {
   PROJECT_NAME = 'projectName',
   WIDTH = 'width',
   HEIGHT = 'height',
+  TIME_TOTAL = 'timeTotal',
   CHART_THEME_COLOR = 'chartThemeColor',
   CHART_CUSTOM_THEME_COLOR_INFO = 'chartCustomThemeColorInfo',
   CHART_THEME_SETTING = 'chartThemeSetting',
@@ -119,6 +120,7 @@ export type EditCanvasConfigType = {
   [FilterEnum.BLEND_MODE]: string
   // 大屏名称
   [EditCanvasConfigEnum.PROJECT_NAME]?: string
+  [EditCanvasConfigEnum.TIME_TOTAL]: number | string
   // 大屏宽度
   [EditCanvasConfigEnum.WIDTH]: number
   // 大屏高度

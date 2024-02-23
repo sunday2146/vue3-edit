@@ -6,7 +6,7 @@ import designColor from './designColor.json'
 export const lang = LangEnum.ZH
 
 // 水印文字
-export const watermarkText = "GoView 低代码平台"
+export const watermarkText = "CMSview 低代码平台"
 
 // 分组名称
 export const groupTitle = "分组"

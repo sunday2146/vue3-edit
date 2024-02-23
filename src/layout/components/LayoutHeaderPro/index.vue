@@ -10,7 +10,7 @@
       <slot name="ri-left"></slot>
     </template>
     <template #ri-right>
-      <go-user-info></go-user-info>
+<!--      <go-user-info></go-user-info>-->
       <slot name="ri-right"></slot>
     </template>
   </layout-header>

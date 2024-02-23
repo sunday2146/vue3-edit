@@ -48,9 +48,7 @@ chart.setOption({
       return` +
   '`' +
   `
-        <div>
-          <img src="https://portrait.gitee.com/uploads/avatars/user/1654/4964818_MTrun_1653229420.png!avatar30">
-          <b><a href="https://gitee.com/dromara/go-view">《这是一个自定义的tooltip》</a></b>
+        <div><b>《这是一个自定义的tooltip》</b>
         <div>
         <div style='border-radius:35px;color:#666'>
         ` +

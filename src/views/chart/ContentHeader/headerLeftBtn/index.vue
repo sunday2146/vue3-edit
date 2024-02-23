@@ -1,11 +1,7 @@
 <template>
   <n-space class="header-left-btn" :size="25">
-    <n-button size="small" quaternary @click="goHomeHandle()">
-      <template #icon>
-        <n-icon :depth="3">
-          <home-icon></home-icon>
-        </n-icon>
-      </template>
+    <n-button size="small">
+      分页
     </n-button>
     <n-space>
       <!-- 模块展示按钮 -->

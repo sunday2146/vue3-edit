@@ -4,7 +4,7 @@
       <template #icon>
         <component :is="item.icon"></component>
       </template>
-      <span>{{ item.title() }}1113</span>
+      <span>{{ item.title() }}</span>
     </n-button>
   </n-space>
 
@@ -52,6 +52,7 @@ import { StorageEnum } from '@/enums/storageEnum'
 import { ResultEnum } from '@/enums/httpEnum'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
 import { syncData } from '../../ContentEdit/components/EditTools/hooks/useSyncUpdate.hook'
+import { useSync } from '../../hooks/useSync.hook'
 import { ProjectInfoEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
 import { changeProjectReleaseApi } from '@/api/path'
 import {
@@ -67,7 +68,9 @@ import {
 import { icon } from '@/plugins'
 import { cloneDeep } from 'lodash'
 
+const { dataSyncUpdate } = useSync()
 const { BrowsersOutlineIcon, SendIcon, AnalyticsIcon, CloseIcon } = icon.ionicons5
+const { SaveIcon } = icon.carbon
 const chartEditStore = useChartEditStore()
 
 const previewPathRef = ref(previewPath())
@@ -171,12 +174,33 @@ const btnList = [
     icon: renderIcon(BrowsersOutlineIcon),
     event: previewHandle
   },
+  // {
+  //   key: 'release',
+  //   title: () => (release.value ? '已发布' : '发布'),
+  //   icon: renderIcon(SendIcon),
+  //   type: () => (release.value ? 'primary' : 'default'),
+  //   event: modelShowHandle
+  // },
   {
-    key: 'release',
-    title: () => (release.value ? '已发布' : '发布'),
+    key: 'save',
+    title: () => '保存',
+    type: () => 'default',
+    icon: renderIcon(SaveIcon),
+    event: dataSyncUpdate
+  },
+  {
+    key: 'save',
+    title: () => '存为模板',
+    type: () => 'default',
+    icon: renderIcon(SaveIcon),
+    event: dataSyncUpdate
+  },
+  {
+    key: 'save',
+    title: () => '保存并插播',
+    type: () => 'default',
     icon: renderIcon(SendIcon),
-    type: () => (release.value ? 'primary' : 'default'),
-    event: modelShowHandle
+    event: dataSyncUpdate
   }
 ]
 

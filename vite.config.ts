@@ -50,6 +50,10 @@ export default ({ mode }) => defineConfig({
         target: loadEnv(mode, process.cwd()).VITE_DEV_PATH,
         changeOrigin: true
       },
+      '/island-business': {
+        target: loadEnv(mode, process.cwd()).VITE_DEV_PATH,
+        changeOrigin: true
+      },
       '/system': {
         // @ts-ignore
         target: loadEnv(mode, process.cwd()).VITE_DEV_PATH,

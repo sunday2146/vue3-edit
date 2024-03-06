@@ -28,6 +28,16 @@ export const createProjectApi = async (data: object) => {
   }
 }
 
+// * 设备列表
+export const getFacilityListApi = async (data: object) => {
+  try {
+    const res = await http(RequestHttpEnum.GET)<ProjectDetail>(`${ModuleTypeEnum.ISLANDBUSINESS}/api/group/listAndSubDevice`, data)
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}
+
 // * 获取项目
 export const fetchProjectApi = async (data: { projectId: string }) => {
   try {

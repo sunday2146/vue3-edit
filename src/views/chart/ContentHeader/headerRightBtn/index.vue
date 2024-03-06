@@ -9,42 +9,52 @@
   </n-space>
 
   <!-- 发布管理弹窗 -->
-  <n-modal v-model:show="modelShow" @afterLeave="closeHandle">
-    <n-list bordered class="go-system-setting">
-      <template #header>
-        <n-space justify="space-between">
-          <n-h3 class="go-mb-0">发布管理</n-h3>
-          <n-icon size="20" class="go-cursor-pointer" @click="closeHandle">
-            <close-icon></close-icon>
-          </n-icon>
-        </n-space>
-      </template>
+  <n-modal v-model:show="modelShow" @afterLeave="closeHandle" title="保存并插播" preset="dialog" style="width: 600px">
+    <n-space vertical>
+      <n-space :size="10">
+        <n-text @click="handleFocusFacilityName">设备终端：</n-text>
+        <div>
+          <n-input ref="inputFacilityNameRef" v-model:value="facilityName" type="text" placeholder="请输入设备名称" >
+            <template #suffix>
+              <n-icon :component="SearchIcon" />
+            </template>
+          </n-input>
+        </div>
+        <n-select v-model:value="selectedOption" :options="optionsDeviceState" style="width: 90px" />
+        <n-button quaternary type="primary" @click="refreshFacility">
+          刷新
+        </n-button>
+      </n-space>
+      <n-space>
+        <n-tree :data="filterTreeData" node-key="id" checkable @update:checked-keys="currentNodeKey"
+                children-field="deviceList" label-field="name"
+                @check-on-click="handleNodeClick" :default-checked-keys="expandedKeys" ref="tree" check-strictly default-expand-all>
 
-      <n-list-item>
-        <n-space :size="10">
-          <n-alert :show-icon="false" title="预览地址：" type="success">
-            {{ previewPath() }}
-          </n-alert>
-          <n-space vertical>
-            <n-button tertiary type="primary" @click="copyPreviewPath()"> 复制地址 </n-button>
-            <n-button :type="release ? 'warning' : 'primary'" @click="sendHandle">
-              {{ release ? '取消发布' : '发布大屏' }}
-            </n-button>
-          </n-space>
+        </n-tree>
+      </n-space>
+      <n-space :size="10">
+        <n-text class="item-left">播放时长：</n-text>
+        <n-space vertical>
+          <n-radio-group v-model:value="playDurationMode">
+            <n-space>
+              <n-radio value="times"> 节目次数 </n-radio>
+              <n-radio value="DURATION"> 自定义时长 </n-radio>
+            </n-space>
+          </n-radio-group>
+          <n-input-number v-model:value="times" v-show="playDurationMode == 'times'" button-placement="both" min="1" max="255" />
+          <n-input v-model:value="minutes" v-show="playDurationMode == 'DURATION'" button-placement="both" min="1" max="255" />
         </n-space>
-      </n-list-item>
-
-      <n-list-item>
-        <n-space :size="10">
-          <n-button @click="modelShowHandle">关闭弹窗</n-button>
-        </n-space>
-      </n-list-item>
-    </n-list>
+      </n-space>
+      <n-space :size="10">
+        <n-button @click="modelShowHandle">取消</n-button>
+        <n-button @click="modelShowHandle" type="info">保存并插播</n-button>
+      </n-space>
+    </n-space>
   </n-modal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
+import {ref, computed, watchEffect, onMounted, reactive, nextTick, h} from 'vue'
 import { useRoute } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
 import { PreviewEnum } from '@/enums/pageEnum'
@@ -54,7 +64,7 @@ import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore
 import { syncData } from '../../ContentEdit/components/EditTools/hooks/useSyncUpdate.hook'
 import { useSync } from '../../hooks/useSync.hook'
 import { ProjectInfoEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
-import { changeProjectReleaseApi } from '@/api/path'
+import {changeProjectReleaseApi, getFacilityListApi} from '@/api/path'
 import {
   previewPath,
   renderIcon,
@@ -65,11 +75,14 @@ import {
   httpErrorHandle,
   fetchRouteParamsLocation
 } from '@/utils'
+import { optionsDeviceState} from "@/enums/configForm";
 import { icon } from '@/plugins'
 import { cloneDeep } from 'lodash'
+import {NInput, useDialog} from 'naive-ui'
 
+const dialog = useDialog()
 const { dataSyncUpdate } = useSync()
-const { BrowsersOutlineIcon, SendIcon, AnalyticsIcon, CloseIcon } = icon.ionicons5
+const { BrowsersOutlineIcon, SendIcon, AnalyticsIcon, CloseIcon, SearchIcon } = icon.ionicons5
 const { SaveIcon } = icon.carbon
 const chartEditStore = useChartEditStore()
 
@@ -80,16 +93,65 @@ const routerParamsInfo = useRoute()
 
 const modelShow = ref<boolean>(false)
 const release = ref<boolean>(false)
+const filterTreeData = ref<any>([])
+const expandedKeys = ref([])
+const currentNodeKey = ref('')
+const selectedOption = ref<string>('All')
+const facilityName = ref<string>('')
+const playDurationMode = ref<string>('times')
+const times = ref<number>(1)
+const minutes = ref<string>('00:00:15')
+
+const inputFacilityNameRef = ref(null)
 
 watchEffect(() => {
   release.value = chartEditStore.getProjectInfo.release || false
 })
+
+const formInline = reactive({
+  username: 'admin',
+  password: 'admin',
+})
+const getFacilityList = async () => {
+  try {
+    await getFacilityListApi({deviceTypeCode: 'AdvertisingScreen', deviceTypeEnum: 'IOTDEVICE', groupType: 'COMMON'}).then((result: any) => {
+      const allNode = [{
+        id: 'all',
+        name: '全部',
+        offlineNum: 0,
+        onlineNum: 0,
+        groupType: "COMMON",
+        deviceList: [] // 这里可以包含所有的设备
+      }]
+      result.data.map((deviceGroup: any) => {
+        allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup)
+        allNode[0].offlineNum += deviceGroup.offlineNum
+        allNode[0].onlineNum += deviceGroup.onlineNum
+      })
+      filterTreeData.value = allNode
+      console.log(result, 9998)
+    })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+onMounted(() => {
+  getFacilityList();
+});
 
 // 关闭弹窗
 const closeHandle = () => {
   modelShow.value = false
 }
 
+const refreshFacility = () => {
+  getFacilityList()
+}
+
+const handleNodeClick = () => {
+  console.log('点击树节点data')
+}
 // 预览
 const previewHandle = () => {
   const path = fetchPathByName(PreviewEnum.CHART_PREVIEW_NAME, 'href')
@@ -123,8 +185,24 @@ const previewHandle = () => {
   routerTurnByPath(path, [previewId], undefined, true)
 }
 
+const handleFocusFacilityName = () => {
+  nextTick(() => {
+    inputFacilityNameRef.value && (inputFacilityNameRef.value as any).focus()
+  })
+}
 // 模态弹窗
 const modelShowHandle = () => {
+  // dialog.create({title: '成功',
+  //   content: () => {
+  //     return h(NInput, { value: facilityName.value})
+  //   },
+  //   positiveText: '哇',
+  //   onPositiveClick: () => {
+  //   console.log(12123)
+  //   }})
+  // // nextTick(() => {
+  // //   inputFacilityNameRef.value && (inputFacilityNameRef.value as any).focus()
+  // // })
   modelShow.value = !modelShow.value
 }
 
@@ -186,21 +264,21 @@ const btnList = [
     title: () => '保存',
     type: () => 'default',
     icon: renderIcon(SaveIcon),
-    event: dataSyncUpdate
+    event: dataSyncUpdate(false)
   },
   {
     key: 'save',
     title: () => '存为模板',
     type: () => 'default',
     icon: renderIcon(SaveIcon),
-    event: dataSyncUpdate
+    event: dataSyncUpdate(true)
   },
   {
     key: 'save',
     title: () => '保存并插播',
     type: () => 'default',
     icon: renderIcon(SendIcon),
-    event: dataSyncUpdate
+    event: modelShowHandle
   }
 ]
 

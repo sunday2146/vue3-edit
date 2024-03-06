@@ -14,7 +14,7 @@ import throttle from 'lodash/throttle'
 // 接口状态
 import { ResultEnum } from '@/enums/httpEnum'
 // 接口
-import {saveProjectApi, fetchProjectApi, uploadFile, updateProjectApi, uploadImageByBase64} from '@/api/path'
+import {saveProjectApi, fetchProjectApi, uploadImageByBase64} from '@/api/path'
 // 画布枚举
 import { SyncEnum } from '@/enums/editPageEnum'
 import { CreateComponentType, CreateComponentGroupType, ConfigType } from '@/packages/index.d'
@@ -276,7 +276,7 @@ export const useSync = () => {
   }
 
   // * 数据保存
-  const dataSyncUpdate = throttle(async (updateImg = true) => {
+  const dataSyncUpdate = (isTemplate: boolean = false) => throttle(async (updateImg = true) => {
     if(!fetchRouteParamsLocation()) return
 
     const nameTitle = chartEditStore.getEditCanvasConfig[EditCanvasConfigEnum.PROJECT_NAME];
@@ -342,7 +342,7 @@ export const useSync = () => {
     const data = {
       id: fetchRouteParamsLocation(),
       name: nameTitle,
-      isTemplate: false,
+      isTemplate,
       coverImage: postObj.id,
       coverImagePreviewUrl: postObj.downloadUrl,
       programType: 'page',

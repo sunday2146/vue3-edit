@@ -3,6 +3,7 @@ export enum ModuleTypeEnum {
   SYSTEM = 'system',
   PROJECT = 'project',
   ISLANDAMS = 'island-ams',
+  ISLANDBUSINESS = 'island-business',
 }
 
 // 请求结果集

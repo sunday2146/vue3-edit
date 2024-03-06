@@ -62,6 +62,18 @@ export const saveProjectApi = async (data: {
   }
 }
 
+export const ledStrategyApi = async (data: {
+  id: string }) => {
+  try {
+    const res = await http(RequestHttpEnum.POST)(
+        `${ModuleTypeEnum.ISLANDAMS}/led/strategy`,
+        data
+    )
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}
 // * 修改项目基础信息
 export const updateProjectApi = async (data: object) => {
   try {

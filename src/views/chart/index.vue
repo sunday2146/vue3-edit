@@ -72,8 +72,8 @@ const {
 
 const routeQuery: any = routerParamsInfo.query
 
-chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.WIDTH, routeQuery.w)
-chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.HEIGHT, routeQuery.h)
+chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.WIDTH, Number(routeQuery.w))
+chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.HEIGHT, Number(routeQuery.h))
 </script>
 
 <style lang="scss" scoped>

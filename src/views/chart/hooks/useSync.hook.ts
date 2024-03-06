@@ -363,7 +363,7 @@ export const useSync = () => {
       setTimeout(() => {
         chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.SUCCESS)
       }, 1000)
-      return
+      return res.data
     }
     // 失败状态
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.FAILURE)

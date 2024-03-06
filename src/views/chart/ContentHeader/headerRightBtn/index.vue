@@ -12,9 +12,9 @@
   <n-modal v-model:show="modelShow" @afterLeave="closeHandle" title="保存并插播" preset="dialog" style="width: 600px">
     <n-space vertical>
       <n-space :size="10">
-        <n-text @click="handleFocusFacilityName">设备终端：</n-text>
+        <n-text>设备终端：</n-text>
         <div>
-          <n-input ref="inputFacilityNameRef" v-model:value="facilityName" type="text" placeholder="请输入设备名称" >
+          <n-input v-model:value="facilityName" type="text" placeholder="请输入设备名称" >
             <template #suffix>
               <n-icon :component="SearchIcon" />
             </template>
@@ -25,11 +25,10 @@
           刷新
         </n-button>
       </n-space>
-      <n-space>
-        <n-tree :data="filterTreeData" node-key="id" checkable @update:checked-keys="currentNodeKey"
-                children-field="deviceList" label-field="name"
-                @check-on-click="handleNodeClick" :default-checked-keys="expandedKeys" ref="tree" check-strictly default-expand-all>
-
+      <n-space style="padding-left: 70px">
+        <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
+                children-field="deviceList" label-field="name" key-field="id" :render-prefix="renderPrefix" :render-label="renderLabel"
+                expand-on-click checkable default-expand-all check-strategy="parent">
         </n-tree>
       </n-space>
       <n-space :size="10">
@@ -45,9 +44,9 @@
           <n-input v-model:value="minutes" v-show="playDurationMode == 'DURATION'" button-placement="both" min="1" max="255" />
         </n-space>
       </n-space>
-      <n-space :size="10">
+      <n-space  justify="end">
         <n-button @click="modelShowHandle">取消</n-button>
-        <n-button @click="modelShowHandle" type="info">保存并插播</n-button>
+        <n-button @click="savePlayer" type="info">保存并插播</n-button>
       </n-space>
     </n-space>
   </n-modal>
@@ -64,7 +63,7 @@ import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore
 import { syncData } from '../../ContentEdit/components/EditTools/hooks/useSyncUpdate.hook'
 import { useSync } from '../../hooks/useSync.hook'
 import { ProjectInfoEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
-import {changeProjectReleaseApi, getFacilityListApi} from '@/api/path'
+import {changeProjectReleaseApi, getFacilityListApi, ledStrategyApi} from '@/api/path'
 import {
   previewPath,
   renderIcon,
@@ -78,7 +77,7 @@ import {
 import { optionsDeviceState} from "@/enums/configForm";
 import { icon } from '@/plugins'
 import { cloneDeep } from 'lodash'
-import {NInput, useDialog} from 'naive-ui'
+import {TreeOption, useDialog} from 'naive-ui'
 
 const dialog = useDialog()
 const { dataSyncUpdate } = useSync()
@@ -101,6 +100,7 @@ const facilityName = ref<string>('')
 const playDurationMode = ref<string>('times')
 const times = ref<number>(1)
 const minutes = ref<string>('00:00:15')
+const checkedKeys = ref<string[]>([])
 
 const inputFacilityNameRef = ref(null)
 
@@ -149,8 +149,19 @@ const refreshFacility = () => {
   getFacilityList()
 }
 
-const handleNodeClick = () => {
-  console.log('点击树节点data')
+const handleNodeClick = (checked: boolean) => {
+  console.log('点击树节点data', checked)
+}
+const renderLabel = ({ option }: {option: TreeOption, checked: boolean, selected: boolean}) => {
+  return option.groupType === 'COMMON' ? `${option.name}(${ option.onlineNum } / ${option.offlineNum + option.onlineNum})` : option.name
+}
+const renderPrefix = ({ option }: {option: TreeOption}) => {
+  return option.groupType === 'COMMON' ? null :
+  h('div', {style: {width: '10px', height: '10px', background: option.onlineStatus === 'ONLINE' ? '#3749FF' : '#919299', borderRadius: '10px'}})
+}
+const updateCheckedKeys = (keys: Array<string>) => {
+  checkedKeys.value = keys
+  console.log('updateCheckedKeys', keys)
 }
 // 预览
 const previewHandle = () => {
@@ -192,20 +203,35 @@ const handleFocusFacilityName = () => {
 }
 // 模态弹窗
 const modelShowHandle = () => {
-  // dialog.create({title: '成功',
-  //   content: () => {
-  //     return h(NInput, { value: facilityName.value})
-  //   },
-  //   positiveText: '哇',
-  //   onPositiveClick: () => {
-  //   console.log(12123)
-  //   }})
-  // // nextTick(() => {
-  // //   inputFacilityNameRef.value && (inputFacilityNameRef.value as any).focus()
-  // // })
   modelShow.value = !modelShow.value
 }
 
+const savePlayer = () => {
+  const syncUpdate = dataSyncUpdate(false);
+  syncUpdate().then(ledProgramId => {
+    const param = {
+      deviceGroupIdList: checkedKeys.value,
+      ledStrategyType: 'REALTIME',
+      playDurationCondition: {
+        playDurationMode: playDurationMode.value.toUpperCase(),
+        times: NaN,
+        minutes: ''
+      },
+      ledProgramId
+    }
+    if (playDurationMode.value === 'times') {
+      param.playDurationCondition.times = times.value
+    } else {
+      param.playDurationCondition.minutes = minutes.value
+    }
+    ledStrategyApi(param).then((result: any) => {
+      if (result && result.code === ResultEnum.SUCCESS) {
+        modelShow.value = false
+      }
+      console.log(result)
+    })
+  });
+}
 // 复制预览地址
 const copyPreviewPath = (successText?: string, failureText?: string) => {
   if (isSupported) {

@@ -20,7 +20,7 @@
             </template>
           </n-input>
         </div>
-        <n-select v-model:value="selectedOption" :options="optionsDeviceState" style="width: 90px" />
+        <n-select v-model:value="selectedOption" :options="optionsDeviceState" @change="filterDevices" style="width: 90px" />
         <n-button quaternary type="primary" @click="refreshFacility">
           刷新
         </n-button>
@@ -93,6 +93,7 @@ const routerParamsInfo = useRoute()
 const modelShow = ref<boolean>(false)
 const release = ref<boolean>(false)
 const filterTreeData = ref<any>([])
+const treeData = ref<any>([])
 const expandedKeys = ref([])
 const currentNodeKey = ref('')
 const selectedOption = ref<string>('All')
@@ -129,6 +130,7 @@ const getFacilityList = async () => {
         allNode[0].onlineNum += deviceGroup.onlineNum
       })
       filterTreeData.value = allNode
+      treeData.value = allNode
       console.log(result, 9998)
     })
   } catch (e) {
@@ -204,6 +206,38 @@ const handleFocusFacilityName = () => {
 // 模态弹窗
 const modelShowHandle = () => {
   modelShow.value = !modelShow.value
+}
+
+const filterDevices = (val: string) => {
+  if (val === 'All') {
+    filterTreeData.value = treeData.value
+  } else {
+    const tempTree = treeData.value[0].deviceList
+    filterTreeData.value = tempTree.filter((deviceGroup: any) => {
+      // 在设备组级别过滤
+      if (deviceGroup.deviceList) {
+        return deviceGroup.deviceList.some((device: any) => {
+          // 在设备级别过滤
+          return val == 'online'
+              ? device.onlineStatus == 'ONLINE'
+              : device.onlineStatus == 'OFFLINE'
+        })
+      }
+    })
+        .map((deviceGroup: any) => {
+          // 创建一个新的设备组对象，以避免修改原始数据
+          return {
+            ...deviceGroup,
+            // 在设备级别过滤
+            deviceList: deviceGroup.deviceList.filter((device: any) => {
+              return val == 'online'
+                  ? device.onlineStatus == 'ONLINE'
+                  : device.onlineStatus == 'OFFLINE'
+            })
+          }
+        })
+  }
+  console.log(val, 8887)
 }
 
 const savePlayer = () => {

@@ -26,8 +26,8 @@
         </n-button>
       </n-space>
       <n-space style="padding-left: 70px">
-        <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
-                children-field="deviceList" label-field="name" key-field="id" :render-prefix="renderPrefix" :render-label="renderLabel"
+        <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys" class="deviceListTree" :pattern="facilityName"
+                children-field="deviceList" label-field="name" key-field="id" :render-prefix="renderPrefix" :render-label="renderLabel" :show-irrelevant-nodes="false"
                 expand-on-click checkable default-expand-all check-strategy="parent">
         </n-tree>
       </n-space>
@@ -152,8 +152,8 @@ const refreshFacility = () => {
 const handleNodeClick = (checked: boolean) => {
   console.log('点击树节点data', checked)
 }
-const renderLabel = ({ option }: {option: TreeOption, checked: boolean, selected: boolean}) => {
-  return option.groupType === 'COMMON' ? `${option.name}(${ option.onlineNum } / ${option.offlineNum + option.onlineNum})` : option.name
+const renderLabel = ({ option }: {option: any, checked: boolean, selected: boolean}) => {
+  return option.groupType === 'COMMON' ? `${option.name}(${ option.onlineNum } / ${ option.offlineNum + option.onlineNum })` : option.name
 }
 const renderPrefix = ({ option }: {option: TreeOption}) => {
   return option.groupType === 'COMMON' ? null :
@@ -207,29 +207,35 @@ const modelShowHandle = () => {
 }
 
 const savePlayer = () => {
-  const syncUpdate = dataSyncUpdate(false);
-  syncUpdate().then(ledProgramId => {
-    const param = {
-      deviceGroupIdList: checkedKeys.value,
-      ledStrategyType: 'REALTIME',
-      playDurationCondition: {
-        playDurationMode: playDurationMode.value.toUpperCase(),
-        times: NaN,
-        minutes: ''
-      },
-      ledProgramId
-    }
-    if (playDurationMode.value === 'times') {
-      param.playDurationCondition.times = times.value
-    } else {
-      param.playDurationCondition.minutes = minutes.value
-    }
-    ledStrategyApi(param).then((result: any) => {
-      if (result && result.code === ResultEnum.SUCCESS) {
-        modelShow.value = false
+  const syncUpdate: any = dataSyncUpdate(false);
+  syncUpdate && syncUpdate().then((ledProgramId: string) => {
+    if (ledProgramId) {
+      const param: any = {
+        deviceGroupIdList: checkedKeys.value,
+        ledStrategyType: 'REALTIME',
+        playDurationCondition: {
+          playDurationMode: playDurationMode.value.toUpperCase(),
+        },
+        ledProgramId
       }
-      console.log(result)
-    })
+      if (playDurationMode.value === 'times') {
+        param.playDurationCondition = {
+          playDurationMode: playDurationMode.value.toUpperCase(),
+          times: times.value,
+        }
+      } else {
+        param.playDurationCondition = {
+          playDurationMode: playDurationMode.value.toUpperCase(),
+          minutes: minutes.value
+        }
+      }
+      ledStrategyApi(param).then((result: any) => {
+        if (result && result.code === ResultEnum.SUCCESS) {
+          modelShow.value = false
+        }
+        console.log(result)
+      })
+    }
   });
 }
 // 复制预览地址
@@ -327,6 +333,15 @@ const comBtnList = computed(() => {
   @include deep() {
     .n-list-item:not(:last-child) {
       border-bottom: 0;
+    }
+  }
+}
+.deviceListTree{
+  @include deep() {
+    .n-tree-node-wrapper {
+      .n-tree-node-indent + .n-tree-node-indent + .n-tree-node-switcher + .n-tree-node-checkbox {
+        display: none;
+      }
     }
   }
 }

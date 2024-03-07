@@ -62,8 +62,7 @@ export const saveProjectApi = async (data: {
   }
 }
 
-export const ledStrategyApi = async (data: {
-  id: string }) => {
+export const ledStrategyApi = async (data: object) => {
   try {
     const res = await http(RequestHttpEnum.POST)(
         `${ModuleTypeEnum.ISLANDAMS}/led/strategy`,

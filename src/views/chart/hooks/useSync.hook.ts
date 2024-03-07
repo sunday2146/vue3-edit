@@ -367,6 +367,7 @@ export const useSync = () => {
     }
     // 失败状态
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.FAILURE)
+    return
   }, 3000)
 
   // * 定时处理

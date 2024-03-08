@@ -5,6 +5,8 @@ export enum StorageEnum {
   GO_SYSTEM_STORE = 'GO_SYSTEM',
   // 语言
   GO_LANG_STORE = 'GO_LANG',
+  // 分页
+  GO_PAGES_STORE = 'GO_PAGES',
   // 当前选择的主题
   GO_DESIGN_STORE = 'GO_DESIGN',
   // 工作台布局配置

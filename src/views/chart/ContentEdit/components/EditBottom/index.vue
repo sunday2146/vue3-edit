@@ -1,6 +1,7 @@
 <template>
   <div class="go-edit-bottom">
     <n-space>
+      <edit-pages></edit-pages>
       <!-- 历史记录 -->
       <edit-history></edit-history>
       <!-- CTRL按键触发展示 -->
@@ -59,6 +60,7 @@ import { SelectInst } from 'naive-ui'
 import { reactive, ref, toRefs, watchEffect } from 'vue'
 import { icon } from '@/plugins'
 import { EditHistory } from '../EditHistory/index'
+import { EditPages } from '../EditPages/index'
 import { EditShortcutKey } from '../EditShortcutKey/index'
 import { EditDataSync } from '../EditDataSync/index'
 import { useDesignStore } from '@/store/modules/designStore/designStore'

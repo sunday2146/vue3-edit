@@ -286,8 +286,6 @@ export const useSync = () => {
     let projectId = chartEditStore.getProjectInfo[ProjectInfoEnum.PROJECT_ID];
     let uploadRes: object | undefined = {}
     let postObj: any = {}
-    console.log(projectId, 777)
-    // debugger
     // if(projectId === null || projectId === ''){
     //   window['$message'].error('数据初未始化成功,请刷新页面！')
     //   return

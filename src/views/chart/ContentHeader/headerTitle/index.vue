@@ -1,10 +1,11 @@
 <template>
   <n-space>
-    <n-icon size="20" :depth="3">
-      <fish-icon></fish-icon>
-    </n-icon>
+    <n-image
+        width="20"
+        src="/system/mediaInfo/preview/1166808443746693120"
+    />
     <n-text @click="handleFocus">
-      工作空间 -
+      节目制作 工作空间 -
       <n-button v-show="!focus" secondary size="tiny">
         <span class="title">
           {{ comTitle || '新项目' }}

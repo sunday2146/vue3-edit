@@ -45,20 +45,20 @@
         ></n-input>
       </div>
       <!-- 保存 -->
-      <n-tooltip placement="bottom" trigger="hover">
-        <template #trigger>
-          <div class="save-btn" >
-            <n-button size="small" type="primary" ghost @click="dataSyncUpdate()">
-              <template #icon>
-                <n-icon>
-                  <SaveIcon></SaveIcon>
-                </n-icon>
-              </template>
-            </n-button>
-          </div>
-        </template>
-        <span>保存11</span>
-      </n-tooltip>
+<!--      <n-tooltip placement="bottom" trigger="hover">-->
+<!--        <template #trigger>-->
+<!--          <div class="save-btn" >-->
+<!--            <n-button size="small" type="primary" ghost @click="dataSyncUpdate()">-->
+<!--              <template #icon>-->
+<!--                <n-icon>-->
+<!--                  <SaveIcon></SaveIcon>-->
+<!--                </n-icon>-->
+<!--              </template>-->
+<!--            </n-button>-->
+<!--          </div>-->
+<!--        </template>-->
+<!--        <span>保存11</span>-->
+<!--      </n-tooltip>-->
     </n-space>
   </n-space>
 </template>

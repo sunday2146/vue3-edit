@@ -14,6 +14,7 @@ export interface MyResponseType<T> {
   code: ResultEnum
   data: T
   message: string
+  msg: string
 }
 
 export interface MyRequestInstance extends Axios {

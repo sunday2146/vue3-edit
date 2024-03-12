@@ -2,7 +2,7 @@
   <div class="go-flex-items-center">
     <n-popover class="edit-pages-popover" :show-arrow="false" size="small" trigger="click" placement="top-start">
       <template #trigger>
-        <n-button class="mr-10" secondary size="small" :disabled="pages.length === 0">
+        <n-button class="mr-10" secondary size="small" >
           <span class="btn-text">分页管理</span>
         </n-button>
       </template>
@@ -11,16 +11,18 @@
         <n-scrollbar style="max-height: 500px">
           <div
               class="list-item go-flex-items-center"
-              v-for="(item, index) in pages"
+              v-for="(item, index) in pageList"
               :key="index"
-              :title="item"
+              :title="item.title"
           >
-            <n-text depth="2">{{ item }}</n-text>
+            <n-button text @click="changePage(index)">
+              {{ item.title }}
+            </n-button>
             <n-space style="gap: 4px">
               <n-icon class="item-icon" size="16" title="修改页名" :depth="2" @click="editPages(index)">
                 <hammer-icon></hammer-icon>
               </n-icon>
-              <n-icon class="item-icon" size="16" title="复制页面" :depth="2" @click="addPages(index)">
+              <n-icon class="item-icon" size="16" title="复制页面" :depth="2" @click="addPages(index, true)">
                 <duplicate-outline-icon></duplicate-outline-icon>
               </n-icon>
               <n-icon class="item-icon" size="16" title="移除页面" :depth="2" @click="removePages(index)">
@@ -29,7 +31,7 @@
             </n-space>
           </div>
         </n-scrollbar>
-        <n-button class="mr-10" secondary size="small" @click="addPages">
+        <n-button class="mr-10" secondary size="small" @click="addPages(0)">
           <n-icon class="item-icon" size="16" :depth="2">
             <add-icon></add-icon>
           </n-icon>
@@ -45,9 +47,13 @@
 import { ref, computed, h } from 'vue'
 import { icon } from '@/plugins'
 import { usePagesStore } from '@/store/modules/pagesStore/pagesStore'
+import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
 import { useDialog, NInput } from 'naive-ui'
+import { getUUID } from '@/utils'
 import { historyActionTypeName } from '@/store/modules/chartHistoryStore/chartHistoryDefine'
+import {useSync} from "@/views/chart/hooks/useSync.hook";
 
+const { updateComponent } = useSync()
 const {
   DesktopOutlineIcon,
   PencilIcon,
@@ -68,21 +74,61 @@ const {
 const { StackedMoveIcon, Carbon3DCursorIcon, Carbon3DSoftwareIcon, PaintBrushIcon } = icon.carbon
 
 const chartPagesStore = usePagesStore()
+const chartEditStore = useChartEditStore()
 
 const pages = chartPagesStore.getPages
+const editCanvasConfig = chartEditStore.getEditCanvasConfig
+const componentList = chartEditStore.getComponentList
+const  pageConfig = chartEditStore.getPageConfig
+const  { pageList } = pageConfig
 
 const removePages = (index: number) => {
   pages.splice(index, 1)
   chartPagesStore.changePages(pages)
+
+  pageList.splice(index, 1)
 }
 
-const addPages = (index?: number) => {
+const changePage = (index: number) => {
+  // pageList[pageConfig.activeIndex] = {...pageList[pageConfig.activeIndex], editCanvasConfig, componentList}
+  // chartEditStore.setPageConfig('activeIndex', index)
+  // updateComponent(pageList[index], true)
+  chartEditStore.setCurrentPage(index)
+}
+
+const addPages = (index: number, copy?: boolean) => {
   pages.push('分页' + (pages.length + 1))
   chartPagesStore.changePages(pages)
+  if (!pageList.length) {
+    pageList.push({
+      id: getUUID(),
+      title: '分页' + (pageList.length + 1),
+      times: '00:00:15',
+      time: 15,
+      componentList: componentList,
+      editCanvasConfig: editCanvasConfig
+    })
+  }
+
+  // 这里走chartEditStore
+  if (copy) {
+    pageList.push({...pageList[index], title: `${pageList[index].title} copy`})
+  } else {
+    pageList.push({
+      id: getUUID(),
+      title: '分页' + (pageList.length + 1),
+      times: '00:00:15',
+      time: 15,
+      componentList: [],
+      editCanvasConfig: editCanvasConfig
+    })
+  }
+  // 開發中
+  // chartEditStore.setPageConfig()
 }
 
 const editPages = (index: number) => {
-  const inputVal = ref(pages[index])
+  const inputVal = ref(pageList[index].title)
   window['$dialog'].create({
     title: '修改页名',
     content: () => h(NInput, {
@@ -96,6 +142,8 @@ const editPages = (index: number) => {
     onPositiveClick: () => {
       pages[index] = inputVal.value
       chartPagesStore.changePages(pages)
+
+      pageList[index].title = inputVal.value
       window['$message'].success('确定')
     },
     onNegativeClick: () => {
@@ -112,7 +160,7 @@ const editPages = (index: number) => {
     margin-right: 3px;
   }
   .pages-list-box {
-    width: 140px;
+    width: 180px;
     .list-item {
       z-index: 2;
       position: relative;

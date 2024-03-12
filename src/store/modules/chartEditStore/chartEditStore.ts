@@ -34,7 +34,9 @@ import {
   TargetChartType,
   RecordChartType,
   RequestGlobalConfigType,
-  EditCanvasConfigType
+  EditCanvasConfigType,
+  PageConfigType,
+  PageListType
 } from './chartEditStore.d'
 
 const chartHistoryStore = useChartHistoryStore()
@@ -154,7 +156,11 @@ export const useChartEditStore = defineStore({
       }
     },
     // 图表数组（需存储给后端）
-    componentList: []
+    componentList: [],
+    pageConfig: {
+      activeIndex: 0,
+      pageList: []
+    }
   }),
   getters: {
     getProjectInfo(): ProjectInfoType {
@@ -183,6 +189,12 @@ export const useChartEditStore = defineStore({
     },
     getComponentList(): Array<CreateComponentType | CreateComponentGroupType> {
       return this.componentList
+    },
+    getPageConfig(): PageConfigType {
+      return this.pageConfig
+    },
+    getPageList(): PageListType {
+      return this.pageConfig.pageList
     }
   },
   actions: {
@@ -191,8 +203,13 @@ export const useChartEditStore = defineStore({
       return {
         [ChartEditStoreEnum.EDIT_CANVAS_CONFIG]: this.getEditCanvasConfig,
         [ChartEditStoreEnum.COMPONENT_LIST]: this.getComponentList,
-        [ChartEditStoreEnum.REQUEST_GLOBAL_CONFIG]: this.getRequestGlobalConfig
+        [ChartEditStoreEnum.REQUEST_GLOBAL_CONFIG]: this.getRequestGlobalConfig,
+        [ChartEditStoreEnum.PAGE_CONFIG]: this.getPageConfig
       }
+    },
+    // * 设置 editCanvasConfig（需保存后端） 数据项
+    setPageConfig<T extends keyof PageConfigType, K extends PageConfigType[T]>(key: T, value: K) {
+      this.pageConfig[key] = value
     },
     // * 设置 editCanvas 数据项
     setEditCanvas<T extends keyof EditCanvasType, K extends EditCanvasType[T]>(key: T, value: K) {
@@ -987,6 +1004,31 @@ export const useChartEditStore = defineStore({
         this.setPageSize(scale)
         this.getEditCanvas.userScale = scale
         this.getEditCanvas.scale = scale
+      }
+    },
+    addPageList() {
+
+    },
+    setCurrentPage(index: number): void {
+      this.saveCurrentPage()
+      const oldActive = this.pageConfig.activeIndex;
+      if (oldActive === index) {
+        return
+      }
+      this.setTargetSelectChart()
+      const newData = this.pageConfig.pageList[index]
+      this.editCanvasConfig = newData.editCanvasConfig
+      this.componentList = newData.componentList
+      this.pageConfig.activeIndex = index
+    },
+    saveCurrentPage() {
+      const currentIndex = this.pageConfig.activeIndex || 0
+      const currentData= this.pageConfig.pageList[currentIndex]
+      this.pageConfig.pageList[currentIndex] = {
+        ...currentData,
+        id: currentData.id || getUUID(),
+        componentList: cloneDeep(this.componentList),
+        editCanvasConfig: cloneDeep(this.editCanvasConfig)
       }
     }
   }

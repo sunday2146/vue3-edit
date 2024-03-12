@@ -184,6 +184,7 @@ export enum ChartEditStoreEnum {
   TARGET_CHART = 'targetChart',
   RECORD_CHART = 'recordChart',
   // 以下需要存储
+  PAGE_CONFIG = 'pageConfig',
   EDIT_CANVAS_CONFIG = 'editCanvasConfig',
   REQUEST_GLOBAL_CONFIG = 'requestGlobalConfig',
   COMPONENT_LIST = 'componentList'
@@ -247,6 +248,20 @@ export interface ChartEditStoreType {
   [ChartEditStoreEnum.RECORD_CHART]?: RecordChartType
   [ChartEditStoreEnum.REQUEST_GLOBAL_CONFIG]: RequestGlobalConfigType
   [ChartEditStoreEnum.COMPONENT_LIST]: Array<CreateComponentType | CreateComponentGroupType>
+  [ChartEditStoreEnum.PAGE_CONFIG]: PageConfigType
+}
+
+export type PageListType = Array<{
+  id: string
+  title: string,
+  times: string,
+  time: number,
+  componentList: Array<CreateComponentType | CreateComponentGroupType>,
+  editCanvasConfig: EditCanvasConfigType
+}>
+export interface PageConfigType {
+  activeIndex: number,
+  pageList: PageListType
 }
 
 // 存储数据类型
@@ -254,4 +269,5 @@ export interface ChartEditStorage {
   [ChartEditStoreEnum.EDIT_CANVAS_CONFIG]: EditCanvasConfigType
   [ChartEditStoreEnum.REQUEST_GLOBAL_CONFIG]: RequestGlobalConfigType
   [ChartEditStoreEnum.COMPONENT_LIST]: Array<CreateComponentType | CreateComponentGroupType>
+  [ChartEditStoreEnum.PAGE_CONFIG]: PageConfigType
 }

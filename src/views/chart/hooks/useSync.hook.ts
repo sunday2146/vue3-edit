@@ -1,4 +1,4 @@
-import { onUnmounted } from 'vue';
+import { onUnmounted, ref } from 'vue';
 import html2canvas from 'html2canvas'
 import { getUUID, httpErrorHandle, fetchRouteParamsLocation, base64toFile, JSONStringify, JSONParse } from '@/utils'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
@@ -103,6 +103,7 @@ export const useSync = () => {
   const chartHistoryStore = useChartHistoryStore()
   const systemStore = useSystemStore()
   const chartLayoutStore = useChartLayoutStore()
+  const editId = ref(fetchRouteParamsLocation())
   /**
    * * 组件动态注册
    * @param projectData 项目数据
@@ -338,7 +339,7 @@ export const useSync = () => {
 
     // 保存数据
     const data = {
-      id: fetchRouteParamsLocation(),
+      id: editId.value,
       name: nameTitle,
       isTemplate,
       coverImage: postObj.id,
@@ -358,11 +359,13 @@ export const useSync = () => {
 
     if (res && res.code === ResultEnum.SUCCESS) {
       // 成功状态
+      editId.value = res.data
       setTimeout(() => {
         chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.SUCCESS)
       }, 1000)
       return res.data
     }
+    window['$message'].success(res?.msg)
     // 失败状态
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.FAILURE)
     return

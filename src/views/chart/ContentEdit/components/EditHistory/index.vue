@@ -110,6 +110,9 @@ const iconHandle = (e: HistoryItemType) => {
 // 设置类型对应文本
 const labelHandle = (e: HistoryItemType) => {
   // 画布编辑
+  if (e.targetType === HistoryTargetTypeEnum.PAGE) {
+    return historyActionTypeName[e.actionType]
+  }
   if (e.targetType === HistoryTargetTypeEnum.CANVAS) {
     return historyActionTypeName[HistoryTargetTypeEnum.CANVAS]
   } else if (e.actionType === HistoryActionTypeEnum.GROUP || e.actionType === HistoryActionTypeEnum.UN_GROUP) {

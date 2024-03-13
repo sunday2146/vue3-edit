@@ -251,17 +251,18 @@ export interface ChartEditStoreType {
   [ChartEditStoreEnum.PAGE_CONFIG]: PageConfigType
 }
 
-export type PageListType = Array<{
+export type PageListType = {
   id: string
   title: string,
   times: string,
   time: number,
   componentList: Array<CreateComponentType | CreateComponentGroupType>,
   editCanvasConfig: EditCanvasConfigType
-}>
+}
+
 export interface PageConfigType {
   activeIndex: number,
-  pageList: PageListType
+  pageList: Array<PageListType>
 }
 
 // 存储数据类型

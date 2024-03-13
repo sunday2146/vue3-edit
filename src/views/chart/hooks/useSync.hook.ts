@@ -111,6 +111,11 @@ export const useSync = () => {
    * @returns
    */
   const updateComponent = async (projectData: ChartEditStorage, isReplace = false, changeId = false) => {
+    if (projectData.pageConfig && projectData.pageConfig.pageList && projectData.pageConfig.pageList.length) {
+      projectData.pageConfig.pageList.map(item =>{
+        chartEditStore.addPageList()
+      })
+    }
     if (isReplace) {
       // 清除列表
       chartEditStore.componentList = []
@@ -215,6 +220,7 @@ export const useSync = () => {
       }
     }
 
+    chartEditStore.initPageConfig(projectData.pageConfig)
     // 清除数量
     chartLayoutStore.setItemUnHandle(ChartLayoutStoreEnum.PERCENTAGE, 0)
   }

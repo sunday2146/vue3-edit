@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { CreateComponentType, CreateComponentGroupType } from '@/packages/index.d'
-import { EditCanvasType } from '@/store/modules/chartEditStore/chartEditStore.d'
+import { EditCanvasType, PageConfigType, PageListType } from '@/store/modules/chartEditStore/chartEditStore.d'
 import { loadingStart, loadingFinish, loadingError } from '@/utils'
 import { editHistoryMax } from '@/settings/designSetting'
 import {
   HistoryStackItemEnum,
   HistoryActionTypeEnum,
+  HistoryPageTypeEnum,
   HistoryTargetTypeEnum,
   HistoryItemType,
   ChartHistoryStoreType
@@ -35,8 +36,8 @@ export const useChartHistoryStore = defineStore({
      * @param targetType 对象类型（默认图表）
      */
     createStackItem(
-      item: CreateComponentType[] | CreateComponentGroupType[] | EditCanvasType[],
-      actionType: HistoryActionTypeEnum,
+      item: any[],
+      actionType: HistoryActionTypeEnum | HistoryPageTypeEnum,
       targetType: HistoryTargetTypeEnum = HistoryTargetTypeEnum.CHART
     ) {
       // 优化性能转为 freeze
@@ -183,6 +184,17 @@ export const useChartHistoryStore = defineStore({
     // * 展示记录
     createShowHistory(item: Array<CreateComponentType | CreateComponentGroupType>) {
       this.createStackItem(item, HistoryActionTypeEnum.SHOW, HistoryTargetTypeEnum.CHART)
-    }
+    },
+    // * 分页记录
+    createPageConfig(
+        item: Array<PageConfigType | PageListType | number>,
+        type:
+            | HistoryPageTypeEnum.PAGE_SWITCH
+            | HistoryPageTypeEnum.PAGE_ADD
+            | HistoryPageTypeEnum.PAGE_DELETE
+            | HistoryPageTypeEnum.PAGE_SWAP
+    ) {
+      this.createStackItem(item, type, HistoryTargetTypeEnum.PAGE)
+    },
   }
 })

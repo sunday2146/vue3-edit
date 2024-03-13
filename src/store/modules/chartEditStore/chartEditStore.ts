@@ -11,7 +11,7 @@ import { useChartHistoryStore } from '@/store/modules/chartHistoryStore/chartHis
 // 全局设置
 import { useSettingStore } from '@/store/modules/settingStore/settingStore'
 // 历史类型
-import { HistoryActionTypeEnum, HistoryItemType, HistoryTargetTypeEnum } from '@/store/modules/chartHistoryStore/chartHistoryStore.d'
+import { HistoryActionTypeEnum, HistoryItemType, HistoryTargetTypeEnum, HistoryPageTypeEnum } from '@/store/modules/chartHistoryStore/chartHistoryStore.d'
 // 画布枚举
 import { MenuEnum, SyncEnum } from '@/enums/editPageEnum'
 
@@ -41,6 +41,49 @@ import {
 
 const chartHistoryStore = useChartHistoryStore()
 const settingStore = useSettingStore()
+
+const initEditCanvasConfig: EditCanvasConfigType = {
+      // 项目名称
+      projectName: undefined,
+      timeTotal: '15',
+      // 默认宽度
+      width: 1920,
+      // 默认高度
+      height: 1080,
+      // 启用滤镜
+      filterShow: false,
+      // 色相
+      hueRotate: 0,
+      // 饱和度
+      saturate: 1,
+      // 对比度
+      contrast: 1,
+      // 亮度
+      brightness: 1,
+      // 透明度
+      opacity: 1,
+      // 变换（暂不更改）
+      rotateZ: 0,
+      rotateX: 0,
+      rotateY: 0,
+      skewX: 0,
+      skewY: 0,
+      // 混合模式
+      blendMode: 'normal',
+      // 默认背景色
+      background: undefined,
+      backgroundImage: undefined,
+      // 是否使用纯颜色
+      selectColor: true,
+      // chart 主题色
+      chartThemeColor: defaultTheme || 'dark',
+      // 自定义颜色列表
+      chartCustomThemeColorInfo: undefined,
+      // 全局配置
+      chartThemeSetting: globalThemeJson,
+      // 适配方式
+      previewScaleType: previewScaleType
+    }
 
 // 编辑区域内容
 export const useChartEditStore = defineStore({
@@ -96,48 +139,7 @@ export const useChartEditStore = defineStore({
     recordChart: undefined,
     // -----------------------
     // 画布属性（需存储给后端）
-    editCanvasConfig: {
-      // 项目名称
-      projectName: undefined,
-      timeTotal: '15',
-      // 默认宽度
-      width: 1920,
-      // 默认高度
-      height: 1080,
-      // 启用滤镜
-      filterShow: false,
-      // 色相
-      hueRotate: 0,
-      // 饱和度
-      saturate: 1,
-      // 对比度
-      contrast: 1,
-      // 亮度
-      brightness: 1,
-      // 透明度
-      opacity: 1,
-      // 变换（暂不更改）
-      rotateZ: 0,
-      rotateX: 0,
-      rotateY: 0,
-      skewX: 0,
-      skewY: 0,
-      // 混合模式
-      blendMode: 'normal',
-      // 默认背景色
-      background: undefined,
-      backgroundImage: undefined,
-      // 是否使用纯颜色
-      selectColor: true,
-      // chart 主题色
-      chartThemeColor: defaultTheme || 'dark',
-      // 自定义颜色列表
-      chartCustomThemeColorInfo: undefined,
-      // 全局配置
-      chartThemeSetting: globalThemeJson,
-      // 适配方式
-      previewScaleType: previewScaleType
-    },
+    editCanvasConfig: initEditCanvasConfig,
     // 数据请求处理（需存储给后端）
     requestGlobalConfig: {
       requestDataPond: [],
@@ -193,7 +195,7 @@ export const useChartEditStore = defineStore({
     getPageConfig(): PageConfigType {
       return this.pageConfig
     },
-    getPageList(): PageListType {
+    getPageList(): Array<PageListType> {
       return this.pageConfig.pageList
     }
   },
@@ -1006,8 +1008,27 @@ export const useChartEditStore = defineStore({
         this.getEditCanvas.scale = scale
       }
     },
-    addPageList() {
-
+    addPageList(componentList?: Array<CreateComponentType | CreateComponentGroupType>, editCanvasConfig?: EditCanvasConfigType, title?: string, copy?: boolean) {
+      let compList = componentList || []
+      const canvasConfig = editCanvasConfig || initEditCanvasConfig
+      const canvasConfigNew = cloneDeep(canvasConfig)
+      if (copy) {
+        const list: Array<CreateComponentType | CreateComponentGroupType>= []
+        compList.map(comp => {
+          list.push({...comp, id: getUUID()})
+        })
+        compList= list
+      }
+      const pageData = {
+        id: getUUID(),
+        title: title ? `${title} 副本` : '分页' + (this.pageConfig.pageList.length + 1),
+        times: '00:00:15',
+        time: 15,
+        componentList: compList,
+        editCanvasConfig: canvasConfigNew
+      }
+      this.pageConfig.pageList.push(pageData)
+      chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD)
     },
     setCurrentPage(index: number): void {
       this.saveCurrentPage()
@@ -1020,6 +1041,33 @@ export const useChartEditStore = defineStore({
       this.editCanvasConfig = newData.editCanvasConfig
       this.componentList = newData.componentList
       this.pageConfig.activeIndex = index
+      chartHistoryStore.createPageConfig([oldActive, index], HistoryPageTypeEnum.PAGE_SWITCH)
+    },
+    copyPageByIndex(index: number) {
+      const n = this.pageConfig.pageList[index];
+      if (!n) {
+        console.warn("复制页面不存!");
+        return
+      }
+      this.addPageList(n.componentList, n.editCanvasConfig, n.title, true)
+    },
+    removePageByIndex(index: number) {
+      if (this.pageConfig.pageList.length === 1)
+        return;
+      const oldPageConfig = cloneDeep(this.pageConfig);
+      this.pageConfig.pageList.splice(index, 1),
+      index <= this.pageConfig.activeIndex && (this.pageConfig.activeIndex -= 1);
+      const newPageConfig = cloneDeep(this.pageConfig);
+      chartHistoryStore.createPageConfig([oldPageConfig, newPageConfig], HistoryPageTypeEnum.PAGE_DELETE)
+    },
+    initPageConfig(pageConfig: PageConfigType) {
+      this.pageConfig = pageConfig;
+      const n = pageConfig.activeIndex || 0
+      const a = pageConfig.pageList[n];
+      a || console.warn("没有页面数据!"),
+      this.componentList = a.componentList,
+      this.editCanvasConfig = a.editCanvasConfig,
+      this.pageConfig.activeIndex = n
     },
     saveCurrentPage() {
       const currentIndex = this.pageConfig.activeIndex || 0

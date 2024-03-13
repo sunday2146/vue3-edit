@@ -40,10 +40,18 @@ export enum HistoryActionTypeEnum {
   SHOW = 'show'
 }
 
+export enum HistoryPageTypeEnum {
+  PAGE_SWITCH = "pageSwitch",
+  PAGE_ADD = "pageAdd",
+  PAGE_DELETE = "pageDelete",
+  PAGE_SWAP = "pageSwap"
+}
+
 // 对象类型
 export enum HistoryTargetTypeEnum {
   CANVAS = 'canvas',
-  CHART = 'chart'
+  CHART = 'chart',
+  PAGE = 'page'
 }
 
 // 历史栈
@@ -65,7 +73,7 @@ export interface HistoryItemType {
   // 会有同时操作多个组件场景
   [HistoryStackItemEnum.ID]: string
   [HistoryStackItemEnum.TARGET_TYPE]: HistoryTargetTypeEnum
-  [HistoryStackItemEnum.ACTION_TYPE]: HistoryActionTypeEnum
+  [HistoryStackItemEnum.ACTION_TYPE]: HistoryActionTypeEnum | HistoryPageTypeEnum
   [HistoryStackItemEnum.HISTORY_DATA]: CreateComponentType[] | CreateComponentGroupType[] | EditCanvasType[]
 }
 

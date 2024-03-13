@@ -15,7 +15,7 @@
               :key="index"
               :title="item.title"
           >
-            <n-button text @click="changePage(index)">
+            <n-button @click="changePage(index)" text :type="pageConfig.activeIndex === index ? 'warning': ''">
               {{ item.title }}
             </n-button>
             <n-space style="gap: 4px">
@@ -31,7 +31,7 @@
             </n-space>
           </div>
         </n-scrollbar>
-        <n-button class="mr-10" secondary size="small" @click="addPages(0)">
+        <n-button class="mr-10" secondary size="small" @click="addPages">
           <n-icon class="item-icon" size="16" :depth="2">
             <add-icon></add-icon>
           </n-icon>
@@ -80,13 +80,14 @@ const pages = chartPagesStore.getPages
 const editCanvasConfig = chartEditStore.getEditCanvasConfig
 const componentList = chartEditStore.getComponentList
 const  pageConfig = chartEditStore.getPageConfig
-const  { pageList } = pageConfig
+// const  { pageList } = pageConfig
+const pageList = computed(() => chartEditStore.getPageList)
 
 const removePages = (index: number) => {
-  pages.splice(index, 1)
-  chartPagesStore.changePages(pages)
-
-  pageList.splice(index, 1)
+  chartEditStore.removePageByIndex(index)
+  // pages.splice(index, 1)
+  // chartPagesStore.changePages(pages)
+  // pageList.splice(index, 1)
 }
 
 const changePage = (index: number) => {
@@ -97,53 +98,59 @@ const changePage = (index: number) => {
 }
 
 const addPages = (index: number, copy?: boolean) => {
-  pages.push('分页' + (pages.length + 1))
-  chartPagesStore.changePages(pages)
-  if (!pageList.length) {
-    pageList.push({
-      id: getUUID(),
-      title: '分页' + (pageList.length + 1),
-      times: '00:00:15',
-      time: 15,
-      componentList: componentList,
-      editCanvasConfig: editCanvasConfig
-    })
-  }
-
-  // 这里走chartEditStore
   if (copy) {
-    pageList.push({...pageList[index], title: `${pageList[index].title} copy`})
+    chartEditStore.copyPageByIndex(index)
   } else {
-    pageList.push({
-      id: getUUID(),
-      title: '分页' + (pageList.length + 1),
-      times: '00:00:15',
-      time: 15,
-      componentList: [],
-      editCanvasConfig: editCanvasConfig
-    })
+    chartEditStore.addPageList([])
   }
+  // pages.push('分页' + (pages.length + 1))
+  // chartPagesStore.changePages(pages)
+  //
+  // if (!pageList.length) {
+  //   pageList.push({
+  //     id: getUUID(),
+  //     title: '分页' + (pageList.length + 1),
+  //     times: '00:00:15',
+  //     time: 15,
+  //     componentList: componentList,
+  //     editCanvasConfig: editCanvasConfig
+  //   })
+  // }
+  //
+  // // 这里走chartEditStore
+  // if (copy) {
+  //   pageList.push({...pageList[index], title: `${pageList[index].title} copy`})
+  // } else {
+  //   pageList.push({
+  //     id: getUUID(),
+  //     title: '分页' + (pageList.length + 1),
+  //     times: '00:00:15',
+  //     time: 15,
+  //     componentList: [],
+  //     editCanvasConfig: editCanvasConfig
+  //   })
+  // }
   // 開發中
   // chartEditStore.setPageConfig()
 }
 
 const editPages = (index: number) => {
-  const inputVal = ref(pageList[index].title)
+  let inputVal = pageConfig.pageList[index].title
   window['$dialog'].create({
     title: '修改页名',
     content: () => h(NInput, {
-      value: inputVal.value,
+      value: inputVal,
       onInput: e => {
-        inputVal.value = e
+        inputVal = e
       }
     }),
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: () => {
-      pages[index] = inputVal.value
+      pages[index] = inputVal
       chartPagesStore.changePages(pages)
 
-      pageList[index].title = inputVal.value
+      pageConfig.pageList[index].title = inputVal
       window['$message'].success('确定')
     },
     onNegativeClick: () => {

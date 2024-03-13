@@ -1,4 +1,4 @@
-import { HistoryTargetTypeEnum, HistoryActionTypeEnum } from './chartHistoryStore.d'
+import { HistoryTargetTypeEnum, HistoryActionTypeEnum, HistoryPageTypeEnum } from './chartHistoryStore.d'
 
 export const historyActionTypeName = {
   [HistoryActionTypeEnum.ADD]: '新增',
@@ -18,6 +18,11 @@ export const historyActionTypeName = {
   [HistoryActionTypeEnum.UNLOCK]: '解锁',
   [HistoryActionTypeEnum.HIDE]: '隐藏',
   [HistoryActionTypeEnum.SHOW]: '显示',
+
+  [HistoryPageTypeEnum.PAGE_SWITCH]: '页面切换',
+  [HistoryPageTypeEnum.PAGE_ADD]: '页面新增',
+  [HistoryPageTypeEnum.PAGE_DELETE]: '页面删除',
+  [HistoryPageTypeEnum.PAGE_SWAP]: '页面换位',
 
   [HistoryTargetTypeEnum.CANVAS]: '画布初始化'
 }

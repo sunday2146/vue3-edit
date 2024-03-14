@@ -79,7 +79,7 @@ const chartEditStore = useChartEditStore()
 const pages = chartPagesStore.getPages
 const editCanvasConfig = chartEditStore.getEditCanvasConfig
 const componentList = chartEditStore.getComponentList
-const  pageConfig = chartEditStore.getPageConfig
+const  pageConfig = computed(() => chartEditStore.getPageConfig)
 // const  { pageList } = pageConfig
 const pageList = computed(() => chartEditStore.getPageList)
 
@@ -135,22 +135,19 @@ const addPages = (index: number, copy?: boolean) => {
 }
 
 const editPages = (index: number) => {
-  let inputVal = pageConfig.pageList[index].title
+  let inputVal = ref(pageList.value[index].title)
   window['$dialog'].create({
     title: '修改页名',
     content: () => h(NInput, {
-      value: inputVal,
+      value: inputVal.value,
       onInput: e => {
-        inputVal = e
+        inputVal.value = e
       }
     }),
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: () => {
-      pages[index] = inputVal
-      chartPagesStore.changePages(pages)
-
-      pageConfig.pageList[index].title = inputVal
+      pageList.value[index].title = inputVal.value
       window['$message'].success('确定')
     },
     onNegativeClick: () => {

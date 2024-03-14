@@ -1038,8 +1038,8 @@ export const useChartEditStore = defineStore({
       }
       this.setTargetSelectChart()
       const newData = this.pageConfig.pageList[index]
-      this.editCanvasConfig = newData.editCanvasConfig
       this.componentList = newData.componentList
+      this.editCanvasConfig = newData.editCanvasConfig
       this.pageConfig.activeIndex = index
       chartHistoryStore.createPageConfig([oldActive, index], HistoryPageTypeEnum.PAGE_SWITCH)
     },

@@ -13,6 +13,7 @@
     <!-- 图表 -->
     <aside>
       <div class="menu-width-box">
+<!--        433333-->
         <n-menu
           class="menu-width"
           v-model:value="selectValue"
@@ -28,6 +29,9 @@
             :selectOptions="selectOptions"
             :key="selectValue"
           ></charts-option-content>
+          <div v-if="selectValue === 'Images' || selectValue === 'Videos'" class="source-pagination">
+            <n-pagination v-model:page="pageNum" :page-count="100" @update:page="changePage" simple />
+          </div>
         </div>
       </div>
     </aside>
@@ -35,12 +39,24 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { ContentBox } from '../ContentBox/index'
 import { ChartsOptionContent } from './components/ChartsOptionContent'
 import { ChartsSearch } from './components/ChartsSearch'
 import { useAsideHook } from './hooks/useAside.hook'
+import { PackagesCategoryEnum, ImagePayloadType } from '@/packages/index.d'
+import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 
-const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions } = useAsideHook()
+const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageList } = useAsideHook()
+onMounted(async () => {
+  await getImageList(PackagesCategoryEnum.IMAGES, 1)
+  await getImageList(PackagesCategoryEnum.VIDEOS)
+})
+const packagesStore = usePackagesStore()
+const pageNum = packagesStore.getImagePayload.pageNum
+const changePage = (page: number) => {
+  console.log(page)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -69,6 +85,12 @@ $topHeight: 40px;
       flex-shrink: 0;
       width: $width - $widthScoped;
       overflow: hidden;
+      .source-pagination{
+        width: 100%;
+        margin-top: -40px;
+        justify-content: center;
+        display: flex;
+      }
     }
   }
   @include deep() {

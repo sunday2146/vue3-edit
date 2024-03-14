@@ -176,6 +176,8 @@ export enum PackagesCategoryEnum {
   TABLES = 'Tables',
   INFORMATIONS = 'Informations',
   PHOTOS = 'Photos',
+  IMAGES = 'Images',
+  VIDEOS = 'Videos',
   ICONS = 'Icons',
   DECORATES = 'Decorates'
 }
@@ -186,6 +188,8 @@ export enum PackagesCategoryName {
   TABLES = '列表',
   INFORMATIONS = '信息',
   PHOTOS = '图片',
+  IMAGES = '图片2',
+  VIDEOS = '视频',
   ICONS = '图标',
   DECORATES = '小组件'
 }
@@ -204,4 +208,12 @@ export type PackagesType = {
   [PackagesCategoryEnum.PHOTOS]: ConfigType[]
   [PackagesCategoryEnum.ICONS]: ConfigType[]
   [PackagesCategoryEnum.DECORATES]: ConfigType[]
+  [PackagesCategoryEnum.IMAGES]: ConfigType[]
+  [PackagesCategoryEnum.VIDEOS]: ConfigType[]
+}
+
+export interface ImagePayloadType {
+  pageNum: number,
+  pageSize: number,
+  totalPages: number
 }

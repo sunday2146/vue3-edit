@@ -124,11 +124,13 @@ const getFacilityList = async () => {
         groupType: "COMMON",
         deviceList: [] // 这里可以包含所有的设备
       }]
-      result.data.map((deviceGroup: any) => {
-        allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup)
-        allNode[0].offlineNum += deviceGroup.offlineNum
-        allNode[0].onlineNum += deviceGroup.onlineNum
-      })
+      if (result.data && result.data.length) {
+        result.data.map((deviceGroup: any) => {
+          allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup)
+          allNode[0].offlineNum += deviceGroup.offlineNum
+          allNode[0].onlineNum += deviceGroup.onlineNum
+        })
+      }
       filterTreeData.value = allNode
       treeData.value = allNode
       console.log(result, 9998)

@@ -1,14 +1,19 @@
 import { ref, watch, computed } from 'vue'
 import { icon } from '@/plugins'
-import { renderLang, renderIcon } from '@/utils'
+import {renderLang, renderIcon, httpErrorHandle} from '@/utils'
 import { themeColor, setItem, getCharts } from './useLayout.hook'
-import { PackagesCategoryEnum, PackagesCategoryName, ConfigType } from '@/packages/index.d'
+import { PackagesCategoryEnum, PackagesCategoryName, ConfigType, ChartFrameEnum, PackagesType } from '@/packages/index.d'
 import { usePackagesStore } from '@/store/modules/packagesStore/packagesStore'
 import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'
+import {getMediaInfo} from "@/api/path";
+import {ResultEnum} from "@/enums/httpEnum";
+import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
+import {ChatCategoryEnum, ChatCategoryEnumName} from "@/packages/components/Images/index.d";
 // 图标
 const { AirPlaneOutlineIcon, ImageIcon, BarChartIcon } = icon.ionicons5
 const { TableSplitIcon, RoadmapIcon, SpellCheckIcon, GraphicalDataFlowIcon } = icon.carbon
 
+const requestUrl = import.meta.env.VITE_PRO_PATH
 // 图表
 export type MenuOptionsType = {
   key: string
@@ -41,6 +46,14 @@ const packagesListObj = {
   [PackagesCategoryEnum.ICONS]: {
     icon: renderIcon(AirPlaneOutlineIcon),
     label: PackagesCategoryName.ICONS
+  },
+  [PackagesCategoryEnum.IMAGES]: {
+    icon: renderIcon(AirPlaneOutlineIcon),
+    label: PackagesCategoryName.IMAGES
+  },
+  [PackagesCategoryEnum.VIDEOS]: {
+    icon: renderIcon(AirPlaneOutlineIcon),
+    label: PackagesCategoryName.VIDEOS
   }
 }
 
@@ -48,6 +61,43 @@ export const useAsideHook = () => {
   const packagesStore = usePackagesStore()
   const menuOptions: MenuOptionsType[] = []
 
+  const getImageList = async <T extends keyof PackagesType>(type: T, pageNum: number=1) => {
+    const imageList: Array<ConfigType> = []
+    const param = {
+      condition: {
+        appType: "led",
+        directoryId: "",
+        examineState: 1,
+        type: type === PackagesCategoryEnum.IMAGES ? "IMG" : 'VIDEO',
+        fileName: ""
+      },
+      pageNum,
+      pageSize: 10
+    }
+    const res = await getMediaInfo(param)
+    if (res && res.code === ResultEnum.SUCCESS) {
+      res.data.data.map((i: any) => {
+        imageList.push({
+          ...ImageConfig,
+          category: type,
+          categoryName: type,
+          package: type,
+          chartFrame: ChartFrameEnum.STATIC,
+          image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+          dataset: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+          title: i.name,
+          redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
+        })
+      })
+      // packagesStore.setImagePayload('totalPages', res.data.totalPages)
+    }
+    menuOptions.map((item: MenuOptionsType, index: number) => {
+      if (item.key === type) {
+        packagesStore.setUpdateList(type, imageList)
+        menuOptions[index].list = imageList
+      }
+    })
+  }
   // 处理列表
   const handlePackagesList = () => {
     for (const val in packagesStore.getPackagesList) {
@@ -62,6 +112,7 @@ export const useAsideHook = () => {
       })
     }
   }
+  // await getImageList()
   handlePackagesList()
 
   // 记录选中值
@@ -73,6 +124,10 @@ export const useAsideHook = () => {
 
   // 点击 item
   const clickItemHandle = (key: string, item: any) => {
+    // if ( key === PackagesCategoryEnum.IMAGES ||  key === PackagesCategoryEnum.VIDEOS) {
+    //   selectOptions.value = packagesStore.getImageList
+    // } else {
+    // }
     selectOptions.value = item
     // 处理折叠
     if (beforeSelect === key) {
@@ -90,6 +145,7 @@ export const useAsideHook = () => {
     selectOptions,
     selectValue,
     clickItemHandle,
-    menuOptions
+    menuOptions,
+    getImageList
   }
 }

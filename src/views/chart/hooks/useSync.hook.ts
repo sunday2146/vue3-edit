@@ -111,10 +111,22 @@ export const useSync = () => {
    * @returns
    */
   const updateComponent = async (projectData: ChartEditStorage, isReplace = false, changeId = false) => {
-    if (projectData.pageConfig && projectData.pageConfig.pageList && projectData.pageConfig.pageList.length) {
-      projectData.pageConfig.pageList.map(item =>{
-        chartEditStore.addPageList()
-      })
+    if (!isReplace) {
+      if (projectData.pageConfig && projectData.pageConfig.pageList && projectData.pageConfig.pageList.length) {
+        projectData.pageConfig.pageList.map(item =>{
+          chartEditStore.addPageList(item.componentList, item.editCanvasConfig)
+        })
+      } else {
+        chartEditStore.addPageList(projectData.componentList, projectData.editCanvasConfig)
+      }
+    }
+    if (!projectData.pageConfig || !projectData.pageConfig.pageList.length) {
+      if (isReplace) {
+        (!chartEditStore.pageConfig || !chartEditStore.pageConfig.pageList.length ? chartEditStore.addPageList(projectData.componentList, projectData.editCanvasConfig) : (chartEditStore.componentList = projectData.componentList,
+            chartEditStore.editCanvasConfig = projectData.editCanvasConfig,
+            chartEditStore.saveCurrentPage())),
+            projectData.pageConfig = chartEditStore.pageConfig
+      }
     }
     if (isReplace) {
       // 清除列表

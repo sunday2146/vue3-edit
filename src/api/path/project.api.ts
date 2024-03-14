@@ -135,3 +135,13 @@ export const uploadImageByBase64 = async (data: string) => {
     httpErrorHandle()
   }
 }
+
+// * 获取资源库素材
+export const getMediaInfo = async (data: object) => {
+  try {
+    const res = await http(RequestHttpEnum.POST)(`${ModuleTypeEnum.SYSTEM}/mediaInfo/pageList`, data)
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}

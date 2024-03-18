@@ -30,7 +30,8 @@
             :key="selectValue"
           ></charts-option-content>
           <div v-if="selectValue === 'Images' || selectValue === 'Videos'" class="source-pagination">
-            <n-pagination v-model:page="pageNum" :page-count="100" @update:page="changePage" simple />
+            <n-pagination v-if="selectValue === 'Images'" v-model:page="imagesPayload.pageNum" :page-count="imagesPayload.totalPages" @update:page="changePage" simple />
+            <n-pagination v-else v-model:page="videosPayload.pageNum" :page-count="videosPayload.totalPages" @update:page="changeVidoePage" simple />
           </div>
         </div>
       </div>
@@ -39,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import {onMounted, unref, ref, computed, watch} from 'vue'
 import { ContentBox } from '../ContentBox/index'
 import { ChartsOptionContent } from './components/ChartsOptionContent'
 import { ChartsSearch } from './components/ChartsSearch'
@@ -53,10 +54,26 @@ onMounted(async () => {
   await getImageList(PackagesCategoryEnum.VIDEOS)
 })
 const packagesStore = usePackagesStore()
-const pageNum = packagesStore.getImagePayload.pageNum
-const changePage = (page: number) => {
-  console.log(page)
+const pageNum = ref(1)
+const imagesPayload = computed(() => packagesStore.getImagePayload)
+const videosPayload = computed(() => packagesStore.getVideoPayload)
+// const packagesList = computed(() => packagesStore.getPackagesList)
+
+const changePage = async (pageNum: number) => {
+  await getImageList(PackagesCategoryEnum.IMAGES, pageNum, true)
+  packagesStore.setImagePayload('pageNum', pageNum)
 }
+
+const changeVidoePage = async (pageNum: number) => {
+  await getImageList(PackagesCategoryEnum.VIDEOS, pageNum, true)
+  packagesStore.setVideoPayload('pageNum', pageNum)
+}
+const selectOptionsRef = ref(selectOptions)
+pageNum.value= packagesStore.getImagePayload.pageNum
+
+watch(() => selectOptions.value && selectOptions.value.list, (newValue) => {
+  console.log(newValue, 99998)
+})
 </script>
 
 <style lang="scss" scoped>

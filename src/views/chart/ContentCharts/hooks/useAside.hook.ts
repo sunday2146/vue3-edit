@@ -60,8 +60,27 @@ const packagesListObj = {
 export const useAsideHook = () => {
   const packagesStore = usePackagesStore()
   const menuOptions: MenuOptionsType[] = []
+// 处理列表
+  const handlePackagesList = () => {
+    for (const val in packagesStore.getPackagesList) {
+      menuOptions.push({
+        key: val,
+        // @ts-ignore
+        icon: packagesListObj[val].icon,
+        // @ts-ignore
+        label: packagesListObj[val].label,
+        // @ts-ignore
+        list: packagesStore.getPackagesList[val]
+      })
+    }
+  }
+  // await getImageList()
+  handlePackagesList()
 
-  const getImageList = async <T extends keyof PackagesType>(type: T, pageNum: number=1) => {
+  // 选中的对象值
+  const selectOptions = ref(menuOptions[0])
+
+  const getImageList = async <T extends keyof PackagesType>(type: T, pageNum: number=1, isUp: boolean = false) => {
     const imageList: Array<ConfigType> = []
     const param = {
       condition: {
@@ -89,38 +108,27 @@ export const useAsideHook = () => {
           redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
         })
       })
-      // packagesStore.setImagePayload('totalPages', res.data.totalPages)
+      if ( type === PackagesCategoryEnum.IMAGES ) {
+        packagesStore.setImagePayload('totalPages', res.data.totalPages)
+        packagesStore.setImagePayload('pageNum', res.data.pageNum)
+      } else {
+        packagesStore.setVideoPayload('totalPages', res.data.totalPages)
+        packagesStore.setVideoPayload('pageNum', res.data.pageNum)
+      }
     }
     menuOptions.map((item: MenuOptionsType, index: number) => {
       if (item.key === type) {
-        packagesStore.setUpdateList(type, imageList)
-        menuOptions[index].list = imageList
+        packagesStore.setUpdateList(type, [...imageList])
+        menuOptions[index].list = [...imageList]
+        selectOptions.value.list = [...imageList]
       }
     })
   }
-  // 处理列表
-  const handlePackagesList = () => {
-    for (const val in packagesStore.getPackagesList) {
-      menuOptions.push({
-        key: val,
-        // @ts-ignore
-        icon: packagesListObj[val].icon,
-        // @ts-ignore
-        label: packagesListObj[val].label,
-        // @ts-ignore
-        list: packagesStore.getPackagesList[val]
-      })
-    }
-  }
-  // await getImageList()
-  handlePackagesList()
 
   // 记录选中值
   let beforeSelect: string = menuOptions[0]['key']
   const selectValue = ref<string>(menuOptions[0]['key'])
 
-  // 选中的对象值
-  const selectOptions = ref(menuOptions[0])
 
   // 点击 item
   const clickItemHandle = (key: string, item: any) => {

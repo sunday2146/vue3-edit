@@ -16,6 +16,11 @@ export const usePackagesStore = defineStore({
       pageNum: 1,
       pageSize: 10,
       totalPages: 1
+    },
+    videoPayload: {
+      pageNum: 1,
+      pageSize: 10,
+      totalPages: 1
     }
   }),
   getters: {
@@ -27,6 +32,9 @@ export const usePackagesStore = defineStore({
     },
     getImagePayload(): ImagePayloadType {
       return this.imagePayload
+    },
+    getVideoPayload(): ImagePayloadType {
+      return this.videoPayload
     }
   },
   actions: {
@@ -42,11 +50,17 @@ export const usePackagesStore = defineStore({
       setLocalStorage(StoreKey, userPhotosList)
     },
     setUpdateList<T extends keyof PackagesType>(key: T, list: Array<ConfigType>): void {
-      this.packagesList[key] = list
+      this.packagesList[key] = [...list]
+      // list.map(item => {
+      //   this.packagesList[key].push(list)
+      // })
       this.imageList = list
     },
     setImagePayload<T extends keyof ImagePayloadType>(key: T, val: number): void {
       this.imagePayload[key] = val
+    },
+    setVideoPayload<T extends keyof ImagePayloadType>(key: T, val: number): void {
+      this.videoPayload[key] = val
     }
   }
 })

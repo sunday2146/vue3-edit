@@ -705,6 +705,34 @@ export const useChartEditStore = defineStore({
         })
         return
       }
+
+      // 处理分页
+      console.log(HistoryItem, 9999999999997777)
+      if (HistoryItem.targetType === HistoryTargetTypeEnum.PAGE) {
+        if ( HistoryItem.actionType === HistoryPageTypeEnum.PAGE_SWITCH )
+          if (isForward){
+            const rePage = historyData[1]
+            this.setCurrentPage(rePage, false)
+          } else {
+            const rePage = historyData[0]
+            this.setCurrentPage(rePage, false)
+          }
+        if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_ADD)
+          if (isForward) {
+            const $ = historyData[0];
+            this.pageConfig.pageList.push($)
+          } else
+            this.pageConfig.pageList.pop();
+        if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_DELETE)
+          if (isForward) {
+            const $ = historyData[1];
+            this.pageConfig = cloneDeep($)
+          } else {
+            const $ = historyData[0];
+            this.pageConfig = cloneDeep($)
+          }
+        return
+      }
     },
     // * 撤回
     setBack() {
@@ -1030,18 +1058,24 @@ export const useChartEditStore = defineStore({
       this.pageConfig.pageList.push(pageData)
       chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD)
     },
-    setCurrentPage(index: number): void {
+    setCurrentPage(index: number = 0, isActive: boolean = true): void {
       this.saveCurrentPage()
+      let a;
+      isActive && (a = this.pageConfig.activeIndex);
       const oldActive = this.pageConfig.activeIndex;
       if (oldActive === index) {
         return
       }
       this.setTargetSelectChart()
-      const newData = this.pageConfig.pageList[index]
+      const i = index === void 0 ? oldActive : index
+      const newData = this.pageConfig.pageList[i]
       this.componentList = newData.componentList
       this.editCanvasConfig = newData.editCanvasConfig
       this.pageConfig.activeIndex = index
-      chartHistoryStore.createPageConfig([oldActive, index], HistoryPageTypeEnum.PAGE_SWITCH)
+      if (isActive) {
+        const newIndex = this.pageConfig.activeIndex;
+        chartHistoryStore.createPageConfig([oldActive, newIndex], HistoryPageTypeEnum.PAGE_SWITCH)
+      }
     },
     copyPageByIndex(index: number) {
       const n = this.pageConfig.pageList[index];

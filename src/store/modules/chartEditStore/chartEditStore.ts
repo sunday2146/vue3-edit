@@ -587,10 +587,10 @@ export const useChartEditStore = defineStore({
       this.setTargetSelectChart()
 
       // 重新选中
-      let historyData = HistoryItem.historyData as Array<CreateComponentType | CreateComponentGroupType>
+      let historyData = HistoryItem.historyData as Array<any>
       if (isArray(historyData)) {
         // 选中目标元素，支持多个
-        historyData.forEach((item: CreateComponentType | CreateComponentGroupType) => {
+        historyData.forEach((item: any) => {
           this.setTargetSelectChart(item.id, true)
         })
       }
@@ -711,11 +711,11 @@ export const useChartEditStore = defineStore({
       if (HistoryItem.targetType === HistoryTargetTypeEnum.PAGE) {
         if ( HistoryItem.actionType === HistoryPageTypeEnum.PAGE_SWITCH )
           if (isForward){
-            const rePage = historyData[1]
-            this.setCurrentPage(rePage, false)
+            const $ = historyData[1]
+            this.setCurrentPage($, false)
           } else {
-            const rePage = historyData[0]
-            this.setCurrentPage(rePage, false)
+            const $ = historyData[0]
+            this.setCurrentPage($, false)
           }
         if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_ADD)
           if (isForward) {

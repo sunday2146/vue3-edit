@@ -6,9 +6,9 @@
         <bar-chart-icon></bar-chart-icon>
       </n-icon>
     </template>
-
     <template #top-right>
-      <charts-search v-show="getCharts" :menuOptions="menuOptions"></charts-search>
+      <image-search v-if="selectValue === 'Images' || selectValue === 'Videos'" v-show="getCharts" :menuOptions="menuOptions"></image-search>
+      <charts-search v-else v-show="getCharts" :menuOptions="menuOptions"></charts-search>
     </template>
     <!-- 图表 -->
     <aside>
@@ -44,14 +44,15 @@ import {onMounted, unref, ref, computed, watch} from 'vue'
 import { ContentBox } from '../ContentBox/index'
 import { ChartsOptionContent } from './components/ChartsOptionContent'
 import { ChartsSearch } from './components/ChartsSearch'
+import { ImageSearch } from './components/ImageSearch'
 import { useAsideHook } from './hooks/useAside.hook'
 import { PackagesCategoryEnum, ImagePayloadType } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 
-const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageList } = useAsideHook()
+const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq } = useAsideHook()
 onMounted(async () => {
-  await getImageList(PackagesCategoryEnum.IMAGES, 1)
-  await getImageList(PackagesCategoryEnum.VIDEOS)
+  await getImageListReq(PackagesCategoryEnum.IMAGES, 1)
+  await getImageListReq(PackagesCategoryEnum.VIDEOS)
 })
 const packagesStore = usePackagesStore()
 const pageNum = ref(1)
@@ -60,20 +61,20 @@ const videosPayload = computed(() => packagesStore.getVideoPayload)
 // const packagesList = computed(() => packagesStore.getPackagesList)
 
 const changePage = async (pageNum: number) => {
-  await getImageList(PackagesCategoryEnum.IMAGES, pageNum, true)
   packagesStore.setImagePayload('pageNum', pageNum)
+  await getImageListReq(PackagesCategoryEnum.IMAGES, pageNum, true)
 }
 
 const changeVidoePage = async (pageNum: number) => {
-  await getImageList(PackagesCategoryEnum.VIDEOS, pageNum, true)
   packagesStore.setVideoPayload('pageNum', pageNum)
+  await getImageListReq(PackagesCategoryEnum.VIDEOS, pageNum, true)
 }
 const selectOptionsRef = ref(selectOptions)
 pageNum.value= packagesStore.getImagePayload.pageNum
 
-watch(() => selectOptions.value && selectOptions.value.list, (newValue) => {
-  console.log(newValue, 99998)
-})
+// watch(() => selectOptions.value && selectOptions.value.list, (newValue) => {
+//   console.log(newValue, 99998)
+// })
 </script>
 
 <style lang="scss" scoped>

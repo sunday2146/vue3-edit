@@ -15,12 +15,14 @@ export const usePackagesStore = defineStore({
     imagePayload: {
       pageNum: 1,
       pageSize: 10,
-      totalPages: 1
+      totalPages: 1,
+      fileName: ''
     },
     videoPayload: {
       pageNum: 1,
       pageSize: 10,
-      totalPages: 1
+      totalPages: 1,
+      fileName: ''
     }
   }),
   getters: {
@@ -56,10 +58,10 @@ export const usePackagesStore = defineStore({
       // })
       this.imageList = list
     },
-    setImagePayload<T extends keyof ImagePayloadType>(key: T, val: number): void {
+    setImagePayload<T extends keyof ImagePayloadType>(key: T, val: number | string | any): void {
       this.imagePayload[key] = val
     },
-    setVideoPayload<T extends keyof ImagePayloadType>(key: T, val: number): void {
+    setVideoPayload<T extends keyof ImagePayloadType>(key: T, val: number | string | any): void {
       this.videoPayload[key] = val
     }
   }

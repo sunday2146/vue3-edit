@@ -74,10 +74,18 @@ const setSelectOptions = (categorys: any) => {
   }
 }
 
+watch(() => props.selectOptions && props.selectOptions.list, (newValue) => {
+  // console.log(newValue, packages, props.selectOptions, 88888888888884)
+  if (props.selectOptions['key'] === PackagesCategoryEnum.IMAGES || props.selectOptions['key'] === PackagesCategoryEnum.VIDEOS) {
+    packages.selectOptions = [...newValue]
+  }
+})
+
 watch(
   // @ts-ignore
   () => props.selectOptions,
   (newData: { list: ConfigType[] }) => {
+    // console.log(newData, 777777777775)
     packages.categorysNum = 0
     if (!newData) return
     newData.list.forEach((e: ConfigType) => {

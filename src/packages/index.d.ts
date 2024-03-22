@@ -215,5 +215,6 @@ export type PackagesType = {
 export interface ImagePayloadType {
   pageNum: number,
   pageSize: number,
-  totalPages: number
+  totalPages: number,
+  fileName?: string
 }

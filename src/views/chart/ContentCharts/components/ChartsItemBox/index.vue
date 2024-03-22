@@ -9,7 +9,7 @@
       <div
         class="item-box"
         v-for="(item, index) in menuOptions"
-        :key="item.title"
+        :key="item.key || item.title"
         draggable
         @dragstart="!item.disabled && dragStartHandle($event, item)"
         @dragend="!item.disabled && dragendHandle"

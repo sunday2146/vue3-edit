@@ -6,7 +6,10 @@ import { StorageEnum } from '@/enums/storageEnum'
 import { FileTypeEnum } from '@/enums/fileTypeEnum'
 import { backgroundImageSize } from '@/settings/designSetting'
 import { usePackagesStore } from '@/store/modules/packagesStore/packagesStore'
+import {getMediaInfo} from '@/api/path'
+import {ResultEnum} from "@/enums/httpEnum";
 
+const requestUrl = import.meta.env.VITE_PRO_PATH
 const StoreKey = StorageEnum.GO_USER_MEDIA_PHOTOS
 
 /**
@@ -88,4 +91,37 @@ const addConfig = {
   }
 }
 
+// let reqData = []
+// const reqImgList =async () => {
+//   const param = {
+//     condition: {
+//       appType: "led",
+//       directoryId: "",
+//       examineState: 1,
+//       type: 'VIDEO',
+//       fileName: ""
+//     },
+//     pageNum: 2,
+//     pageSize: 10
+//   }
+//   const res = await getMediaInfo(param)
+//   if (res && res.data && res.code === ResultEnum.SUCCESS) {
+//     res.data.data.map((i: any) => {
+//       reqData.push({
+//         ...ImageConfig,
+//         id: i.id,
+//         category: PackagesCategoryEnum.PHOTOS,
+//         categoryName: PackagesCategoryEnum.PHOTOS,
+//         package: PackagesCategoryEnum.PHOTOS,
+//         chartFrame: ChartFrameEnum.STATIC,
+//         image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+//         dataset: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+//         title: i.name,
+//         redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
+//       })
+//     })
+//   }
+//   return reqData
+// }
+// reqImgList()
 export default [addConfig, ...userPhotosList]

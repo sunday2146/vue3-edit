@@ -74,23 +74,24 @@ export const useAsideHook = () => {
       })
     }
   }
-  // await getImageList()
+  // await getImageListReq()
   handlePackagesList()
 
   // 选中的对象值
   const selectOptions = ref(menuOptions[0])
 
-  const getImageList = async <T extends keyof PackagesType>(type: T, pageNum: number=1, isUp: boolean = false) => {
+  const getImageListReq = async <T extends keyof PackagesType>(type: T, pageNum: number=1, isUp: boolean = false) => {
     const imageList: Array<ConfigType> = []
+    const payload = PackagesCategoryEnum.IMAGES ? packagesStore.getImagePayload : packagesStore.getVideoPayload
     const param = {
       condition: {
         appType: "led",
         directoryId: "",
         examineState: 1,
         type: type === PackagesCategoryEnum.IMAGES ? "IMG" : 'VIDEO',
-        fileName: ""
+        fileName: payload.fileName || ''
       },
-      pageNum,
+      pageNum: payload.pageNum || 1,
       pageSize: 10
     }
     const res = await getMediaInfo(param)
@@ -98,6 +99,7 @@ export const useAsideHook = () => {
       res.data.data.map((i: any) => {
         imageList.push({
           ...ImageConfig,
+          key: i.id,
           category: type,
           categoryName: type,
           package: type,
@@ -110,17 +112,15 @@ export const useAsideHook = () => {
       })
       if ( type === PackagesCategoryEnum.IMAGES ) {
         packagesStore.setImagePayload('totalPages', res.data.totalPages)
-        packagesStore.setImagePayload('pageNum', res.data.pageNum)
       } else {
         packagesStore.setVideoPayload('totalPages', res.data.totalPages)
-        packagesStore.setVideoPayload('pageNum', res.data.pageNum)
       }
     }
     menuOptions.map((item: MenuOptionsType, index: number) => {
       if (item.key === type) {
         packagesStore.setUpdateList(type, [...imageList])
         menuOptions[index].list = [...imageList]
-        selectOptions.value.list = [...imageList]
+        selectOptions.value.list = [...[], ...imageList]
       }
     })
   }
@@ -154,6 +154,6 @@ export const useAsideHook = () => {
     selectValue,
     clickItemHandle,
     menuOptions,
-    getImageList
+    getImageListReq
   }
 }

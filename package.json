@@ -1,6 +1,6 @@
 {
   "name": "vue3-edit",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "engines": {
     "node": ">=12.0"
   },

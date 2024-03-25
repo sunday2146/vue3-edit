@@ -81,8 +81,8 @@
       </SettingItem>
     </SettingItemBox>
 
-    <SettingItemBox name="悬浮 （预览可见）">
-      <SettingItem name="禁用">
+    <SettingItemBox name="鼠标悬停聚焦">
+      <SettingItem name="禁用（预览可见）">
         <n-space>
           <n-switch v-model:value="seriesList[1].emphasis.disabled" size="small"></n-switch>
         </n-space>

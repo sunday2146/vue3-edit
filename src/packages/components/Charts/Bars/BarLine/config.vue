@@ -4,9 +4,30 @@
   <CollapseItem
     v-for="(item, index) in seriesList"
     :key="index"
-    :name="`${item.type == 'bar' ? '柱状图' : '折线图'}`"
+    :name="`系列${index + 1}`"
     :expanded="true"
   >
+    <template #header>
+      <n-text class="go-fs-13" depth="3">
+        {{ item.type == 'bar' ? '「柱状图」' : '「折线图」' }}
+      </n-text>
+    </template>
+    <SettingItemBox name="类型">
+      <SettingItem name="宽度">
+        <n-select
+          :value="item.type"
+          size="small"
+          :options="[
+            { label: '柱状图', value: 'bar' },
+            { label: '折线图', value: 'line' }
+          ]"
+          @update:value="(value: any) => {
+            updateHandle(item, value)
+          }"
+        />
+      </SettingItem>
+ 
+    </SettingItemBox>
     <SettingItemBox name="图形" v-if="item.type == 'bar'">
       <SettingItem name="宽度">
         <n-input-number
@@ -34,6 +55,12 @@
       <SettingItem name="类型">
         <n-select v-model:value="item.lineStyle.type" size="small" :options="lineConf.lineStyle.type"></n-select>
       </SettingItem>
+      <setting-item>
+        <n-space>
+          <n-switch v-model:value="item.smooth" size="small" />
+          <n-text>曲线</n-text>
+        </n-space>
+      </setting-item>
     </SettingItemBox>
     <SettingItemBox name="实心点" v-if="item.type == 'line'">
       <SettingItem name="大小">
@@ -63,10 +90,10 @@
         <n-select
           v-model:value="item.label.position"
           :options="[
-            { label: 'top', value: 'top' },
-            { label: 'left', value: 'left' },
-            { label: 'right', value: 'right' },
-            { label: 'bottom', value: 'bottom' }
+            { label: '顶部', value: 'top' },
+            { label: '左侧', value: 'left' },
+            { label: '右侧', value: 'right' },
+            { label: '底部', value: 'bottom' }
           ]"
         />
       </setting-item>
@@ -75,10 +102,18 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed } from 'vue'
-import { GlobalSetting, CollapseItem, SettingItemBox, SettingItem } from '@/components/Pages/ChartItemSetting'
+import { PropType, computed, toRaw } from 'vue'
+import { merge, cloneDeep } from 'lodash';
+
+import GlobalSetting from '@/components/Pages/ChartItemSetting/GlobalSetting.vue'
+import CollapseItem from '@/components/Pages/ChartItemSetting/CollapseItem.vue'
+import SettingItemBox from '@/components/Pages/ChartItemSetting/SettingItemBox.vue'
+import SettingItem from '@/components/Pages/ChartItemSetting/SettingItem.vue'
+
 import { lineConf } from '@/packages/chartConfiguration/echarts'
 import { GlobalThemeJsonType } from '@/settings/chartThemes'
+import { barSeriesItem, lineSeriesItem } from './config'
+
 
 const props = defineProps({
   optionData: {
@@ -90,4 +125,14 @@ const props = defineProps({
 const seriesList = computed(() => {
   return props.optionData.series
 })
+
+const updateHandle = (item:any, value:string) => {
+  const _label = cloneDeep(toRaw(item.label))
+  lineSeriesItem.label = _label
+  if (value === 'line') {
+    merge(item, lineSeriesItem)
+  } else {
+    merge(item, barSeriesItem)
+  }
+}
 </script>

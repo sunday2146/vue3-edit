@@ -28,9 +28,13 @@ let {
   amapStyleKeyCustom,
   features,
   viewMode,
+  showLabel,
   pitch,
   skyColor,
-  marker
+  marker,
+  satelliteTileLayer,
+  roadNetTileLayer,
+  trafficTileLayer
 } = toRefs(props.chartConfig.option.mapOptions)
 
 let mapIns: any = null
@@ -42,7 +46,7 @@ const initMap = (newData: any) => {
   // 初始化
   AMapLoader.load({
     key: amapKey.value, //api服务key--另外需要在public中使用安全密钥！！！
-    version: '1.4.8', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
+    version: '1.4.15', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
     plugins: ['AMap.PlaceSearch', 'AMap.AutoComplete'] // 需要使用的的插件列表
   })
     .then(AMap => {
@@ -56,17 +60,40 @@ const initMap = (newData: any) => {
         pitch: pitch.value, // 地图俯仰角度，有效范围 0 度- 83 度
         skyColor: skyColor.value,
         viewMode: viewMode.value, // 地图模式
+        showLabel: showLabel.value, // 是否显示地图文字标记
         willReadFrequently: true
       })
       dataHandle(props.chartConfig.option.dataset)
-      let satellite = new AMap.TileLayer.Satellite()
-      let roadNet = new AMap.TileLayer.RoadNet()
-      if (newData.amapStyleKey === ThemeEnum.WEIXIN) {
-        mapIns.add([satellite, roadNet])
-      } else {
-        mapIns.remove([satellite, roadNet])
-        mapIns.setMapStyle(`amap://styles/${amapStyleKeyCustom.value !== '' ? amapStyleKeyCustom.value : amapStyleKey.value}`)
+
+      let satelliteLayer = new AMap.TileLayer.Satellite({
+        zIndex: satelliteTileLayer.value.zIndex,
+        opacity: satelliteTileLayer.value.opacity,
+        zooms: satelliteTileLayer.value.zooms
+      })
+      let roadNetLayer = new AMap.TileLayer.RoadNet({
+        zIndex: roadNetTileLayer.value.zIndex,
+        opacity: roadNetTileLayer.value.opacity,
+        zooms: roadNetTileLayer.value.zooms
+      })
+      let trafficLayer = new AMap.TileLayer.Traffic({
+        zIndex: trafficTileLayer.value.zIndex,
+        opacity: trafficTileLayer.value.opacity,
+        zooms: trafficTileLayer.value.zooms
+      })
+      mapIns.remove([satelliteLayer, roadNetLayer, trafficLayer])
+      if (satelliteTileLayer.value.show) {
+        mapIns.add([satelliteLayer])
       }
+      if (roadNetTileLayer.value.show) {
+        mapIns.add([roadNetLayer])
+      }
+      if (trafficTileLayer.value.show) {
+        mapIns.add([trafficLayer])
+      }
+
+      mapIns.setMapStyle(
+        `amap://styles/${amapStyleKeyCustom.value !== '' ? amapStyleKeyCustom.value : amapStyleKey.value}`
+      )
     })
     .catch(e => {})
 }

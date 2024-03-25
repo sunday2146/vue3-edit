@@ -22,12 +22,20 @@
         <n-select size="small" v-model:value="optionData.mapOptions.amapStyleKey" :options="themeOptions" />
       </setting-item>
     </setting-item-box>
-    <setting-item-box name="内容" :alone="true">
+    <setting-item-box name="显示要素" :alone="true">
       <n-checkbox-group v-model:value="optionData.mapOptions.features">
         <n-space item-style="display: flex;">
           <n-checkbox :value="item.value" :label="item.label" v-for="(item, index) in featuresOptions" :key="index" />
         </n-space>
       </n-checkbox-group>
+    </setting-item-box>
+    <setting-item-box name="文字标注" :alone="true">
+      <setting-item>
+        <n-space>
+          <n-switch v-model:value="optionData.mapOptions.showLabel" size="small" />
+          <n-text>是否显示</n-text>
+        </n-space>
+      </setting-item>
     </setting-item-box>
     <setting-item-box name="位置">
       <setting-item name="经度">
@@ -76,11 +84,94 @@
       </setting-item>
     </setting-item-box>
   </collapse-item>
+  <collapse-item name="图层" :expanded="true">
+    <setting-item-box name="卫星图层">
+      <setting-item>
+        <n-space>
+          <n-switch v-model:value="optionData.mapOptions.satelliteTileLayer.show" size="small" />
+          <n-text>是否显示</n-text>
+        </n-space>
+      </setting-item>
+      <setting-item name="叠加顺序值">
+        <n-input-number
+          v-model:value="optionData.mapOptions.satelliteTileLayer.zIndex"
+          :min="0"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="透明度">
+        <n-input-number
+          v-model:value="optionData.mapOptions.satelliteTileLayer.opacity"
+          :min="0"
+          :max="1"
+          step="0.1"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="缩放级别范围">
+        <n-slider v-model:value="optionData.mapOptions.satelliteTileLayer.zooms" range :step="1" :max="18" :min="3" />
+      </setting-item>
+    </setting-item-box>
+    <setting-item-box name="路网图层">
+      <setting-item>
+        <n-space>
+          <n-switch v-model:value="optionData.mapOptions.roadNetTileLayer.show" size="small" />
+          <n-text>是否显示</n-text>
+        </n-space>
+      </setting-item>
+      <setting-item name="叠加顺序值">
+        <n-input-number
+          v-model:value="optionData.mapOptions.roadNetTileLayer.zIndex"
+          :min="0"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="透明度">
+        <n-input-number
+          v-model:value="optionData.mapOptions.roadNetTileLayer.opacity"
+          :min="0"
+          :max="1"
+          step="0.1"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="缩放级别范围">
+        <n-slider v-model:value="optionData.mapOptions.roadNetTileLayer.zooms" range :step="1" :max="18" :min="3" />
+      </setting-item>
+    </setting-item-box>
+    <setting-item-box name="实时交通">
+      <setting-item>
+        <n-space>
+          <n-switch v-model:value="optionData.mapOptions.trafficTileLayer.show" size="small" />
+          <n-text>是否显示</n-text>
+        </n-space>
+      </setting-item>
+      <setting-item name="叠加顺序值">
+        <n-input-number
+          v-model:value="optionData.mapOptions.trafficTileLayer.zIndex"
+          :min="0"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="透明度">
+        <n-input-number
+          v-model:value="optionData.mapOptions.trafficTileLayer.opacity"
+          :min="0"
+          :max="1"
+          step="0.1"
+          size="small"
+        ></n-input-number>
+      </setting-item>
+      <setting-item name="缩放级别范围">
+        <n-slider v-model:value="optionData.mapOptions.trafficTileLayer.zooms" range :step="1" :max="18" :min="3" />
+      </setting-item>
+    </setting-item-box>
+  </collapse-item>
 </template>
 
 <script setup lang="ts">
 import { PropType } from 'vue'
-import { option, MarkerEnum, ThemeEnum, LangEnum, ViewModeEnum, FeaturesEnum } from './config'
+import { option, MarkerEnum, ThemeEnum, LangEnum, ViewModeEnum, ShowHideEnum, FeaturesEnum } from './config'
 import { CollapseItem, SettingItemBox, SettingItem } from '@/components/Pages/ChartItemSetting'
 
 defineProps({
@@ -134,10 +225,6 @@ const themeOptions = [
   {
     value: ThemeEnum.WINE,
     label: '酱籽'
-  },
-  {
-    value: ThemeEnum.WEIXIN,
-    label: '卫星'
   }
 ]
 
@@ -170,19 +257,19 @@ const viewModeOptions = [
 const featuresOptions = [
   {
     value: FeaturesEnum.BG,
-    label: '显示地图背景'
+    label: '区域面'
   },
   {
     value: FeaturesEnum.POINT,
-    label: '显示标识'
+    label: '标注'
   },
   {
     value: FeaturesEnum.ROAD,
-    label: '显示道路'
+    label: '道路'
   },
   {
     value: FeaturesEnum.BUILDING,
-    label: '显示建筑'
+    label: '建筑物'
   }
 ]
 

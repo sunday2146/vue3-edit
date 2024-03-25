@@ -171,7 +171,19 @@ const backLevel = () => {
 
 // 切换地图
 const checkOrMap = async (newData: string) => {
-  await getGeojson(newData)
+  if (newData === 'china') {
+    if (props.chartConfig.option.mapRegion.showHainanIsLands) {
+      // 显示南海
+      hainanLandsHandle(true)
+      vEchartsSetOption()
+    } else {
+      // 隐藏南海
+      hainanLandsHandle(false)
+      vEchartsSetOption()
+    }
+  } else {
+    await getGeojson(newData)
+  }
   props.chartConfig.option.geo.map = newData
   props.chartConfig.option.series.forEach((item: any) => {
     if (item.type === 'map') item.map = newData

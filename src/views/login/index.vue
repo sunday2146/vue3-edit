@@ -15,13 +15,7 @@
         </transition-group>
       </aside>
     </div>
-    <layout-header>
-      <template #left></template>
-      <template #right>
-        <go-lang-select></go-lang-select>
-        <go-theme-select></go-theme-select>
-      </template>
-    </layout-header>
+    <layout-header></layout-header>
     <div class="go-login">
       <div class="go-login-carousel">
         <n-carousel
@@ -62,6 +56,7 @@
                     type="text"
                     maxlength="16"
                     :placeholder="$t('global.form_account')"
+                    @keydown.enter="handleSubmit"
                   >
                     <template #prefix>
                       <n-icon size="18">
@@ -77,6 +72,7 @@
                     maxlength="16"
                     show-password-on="click"
                     :placeholder="$t('global.form_password')"
+                    @keydown.enter="handleSubmit"
                   >
                     <template #prefix>
                       <n-icon size="18">

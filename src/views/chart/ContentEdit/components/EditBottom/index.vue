@@ -153,6 +153,7 @@ $max-width: 670px;
   min-width: $min-width;
   min-width: $max-width;
   padding: 0 10px;
+  padding-left: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;

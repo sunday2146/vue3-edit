@@ -16,8 +16,7 @@ export enum ThemeEnum {
   MACARON = 'macaron',
   BLUE = 'blue',
   DARKBLUE = 'darkblue',
-  WINE = 'wine',
-  WEIXIN = 'tileLayer'
+  WINE = 'wine'
 }
 
 export enum LangEnum {
@@ -29,6 +28,11 @@ export enum LangEnum {
 export enum ViewModeEnum {
   PLANE = '2D',
   STEREOSCOPIC = '3D'
+}
+
+export const ShowHideEnum = {
+  SHOW: true,
+  HIDE: false
 }
 
 export enum FeaturesEnum {
@@ -71,6 +75,25 @@ export const option = {
     },
     mapMarkerType: MarkerEnum.CIRCLE_MARKER,
     viewMode: ViewModeEnum.PLANE,
+    showLabel: ShowHideEnum.SHOW,
+    satelliteTileLayer: {
+      show: ShowHideEnum.HIDE,
+      zIndex: 1,
+      opacity: 1,
+      zooms: [3, 18]
+    },
+    roadNetTileLayer: {
+      show: ShowHideEnum.HIDE,
+      zIndex: 2,
+      opacity: 1,
+      zooms: [3, 18]
+    },
+    trafficTileLayer: {
+      show: ShowHideEnum.HIDE,
+      zIndex: 3,
+      opacity: 1,
+      zooms: [3, 18]
+    },
     lang: LangEnum.ZH_CN,
     features: [FeaturesEnum.BG, FeaturesEnum.POINT, FeaturesEnum.ROAD, FeaturesEnum.BUILDING]
   }

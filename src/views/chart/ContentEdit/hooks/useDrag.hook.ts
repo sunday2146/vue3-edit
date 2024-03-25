@@ -302,7 +302,11 @@ export const useMouseHandle = () => {
               }
             })
           })
-          chartEditStore.moveComponentList(prevComponentInstance)
+
+          const moveComponentInstance = prevComponentInstance.filter(
+              item => item.attr.offsetX !== 0 && item.attr.offsetY !== 0
+          )
+          moveComponentInstance.length && chartEditStore.moveComponentList(moveComponentInstance)
         }
         document.removeEventListener('mousemove', mousemove)
         document.removeEventListener('mouseup', mouseup)

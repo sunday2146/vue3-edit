@@ -1,8 +1,8 @@
 <template>
-  <!-- mask-closable 暂时是失效的，不知道为啥 -->
   <n-modal
     class="go-modal-box"
     v-model:show="showRef"
+    :mask-closable="true"
     @afterLeave="closeHandle"
   >
     <n-card hoverable size="small">

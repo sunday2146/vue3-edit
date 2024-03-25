@@ -9,7 +9,7 @@
       <div
         class="item-box"
         v-for="(item, index) in menuOptions"
-        :key="item.key || item.title"
+        :key="item.key"
         draggable
         @dragstart="!item.disabled && dragStartHandle($event, item)"
         @dragend="!item.disabled && dragendHandle"
@@ -116,6 +116,7 @@ const dblclickHandle = async (item: ConfigType) => {
   try {
     loadingStart()
     // 动态注册图表组件
+    console.log(item, 88888)
     componentInstall(item.chartKey, fetchChartComponent(item))
     componentInstall(item.conKey, fetchConfigComponent(item))
     // 创建新图表组件

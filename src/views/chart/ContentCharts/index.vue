@@ -49,10 +49,10 @@ import { useAsideHook } from './hooks/useAside.hook'
 import { PackagesCategoryEnum, ImagePayloadType } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 
-const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq } = useAsideHook()
+const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq, getVideoListReq } = useAsideHook()
 onMounted(async () => {
   await getImageListReq(PackagesCategoryEnum.IMAGES, 1)
-  await getImageListReq(PackagesCategoryEnum.VIDEOS)
+  await getVideoListReq(PackagesCategoryEnum.VIDEOS, 1)
 })
 const packagesStore = usePackagesStore()
 const pageNum = ref(1)

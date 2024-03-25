@@ -99,14 +99,13 @@ export const useAsideHook = () => {
       res.data.data.map((i: any) => {
         imageList.push({
           ...ImageConfig,
-          key: i.id,
-          category: type,
-          categoryName: type,
+          category: PackagesCategoryEnum.IMAGES,
+          categoryName: PackagesCategoryName.IMAGES,
           package: type,
           chartFrame: ChartFrameEnum.STATIC,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           dataset: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-          title: i.name,
+          title: i.storeFileName,
           redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
         })
       })
@@ -121,6 +120,48 @@ export const useAsideHook = () => {
         packagesStore.setUpdateList(type, [...imageList])
         menuOptions[index].list = [...imageList]
         selectOptions.value.list = [...[], ...imageList]
+      }
+    })
+  }
+
+  const getVideoListReq = async <T extends keyof PackagesType>(type: T, pageNum: number=1, isUp: boolean = false) => {
+    const List: Array<ConfigType> = []
+    const payload = packagesStore.getVideoPayload
+    const param = {
+      condition: {
+        appType: "led",
+        directoryId: "",
+        examineState: 1,
+        type: 'VIDEO',
+        fileName: payload.fileName || ''
+      },
+      pageNum: payload.pageNum || 1,
+      pageSize: 10
+    }
+    const res = await getMediaInfo(param)
+    if (res && res.code === ResultEnum.SUCCESS) {
+      res.data.data.map((i: any) => {
+        List.push({
+          key: 'Video',
+          chartKey: 'VVideo',
+          conKey: 'VCVideo',
+          category: PackagesCategoryEnum.VIDEOS,
+          categoryName: PackagesCategoryName.VIDEOS,
+          package: PackagesCategoryEnum.INFORMATIONS,
+          chartFrame: ChartFrameEnum.COMMON,
+          image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+          dataset: `${requestUrl}/system${i.downloadUrl}`,
+          title: i.storeFileName,
+          redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
+        })
+      })
+      packagesStore.setVideoPayload('totalPages', res.data.totalPages)
+    }
+    menuOptions.map((item: MenuOptionsType, index: number) => {
+      if (item.key === type) {
+        packagesStore.setUpdateList(type, [...List])
+        menuOptions[index].list = [...List]
+        selectOptions.value.list = [...List]
       }
     })
   }
@@ -154,6 +195,7 @@ export const useAsideHook = () => {
     selectValue,
     clickItemHandle,
     menuOptions,
-    getImageListReq
+    getImageListReq,
+    getVideoListReq
   }
 }

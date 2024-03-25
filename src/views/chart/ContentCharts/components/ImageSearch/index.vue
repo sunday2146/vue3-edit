@@ -15,26 +15,26 @@
           <n-icon v-show="!loading" :component="SearchIcon" />
         </n-button>
       </n-input-group>
-<!--      <n-popover-->
-<!--        class="chart-search-popover"-->
-<!--        :show-arrow="false"-->
-<!--        :show="showPopover"-->
-<!--        :to="false"-->
-<!--        trigger="hover"-->
-<!--        placement="bottom-start"-->
-<!--      >-->
-<!--        <template #trigger>-->
-<!--        </template>-->
-<!--      </n-popover>-->
+      <!--      <n-popover-->
+      <!--        class="chart-search-popover"-->
+      <!--        :show-arrow="false"-->
+      <!--        :show="showPopover"-->
+      <!--        :to="false"-->
+      <!--        trigger="hover"-->
+      <!--        placement="bottom-start"-->
+      <!--      >-->
+      <!--        <template #trigger>-->
+      <!--        </template>-->
+      <!--      </n-popover>-->
     </div>
     <n-button-group class="btn-group go-transition" :class="{ 'btn-group-focus': isFocus }" style="display: flex">
       <n-button
-        ghost
-        size="small"
-        :key="index"
-        :type="chartMode === item.value ? 'primary' : 'tertiary'"
-        v-for="(item, index) in chartModeList"
-        @click="changeChartModeType(item.value)"
+          ghost
+          size="small"
+          :key="index"
+          :type="chartMode === item.value ? 'primary' : 'tertiary'"
+          v-for="(item, index) in chartModeList"
+          @click="changeChartModeType(item.value)"
       >
         <n-tooltip :show-arrow="false" trigger="hover">
           <template #trigger>
@@ -61,6 +61,7 @@ import { fetchConfigComponent, fetchChartComponent } from '@/packages/index'
 import { componentInstall, loadingStart, loadingFinish, loadingError } from '@/utils'
 import { ChartGlobImage } from '@/components/Pages/ChartGlobImage'
 import { GoIconify } from '@/components/GoIconify'
+import { PackagesCategoryEnum } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 import {useAsideHook} from "@/views/chart/ContentCharts/hooks/useAside.hook";
 
@@ -127,7 +128,7 @@ const updateHandle = (key: string) => {
 
 // 搜索处理
 const searchHandle = () => {
-  getImageListReq('Images')
+  getImageListReq(PackagesCategoryEnum.IMAGES)
   setTimeout(() => {
     loading.value = undefined
   }, 500)

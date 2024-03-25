@@ -61,6 +61,7 @@ import { fetchConfigComponent, fetchChartComponent } from '@/packages/index'
 import { componentInstall, loadingStart, loadingFinish, loadingError } from '@/utils'
 import { ChartGlobImage } from '@/components/Pages/ChartGlobImage'
 import { GoIconify } from '@/components/GoIconify'
+import { PackagesCategoryEnum } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 import {useAsideHook} from "@/views/chart/ContentCharts/hooks/useAside.hook";
 
@@ -127,7 +128,7 @@ const updateHandle = (key: string) => {
 
 // 搜索处理
 const searchHandle = () => {
-  getImageListReq('Images')
+  getImageListReq(PackagesCategoryEnum.IMAGES)
   setTimeout(() => {
     loading.value = undefined
   }, 500)

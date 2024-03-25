@@ -178,6 +178,7 @@ export enum PackagesCategoryEnum {
   PHOTOS = 'Photos',
   IMAGES = 'Images',
   VIDEOS = 'Videos',
+  TXTS = 'Txts',
   ICONS = 'Icons',
   DECORATES = 'Decorates'
 }
@@ -190,6 +191,7 @@ export enum PackagesCategoryName {
   PHOTOS = '图片',
   IMAGES = '图片2',
   VIDEOS = '视频',
+  TXTS = '文字',
   ICONS = '图标',
   DECORATES = '小组件'
 }
@@ -210,6 +212,7 @@ export type PackagesType = {
   [PackagesCategoryEnum.DECORATES]: ConfigType[]
   [PackagesCategoryEnum.IMAGES]: ConfigType[]
   [PackagesCategoryEnum.VIDEOS]: ConfigType[]
+  [PackagesCategoryEnum.TXTS]: ConfigType[]
 }
 
 export interface ImagePayloadType {

@@ -5,6 +5,7 @@ import { TableList } from '@/packages/components/Tables/index'
 import { PhotoList } from '@/packages/components/Photos/index'
 import { IconList } from '@/packages/components/Icons/index'
 import { ImageList } from '@/packages/components/Images/index'
+import { TxtList } from '@/packages/components/Texts/index'
 import { PackagesCategoryEnum, PackagesType, ConfigType, FetchComFlagType } from '@/packages/index.d'
 
 const configModules: Record<string, { default: string }> = import.meta.glob('./components/**/config.vue', {
@@ -26,7 +27,8 @@ export let packagesList: PackagesType = {
   [PackagesCategoryEnum.PHOTOS]: PhotoList,
   [PackagesCategoryEnum.ICONS]: IconList,
   [PackagesCategoryEnum.IMAGES]: ImageList,
-  [PackagesCategoryEnum.VIDEOS]: ImageList
+  [PackagesCategoryEnum.VIDEOS]: ImageList,
+  [PackagesCategoryEnum.TXTS]: TxtList
 }
 
 // 组件缓存, 可以大幅度提升组件加载速度

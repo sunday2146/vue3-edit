@@ -12,7 +12,7 @@
       <div class="header-item right">
         <n-space>
           <slot name="ri-left"> </slot>
-          <go-lang-select></go-lang-select>
+<!--          <go-lang-select></go-lang-select>-->
 <!--          <theme-color-select></theme-color-select>-->
           <go-theme-select></go-theme-select>
           <slot name="ri-right"> </slot>

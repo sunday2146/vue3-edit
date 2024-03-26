@@ -1,11 +1,11 @@
 <template>
   <!-- 左侧所有组件的展示列表 -->
-  <content-box class="go-content-charts" :class="{ scoped: !getCharts }" title="组件" :depth="1" :backIcon="false">
-    <template #icon>
-      <n-icon size="14" :depth="2">
-        <bar-chart-icon></bar-chart-icon>
-      </n-icon>
-    </template>
+  <content-box class="go-content-charts" :class="{ scoped: !getCharts }" title="" :depth="1" :backIcon="false">
+<!--    <template #icon>-->
+<!--      <n-icon size="14" :depth="2">-->
+<!--        <bar-chart-icon></bar-chart-icon>-->
+<!--      </n-icon>-->
+<!--    </template>-->
     <template #top-right>
       <image-search v-if="selectValue === 'Images' || selectValue === 'Videos'" v-show="getCharts" :menuOptions="menuOptions"></image-search>
       <charts-search v-else v-show="getCharts" :menuOptions="menuOptions"></charts-search>
@@ -49,10 +49,11 @@ import { useAsideHook } from './hooks/useAside.hook'
 import { PackagesCategoryEnum, ImagePayloadType } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
 
-const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq, getVideoListReq } = useAsideHook()
+const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq, getVideoListReq, getTxtListReq } = useAsideHook()
 onMounted(async () => {
   await getImageListReq(PackagesCategoryEnum.IMAGES, 1)
   await getVideoListReq(PackagesCategoryEnum.VIDEOS, 1)
+  await getTxtListReq(1)
 })
 const packagesStore = usePackagesStore()
 const pageNum = ref(1)

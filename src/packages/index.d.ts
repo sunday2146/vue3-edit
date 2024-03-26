@@ -33,6 +33,7 @@ export type ConfigType = {
   chartFrame?: ChartFrameEnum
   // 预览图
   image: string
+  txtContent?: string
   // 从指定路径创建创建该组件
   redirectComponent?: string
   // 组件预设的 dataset 值(图片/图标)
@@ -185,7 +186,7 @@ export enum PackagesCategoryEnum {
 // 包分类名称
 export enum PackagesCategoryName {
   CHARTS = '图表',
-  TABLES = '列表',
+  TABLES = '文本2',
   INFORMATIONS = '信息',
   PHOTOS = '图片',
   IMAGES = '图片2',

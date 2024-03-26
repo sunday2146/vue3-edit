@@ -9,6 +9,7 @@ import {getMediaInfo} from "@/api/path";
 import {ResultEnum} from "@/enums/httpEnum";
 import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
 import {VideoConfig} from "@/packages/components/Informations/Mores/Video/index";
+import {TextCommonConfig} from "@/packages/components/Informations/Texts/TextCommon/index";
 import {ChatCategoryEnum, ChatCategoryEnumName} from "@/packages/components/Images/index.d";
 // 图标
 const { AirPlaneOutlineIcon, ImageIcon, BarChartIcon } = icon.ionicons5
@@ -165,6 +166,43 @@ export const useAsideHook = () => {
     })
   }
 
+  const getTxtListReq = async (pageNum: number=1, isUp: boolean = false) => {
+    const List: Array<ConfigType> = []
+    const payload = packagesStore.getVideoPayload
+    const param = {
+      condition: {
+        appType: "led",
+        directoryId: "",
+        examineState: 1,
+        type: 'Txt',
+        fileName: payload.fileName || ''
+      },
+      pageNum: payload.pageNum || 1,
+      pageSize: 10
+    }
+    const res = await getMediaInfo(param)
+    if (res && res.code === ResultEnum.SUCCESS) {
+      res.data.data.map((i: any) => {
+        List.push({
+          ...TextCommonConfig,
+          image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+          title: i.name,
+          txtContent: i.txtContent,
+          dataset: i.txtContent,
+          redirectComponent: `${TextCommonConfig.package}/${TextCommonConfig.category}/${TextCommonConfig.key}`
+        })
+      })
+      packagesStore.setVideoPayload('totalPages', res.data.totalPages)
+    }
+    menuOptions.map((item: MenuOptionsType, index: number) => {
+      if (item.key === PackagesCategoryEnum.TABLES) {
+        packagesStore.setUpdateList(PackagesCategoryEnum.TABLES, [...List])
+        menuOptions[index].list = [...List]
+        selectOptions.value.list = [...List]
+      }
+    })
+  }
+
   // 记录选中值
   let beforeSelect: string = menuOptions[0]['key']
   const selectValue = ref<string>(menuOptions[0]['key'])
@@ -195,6 +233,7 @@ export const useAsideHook = () => {
     clickItemHandle,
     menuOptions,
     getImageListReq,
-    getVideoListReq
+    getVideoListReq,
+    getTxtListReq
   }
 }

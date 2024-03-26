@@ -24,6 +24,7 @@
         </div>
         <div class="list-center go-flex-center go-transition" draggable="true">
           <GoIconify v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="48" style="height: auto" />
+          <GoTxtBox v-else-if="item.txtContent" class="list-img" :txtContent="item.txtContent" color="#999" width="48" style="height: auto" />
           <chart-glob-image v-else class="list-img" :chartConfig="item" />
         </div>
         <div class="list-bottom">
@@ -65,6 +66,7 @@ import { ConfigType, CreateComponentType, PackagesCategoryEnum } from '@/package
 import { ChatCategoryEnum } from '@/packages/components/Photos/index.d'
 import { fetchConfigComponent, fetchChartComponent } from '@/packages/index'
 import { GoIconify } from '@/components/GoIconify'
+import { GoTxtBox } from '@/components/GoTxtBox'
 import { icon } from '@/plugins'
 
 import omit from 'lodash/omit'

@@ -8,6 +8,7 @@ import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayo
 import {getMediaInfo} from "@/api/path";
 import {ResultEnum} from "@/enums/httpEnum";
 import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
+import {VideoConfig} from "@/packages/components/Informations/Mores/Video/index";
 import {ChatCategoryEnum, ChatCategoryEnumName} from "@/packages/components/Images/index.d";
 // 图标
 const { AirPlaneOutlineIcon, ImageIcon, BarChartIcon } = icon.ionicons5
@@ -142,9 +143,7 @@ export const useAsideHook = () => {
     if (res && res.code === ResultEnum.SUCCESS) {
       res.data.data.map((i: any) => {
         List.push({
-          key: 'Video',
-          chartKey: 'VVideo',
-          conKey: 'VCVideo',
+          ...VideoConfig,
           category: PackagesCategoryEnum.VIDEOS,
           categoryName: PackagesCategoryName.VIDEOS,
           package: PackagesCategoryEnum.INFORMATIONS,
@@ -152,7 +151,7 @@ export const useAsideHook = () => {
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           dataset: `${requestUrl}/system${i.downloadUrl}`,
           title: i.storeFileName,
-          redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
+          redirectComponent: `${VideoConfig.package}/${VideoConfig.category}/${VideoConfig.key}`
         })
       })
       packagesStore.setVideoPayload('totalPages', res.data.totalPages)

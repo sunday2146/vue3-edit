@@ -232,7 +232,7 @@ export const useSync = () => {
       }
     }
 
-    chartEditStore.initPageConfig(projectData.pageConfig)
+    // chartEditStore.initPageConfig(projectData.pageConfig)
     // 清除数量
     chartLayoutStore.setItemUnHandle(ChartLayoutStoreEnum.PERCENTAGE, 0)
   }

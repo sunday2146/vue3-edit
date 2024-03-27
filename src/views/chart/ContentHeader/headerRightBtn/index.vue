@@ -1,6 +1,6 @@
 <template>
   <n-space class="go-mt-0">
-    <n-button v-for="item in comBtnList" :key="item.key" :type="item.type()" ghost @click="item.event">
+    <n-button round v-for="item in comBtnList" :key="item.key" :type="item.type()" ghost @click="item.event">
       <template #icon>
         <component :is="item.icon"></component>
       </template>
@@ -9,51 +9,59 @@
   </n-space>
 
   <!-- 发布管理弹窗 -->
-  <n-modal v-model:show="modelShow" @afterLeave="closeHandle" title="保存并插播" preset="dialog" style="width: 600px">
-    <n-space vertical>
-      <n-space :size="10">
+  <n-modal v-model:show="modelShow" @afterLeave="closeHandle" title="保存并插播" preset="dialog" style="width: 840px">
+    <n-space vertical >
+      <n-space :size="10" class="deviceTitle">
         <n-text>设备终端：</n-text>
         <div>
-          <n-input v-model:value="facilityName" type="text" placeholder="请输入设备名称" >
+          <n-input round style="width:410px" v-model:value="facilityName" type="text" placeholder="请输入设备名称">
             <template #suffix>
               <n-icon :component="SearchIcon" />
             </template>
           </n-input>
         </div>
-        <n-select v-model:value="selectedOption" :options="optionsDeviceState" @change="filterDevices" style="width: 90px" />
-        <n-button quaternary type="primary" @click="refreshFacility">
+        <n-select round v-model:value="selectedOption" :options="optionsDeviceState" @change="filterDevices"
+          style="width: 90px" />
+
+        <n-select round style="width:100px;margin-left: 10px;" v-model:value="sizeTypeOption" @change="proSizeChange"
+          :options="typeOptions" />
+
+        <n-button quaternary type="info" @click="refreshFacility">
           刷新
         </n-button>
       </n-space>
-      <n-space style="padding-left: 70px">
-        <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys" class="deviceListTree" :pattern="facilityName"
-                children-field="deviceList" label-field="name" key-field="id" :render-prefix="renderPrefix" :render-label="renderLabel" :show-irrelevant-nodes="false"
-                expand-on-click checkable default-expand-all check-strategy="parent">
+      <n-space class="deviceTreee" >
+        <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
+          class="deviceListTree" :pattern="facilityName" children-field="deviceList" label-field="name" key-field="id"
+          :render-prefix="renderPrefix" :render-label="renderLabel" :show-irrelevant-nodes="false" expand-on-click
+          checkable default-expand-all check-strategy="parent">
         </n-tree>
       </n-space>
       <n-space :size="10">
         <n-text class="item-left">播放时长：</n-text>
         <n-space vertical>
-          <n-radio-group v-model:value="playDurationMode">
+          <n-radio-group round v-model:value="playDurationMode">
             <n-space>
               <n-radio value="times"> 节目次数 </n-radio>
               <n-radio value="DURATION"> 自定义时长 </n-radio>
             </n-space>
           </n-radio-group>
-          <n-input-number v-model:value="times" v-show="playDurationMode == 'times'" button-placement="both" min="1" max="255" />
-          <n-input v-model:value="minutes" v-show="playDurationMode == 'DURATION'" button-placement="both" min="1" max="255" />
+          <n-input-number round v-model:value="times" v-show="playDurationMode == 'times'" button-placement="both" min="1"
+            max="255" />
+          <n-input round v-model:value="minutes" v-show="playDurationMode == 'DURATION'" button-placement="both" min="1"
+            max="255" />
         </n-space>
       </n-space>
-      <n-space  justify="end">
-        <n-button @click="modelShowHandle">取消</n-button>
-        <n-button @click="savePlayer" type="info">保存并插播</n-button>
+      <n-space justify="end">
+        <n-button round @click="modelShowHandle">取消</n-button>
+        <n-button round @click="savePlayer" type="info">保存并插播</n-button>
       </n-space>
     </n-space>
   </n-modal>
 </template>
 
 <script setup lang="ts">
-import {ref, computed, watchEffect, onMounted, reactive, nextTick, h} from 'vue'
+import { ref, computed, watchEffect, onMounted, reactive, nextTick, h } from 'vue'
 import { useRoute } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
 import { PreviewEnum } from '@/enums/pageEnum'
@@ -63,7 +71,7 @@ import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore
 import { syncData } from '../../ContentEdit/components/EditTools/hooks/useSyncUpdate.hook'
 import { useSync } from '../../hooks/useSync.hook'
 import { ProjectInfoEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
-import {changeProjectReleaseApi, getFacilityListApi, ledStrategyApi} from '@/api/path'
+import { changeProjectReleaseApi, getFacilityListApi, ledStrategyApi } from '@/api/path'
 import {
   previewPath,
   renderIcon,
@@ -74,10 +82,10 @@ import {
   httpErrorHandle,
   fetchRouteParamsLocation
 } from '@/utils'
-import { optionsDeviceState} from "@/enums/configForm";
+import { optionsDeviceState, typeOptions } from "@/enums/configForm";
 import { icon } from '@/plugins'
 import { cloneDeep } from 'lodash'
-import {TreeOption, useDialog} from 'naive-ui'
+import { TreeOption, useDialog } from 'naive-ui'
 
 const dialog = useDialog()
 const { dataSyncUpdate } = useSync()
@@ -96,7 +104,8 @@ const filterTreeData = ref<any>([])
 const treeData = ref<any>([])
 const expandedKeys = ref([])
 const currentNodeKey = ref('')
-const selectedOption = ref<string>('All')
+const selectedOption = ref<string>('online')//状态
+const sizeTypeOption = ref<string>('scale')//尺寸
 const facilityName = ref<string>('')
 const playDurationMode = ref<string>('times')
 const times = ref<number>(1)
@@ -115,7 +124,7 @@ const formInline = reactive({
 })
 const getFacilityList = async () => {
   try {
-    await getFacilityListApi({deviceTypeCode: 'AdvertisingScreen', deviceTypeEnum: 'IOTDEVICE', groupType: 'COMMON'}).then((result: any) => {
+    await getFacilityListApi({ deviceTypeCode: 'AdvertisingScreen', deviceTypeEnum: 'IOTDEVICE', groupType: 'COMMON',sizeType:sizeTypeOption.value }).then((result: any) => {
       const allNode = [{
         id: 'all',
         name: '全部',
@@ -156,12 +165,12 @@ const refreshFacility = () => {
 const handleNodeClick = (checked: boolean) => {
   console.log('点击树节点data', checked)
 }
-const renderLabel = ({ option }: {option: any, checked: boolean, selected: boolean}) => {
-  return option.groupType === 'COMMON' ? `${option.name}(${ option.onlineNum } / ${ option.offlineNum + option.onlineNum })` : option.name
+const renderLabel = ({ option }: { option: any, checked: boolean, selected: boolean }) => {
+  return option.groupType === 'COMMON' ? `${option.name}(${option.onlineNum} / ${option.offlineNum + option.onlineNum})` : option.name
 }
-const renderPrefix = ({ option }: {option: TreeOption}) => {
+const renderPrefix = ({ option }: { option: TreeOption }) => {
   return option.groupType === 'COMMON' ? null :
-  h('div', {style: {width: '10px', height: '10px', background: option.onlineStatus === 'ONLINE' ? '#3749FF' : '#919299', borderRadius: '10px'}})
+    h('div', { style: { width: '10px', height: '10px', background: option.onlineStatus === 'ONLINE' ? '#3749FF' : '#919299', borderRadius: '10px' } })
 }
 const updateCheckedKeys = (keys: Array<string>) => {
   checkedKeys.value = keys
@@ -207,40 +216,92 @@ const handleFocusFacilityName = () => {
 }
 // 模态弹窗
 const modelShowHandle = () => {
-  modelShow.value = !modelShow.value
-}
+  modelShow.value = !modelShow.value;
+  console.log('modelShowHandle', treeData.value[0].deviceList);
+  if (modelShow.value) {
+    // 弹框显示，在线
+    if (treeData.value[0].deviceList) {
+      const tempTree = treeData.value[0].deviceList;
+      let fTreeData = tempTree.filter((deviceGroup: any) => {
+        // 在设备组级别过滤
+        return deviceGroup.deviceList && deviceGroup.deviceList.some((device: any) => {
+          // 在设备级别过滤
+          return device.onlineStatus === 'ONLINE';
+        });
+      }).map((deviceGroup: any) => {
+        // 创建一个新的设备组对象，以避免修改原始数据
+        return {
+          ...deviceGroup,
+          // 在设备级别过滤
+          deviceList: deviceGroup.deviceList.filter((device: any) => {
+            return device.onlineStatus === 'ONLINE';
+          })
+        };
+      });
 
+      let allNode = [{
+        id: 'all',
+        name: '全部',
+        offlineNum: 0,
+        onlineNum: 0,
+        groupType: "COMMON",
+        deviceList: fTreeData // Assuming you want to include the filtered devices
+      }];
+      filterTreeData.value = allNode;
+    }
+  }
+};
+
+
+// 切换尺寸
+const proSizeChange = (val: string) => { 
+	
+	getFacilityList();
+}
 const filterDevices = (val: string) => {
   if (val === 'All') {
     filterTreeData.value = treeData.value
   } else {
     const tempTree = treeData.value[0].deviceList
-    filterTreeData.value = tempTree.filter((deviceGroup: any) => {
+    let fTreeData = tempTree.filter((deviceGroup: any) => {
       // 在设备组级别过滤
       if (deviceGroup.deviceList) {
         return deviceGroup.deviceList.some((device: any) => {
           // 在设备级别过滤
           return val == 'online'
-              ? device.onlineStatus == 'ONLINE'
-              : device.onlineStatus == 'OFFLINE'
+            ? device.onlineStatus == 'ONLINE'
+            : device.onlineStatus == 'OFFLINE'
         })
       }
     })
-        .map((deviceGroup: any) => {
-          // 创建一个新的设备组对象，以避免修改原始数据
-          return {
-            ...deviceGroup,
-            // 在设备级别过滤
-            deviceList: deviceGroup.deviceList.filter((device: any) => {
-              return val == 'online'
-                  ? device.onlineStatus == 'ONLINE'
-                  : device.onlineStatus == 'OFFLINE'
-            })
-          }
-        })
+      .map((deviceGroup: any) => {
+        // 创建一个新的设备组对象，以避免修改原始数据
+        return {
+          ...deviceGroup,
+          // 在设备级别过滤
+          deviceList: deviceGroup.deviceList.filter((device: any) => {
+            return val == 'online'
+              ? device.onlineStatus == 'ONLINE'
+              : device.onlineStatus == 'OFFLINE'
+          })
+        }
+      })
+
+
+    let allNode = [{
+      id: 'all',
+      name: '全部',
+      offlineNum: 0,
+      onlineNum: 0,
+      groupType: "COMMON",
+      deviceList: [] // 这里可以包含所有的设备
+    }]
+    allNode[0].deviceList = fTreeData
+    filterTreeData.value = allNode;
   }
-  console.log(val, 8887)
 }
+
+
 
 const savePlayer = () => {
   const syncUpdate: any = dataSyncUpdate(false);
@@ -366,16 +427,29 @@ const comBtnList = computed(() => {
   min-width: 100px;
   max-width: 60vw;
   padding-bottom: 20px;
+
   @include deep() {
     .n-list-item:not(:last-child) {
       border-bottom: 0;
     }
   }
 }
-.deviceListTree{
+
+.deviceTreee{//设备树
+margin-left:70px;
+  border-radius: 4px;
+  border: 1px solid rgba(55, 73, 255, 0.15);
+  margin-top: 10px;
+  min-height: 300px;
+}
+
+.deviceTitle{
+	align-items: center;
+}
+.deviceListTree {
   @include deep() {
     .n-tree-node-wrapper {
-      .n-tree-node-indent + .n-tree-node-indent + .n-tree-node-switcher + .n-tree-node-checkbox {
+      .n-tree-node-indent+.n-tree-node-indent+.n-tree-node-switcher+.n-tree-node-checkbox {
         display: none;
       }
     }

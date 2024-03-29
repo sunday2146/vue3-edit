@@ -59,6 +59,19 @@ const packagesListObj = {
   }
 }
 
+const getPlainText = (htmlContent: string) => {
+  // 创建一个新的DOM解析器
+  var parser = new DOMParser();
+  // 使用解析器解析HTML内容，并获取文档对象
+  var doc = parser.parseFromString(htmlContent, 'text/html');
+  // 创建一个文本节点的范围
+  var range = doc.createRange();
+  // 选择文档中的所有节点
+  range.selectNodeContents(doc.body);
+  // 使用范围提取文本内容
+  return range.toString();
+}
+
 export const useAsideHook = () => {
   const packagesStore = usePackagesStore()
   const menuOptions: MenuOptionsType[] = []
@@ -111,17 +124,15 @@ export const useAsideHook = () => {
           redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
         })
       })
-      if ( type === PackagesCategoryEnum.IMAGES ) {
-        packagesStore.setImagePayload('totalPages', res.data.totalPages)
-      } else {
-        packagesStore.setVideoPayload('totalPages', res.data.totalPages)
-      }
+      packagesStore.setImagePayload('totalPages', res.data.totalPages)
     }
     menuOptions.map((item: MenuOptionsType, index: number) => {
       if (item.key === type) {
         packagesStore.setUpdateList(type, [...imageList])
         menuOptions[index].list = [...imageList]
-        selectOptions.value.list = [...[], ...imageList]
+        if (isUp) {
+          selectOptions.value.list = [...imageList]
+        }
       }
     })
   }
@@ -142,7 +153,7 @@ export const useAsideHook = () => {
     }
     const res = await getMediaInfo(param)
     if (res && res.code === ResultEnum.SUCCESS) {
-      res.data.data.map((i: any) => {
+      res.data.data.map((i: any, index: number) => {
         List.push({
           ...VideoConfig,
           category: PackagesCategoryEnum.VIDEOS,
@@ -151,7 +162,7 @@ export const useAsideHook = () => {
           chartFrame: ChartFrameEnum.COMMON,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           dataset: `${requestUrl}/system${i.downloadUrl}`,
-          title: i.storeFileName,
+          title: `${payload.pageNum + index + i.storeFileName}`,
           redirectComponent: `${VideoConfig.package}/${VideoConfig.category}/${VideoConfig.key}`
         })
       })
@@ -161,7 +172,9 @@ export const useAsideHook = () => {
       if (item.key === type) {
         packagesStore.setUpdateList(type, [...List])
         menuOptions[index].list = [...List]
-        selectOptions.value.list = [...List]
+        if (isUp) {
+          selectOptions.value.list = [...List]
+        }
       }
     })
   }
@@ -183,22 +196,27 @@ export const useAsideHook = () => {
     const res = await getMediaInfo(param)
     if (res && res.code === ResultEnum.SUCCESS) {
       res.data.data.map((i: any) => {
+        const txtContent = getPlainText(i.txtContent)
         List.push({
           ...TextCommonConfig,
+          category: PackagesCategoryEnum.TABLES,
+          categoryName: PackagesCategoryName.TABLES,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           title: i.name,
-          txtContent: i.txtContent,
-          dataset: i.txtContent,
+          txtContent: txtContent,
+          dataset: txtContent,
           redirectComponent: `${TextCommonConfig.package}/${TextCommonConfig.category}/${TextCommonConfig.key}`
         })
       })
-      packagesStore.setVideoPayload('totalPages', res.data.totalPages)
+      packagesStore.setTxtPayload('totalPages', res.data.totalPages)
     }
     menuOptions.map((item: MenuOptionsType, index: number) => {
       if (item.key === PackagesCategoryEnum.TABLES) {
         packagesStore.setUpdateList(PackagesCategoryEnum.TABLES, [...List])
         menuOptions[index].list = [...List]
-        selectOptions.value.list = [...List]
+        if (isUp) {
+          selectOptions.value.list = [...List]
+        }
       }
     })
   }

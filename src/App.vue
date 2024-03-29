@@ -29,7 +29,7 @@ const overridesTheme = useThemeOverridesHook()
 const hljsTheme = useCode()
 
 // 系统全局数据初始化
-useSystemInit()
+// useSystemInit()
 
 // 全局语言
 const { locale, dateLocale } = useLang()

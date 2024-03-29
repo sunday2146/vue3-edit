@@ -23,6 +23,12 @@ export const usePackagesStore = defineStore({
       pageSize: 10,
       totalPages: 1,
       fileName: ''
+    },
+    txtPayload: {
+      pageNum: 1,
+      pageSize: 10,
+      totalPages: 1,
+      fileName: ''
     }
   }),
   getters: {
@@ -37,6 +43,9 @@ export const usePackagesStore = defineStore({
     },
     getVideoPayload(): ImagePayloadType {
       return this.videoPayload
+    },
+    getTxtPayload(): ImagePayloadType {
+      return this.txtPayload
     }
   },
   actions: {
@@ -56,13 +65,16 @@ export const usePackagesStore = defineStore({
       // list.map(item => {
       //   this.packagesList[key].push(list)
       // })
-      this.imageList = list
+      // this.imageList = list
     },
     setImagePayload<T extends keyof ImagePayloadType>(key: T, val: number | string | any): void {
       this.imagePayload[key] = val
     },
     setVideoPayload<T extends keyof ImagePayloadType>(key: T, val: number | string | any): void {
       this.videoPayload[key] = val
+    },
+    setTxtPayload<T extends keyof ImagePayloadType>(key: T, val: number | string | any): void {
+      this.txtPayload[key] = val
     }
   }
 })

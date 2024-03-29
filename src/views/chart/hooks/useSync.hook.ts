@@ -375,15 +375,16 @@ export const useSync = () => {
     // params.append('content', JSONStringify(chartEditStore.getStorageInfo() || {}))
     const res= await saveProjectApi(data)
 
-    if (res && res.code === ResultEnum.SUCCESS) {
+    window['$message'].success(res?.msg)
+    if (res && res.data && res.code === ResultEnum.SUCCESS) {
       // 成功状态
-      editId.value = res.data
+      if (!editId.value || editId.value ==='0')
+        editId.value = res.data
       setTimeout(() => {
         chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.SUCCESS)
       }, 1000)
       return res.data
     }
-    window['$message'].success(res?.msg)
     // 失败状态
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.FAILURE)
     return

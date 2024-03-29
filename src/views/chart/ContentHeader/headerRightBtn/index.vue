@@ -10,7 +10,7 @@
 
   <!-- 发布管理弹窗 -->
   <n-modal v-model:show="modelShow" @afterLeave="closeHandle" title="保存并插播" preset="dialog" style="width: 840px">
-    <n-space vertical >
+    <n-space vertical>
       <n-space :size="10" class="deviceTitle">
         <n-text>设备终端：</n-text>
         <div>
@@ -30,7 +30,7 @@
           刷新
         </n-button>
       </n-space>
-      <n-space class="deviceTreee" >
+      <n-space class="deviceTreee">
         <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
           class="deviceListTree" :pattern="facilityName" children-field="deviceList" label-field="name" key-field="id"
           :render-prefix="renderPrefix" :render-label="renderLabel" :show-irrelevant-nodes="false" expand-on-click
@@ -46,8 +46,8 @@
               <n-radio value="DURATION"> 自定义时长 </n-radio>
             </n-space>
           </n-radio-group>
-          <n-input-number round v-model:value="times" v-show="playDurationMode == 'times'" button-placement="both" min="1"
-            max="255" />
+          <n-input-number round v-model:value="times" v-show="playDurationMode == 'times'" button-placement="both"
+            min="1" max="255" />
           <n-input round v-model:value="minutes" v-show="playDurationMode == 'DURATION'" button-placement="both" min="1"
             max="255" />
         </n-space>
@@ -66,6 +66,7 @@ import { useRoute } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
 import { PreviewEnum } from '@/enums/pageEnum'
 import { StorageEnum } from '@/enums/storageEnum'
+
 import { ResultEnum } from '@/enums/httpEnum'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
 import { syncData } from '../../ContentEdit/components/EditTools/hooks/useSyncUpdate.hook'
@@ -92,7 +93,7 @@ const { dataSyncUpdate } = useSync()
 const { BrowsersOutlineIcon, SendIcon, AnalyticsIcon, CloseIcon, SearchIcon } = icon.ionicons5
 const { SaveIcon } = icon.carbon
 const chartEditStore = useChartEditStore()
-
+const canvasConfig = chartEditStore.getEditCanvasConfig
 const previewPathRef = ref(previewPath())
 const { copy, isSupported } = useClipboard({ source: previewPathRef })
 
@@ -124,7 +125,15 @@ const formInline = reactive({
 })
 const getFacilityList = async () => {
   try {
-    await getFacilityListApi({ deviceTypeCode: 'AdvertisingScreen', deviceTypeEnum: 'IOTDEVICE', groupType: 'COMMON',sizeType:sizeTypeOption.value }).then((result: any) => {
+    let param ={
+       deviceTypeCode: 'AdvertisingScreen', 
+       deviceTypeEnum: 'IOTDEVICE', 
+       groupType: 'COMMON', 
+       sizeType: sizeTypeOption.value,
+       width:canvasConfig.width,
+       height:canvasConfig.height
+   }
+    await getFacilityListApi(param).then((result: any) => {
       const allNode = [{
         id: 'all',
         name: '全部',
@@ -254,9 +263,9 @@ const modelShowHandle = () => {
 
 
 // 切换尺寸
-const proSizeChange = (val: string) => { 
-	
-	getFacilityList();
+const proSizeChange = (val: string) => {
+   sizeTypeOption.value = val;
+  getFacilityList();
 }
 const filterDevices = (val: string) => {
   if (val === 'All') {
@@ -287,7 +296,6 @@ const filterDevices = (val: string) => {
         }
       })
 
-
     let allNode = [{
       id: 'all',
       name: '全部',
@@ -296,6 +304,11 @@ const filterDevices = (val: string) => {
       groupType: "COMMON",
       deviceList: [] // 这里可以包含所有的设备
     }]
+    fTreeData.forEach((deviceGroup: any) => {
+      allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup);
+      allNode[0].offlineNum += deviceGroup.offlineNum;
+      allNode[0].onlineNum += deviceGroup.onlineNum;
+    });
     allNode[0].deviceList = fTreeData
     filterTreeData.value = allNode;
   }
@@ -435,17 +448,19 @@ const comBtnList = computed(() => {
   }
 }
 
-.deviceTreee{//设备树
-margin-left:70px;
+.deviceTreee {
+  //设备树
+  margin-left: 70px;
   border-radius: 4px;
   border: 1px solid rgba(55, 73, 255, 0.15);
   margin-top: 10px;
   min-height: 300px;
 }
 
-.deviceTitle{
-	align-items: center;
+.deviceTitle {
+  align-items: center;
 }
+
 .deviceListTree {
   @include deep() {
     .n-tree-node-wrapper {

@@ -10,7 +10,7 @@
       :indent="18"
       @update:value="clickItemHandle"
     ></n-menu>
-    <div class="chart-content-list">
+    <div class="chart-content-list" :style="computedHeight">
       <n-scrollbar trigger="none">
         <charts-item-box :menuOptions="packages.selectOptions" @deletePhoto="deleteHandle"></charts-item-box>
       </n-scrollbar>
@@ -25,6 +25,7 @@ import { useSettingStore } from '@/store/modules/settingStore/settingStore'
 import { loadAsyncComponent } from '@/utils'
 import { usePackagesStore } from '@/store/modules/packagesStore/packagesStore'
 import { PackagesCategoryEnum } from '@/packages/index.d'
+import {menuMaterialList} from "@/views/chart/menu.config";
 
 const ChartsItemBox = loadAsyncComponent(() => import('../ChartsItemBox/index.vue'))
 const packagesStore = usePackagesStore()
@@ -42,6 +43,10 @@ const settingStore = useSettingStore()
 const hidePackageOneCategory = computed(() => {
   if (packages.categorysNum > 2) return true
   return !settingStore.getHidePackageOneCategory
+})
+
+const computedHeight = computed(() => {
+  return menuMaterialList.includes(props.selectOptions['key']) ? {height: 'calc(100% - 36px)'} : {}
 })
 
 let packages = reactive<{
@@ -128,6 +133,7 @@ const deleteHandle = (item: ConfigType, index: number) => {
 
 // 处理点击事件
 const clickItemHandle = (key: string) => {
+  // console.log(key, 999999)
   packages.selectOptions = packages.categorys[key]
 }
 </script>

@@ -8,7 +8,7 @@ export const optionsDeviceState = [
 export const typeOptions= [{
     value: 'scale',
     label: '按比例'
-}, {
+  }, {
     value: 'size',
     label: '按尺寸'
-}]
+  }]

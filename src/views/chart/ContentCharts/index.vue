@@ -1,13 +1,14 @@
 <template>
   <!-- 左侧所有组件的展示列表 -->
   <content-box class="go-content-charts" :class="{ scoped: !getCharts }" title="" :depth="1" :backIcon="false">
-<!--    <template #icon>-->
-<!--      <n-icon size="14" :depth="2">-->
-<!--        <bar-chart-icon></bar-chart-icon>-->
-<!--      </n-icon>-->
-<!--    </template>-->
+    <template #icon>
+      <n-image
+          width="32"
+          src="/system/mediaInfo/preview/1166808443746693120"
+      />
+    </template>
     <template #top-right>
-      <image-search v-if="selectValue === 'Images' || selectValue === 'Videos'" v-show="getCharts" :menuOptions="menuOptions"></image-search>
+      <image-search v-if="selectValue === 'Images' || selectValue === 'Videos' || selectValue === 'Tables'" v-show="getCharts" :menuOptions="menuOptions" :menuKey="selectValue"></image-search>
       <charts-search v-else v-show="getCharts" :menuOptions="menuOptions"></charts-search>
     </template>
     <!-- 图表 -->
@@ -29,9 +30,8 @@
             :selectOptions="selectOptions"
             :key="selectValue"
           ></charts-option-content>
-          <div v-if="selectValue === 'Images' || selectValue === 'Videos'" class="source-pagination">
-            <n-pagination v-if="selectValue === 'Images'" v-model:page="imagesPayload.pageNum" :page-count="imagesPayload.totalPages" @update:page="changePage" simple />
-            <n-pagination v-else v-model:page="videosPayload.pageNum" :page-count="videosPayload.totalPages" @update:page="changeVidoePage" simple />
+          <div v-if="selectValue === 'Images' || selectValue === 'Videos' || selectValue === 'Tables'" class="source-pagination">
+            <n-pagination v-model:page="payload.pageNum" :page-count="payload.totalPages" @update:page="changePage" simple />
           </div>
         </div>
       </div>
@@ -61,15 +61,24 @@ const imagesPayload = computed(() => packagesStore.getImagePayload)
 const videosPayload = computed(() => packagesStore.getVideoPayload)
 // const packagesList = computed(() => packagesStore.getPackagesList)
 
+const payload = computed(() => {
+  return selectValue.value === 'Images' ? packagesStore.getImagePayload :
+      selectValue.value === 'Videos' ? packagesStore.getVideoPayload :
+        packagesStore.getTxtPayload
+})
 const changePage = async (pageNum: number) => {
-  packagesStore.setImagePayload('pageNum', pageNum)
-  await getImageListReq(PackagesCategoryEnum.IMAGES, pageNum, true)
+  if (selectValue.value === 'Images') {
+    packagesStore.setImagePayload('pageNum', pageNum)
+    await getImageListReq(PackagesCategoryEnum.IMAGES, pageNum, true)
+  } else if (selectValue.value === 'Videos'){
+    packagesStore.setVideoPayload('pageNum', pageNum)
+    await getVideoListReq(PackagesCategoryEnum.VIDEOS, pageNum, true)
+  } else {
+    packagesStore.setTxtPayload('pageNum', pageNum)
+    await getTxtListReq(pageNum)
+  }
 }
 
-const changeVidoePage = async (pageNum: number) => {
-  packagesStore.setVideoPayload('pageNum', pageNum)
-  await getImageListReq(PackagesCategoryEnum.VIDEOS, pageNum, true)
-}
 const selectOptionsRef = ref(selectOptions)
 pageNum.value= packagesStore.getImagePayload.pageNum
 
@@ -106,9 +115,10 @@ $topHeight: 40px;
       overflow: hidden;
       .source-pagination{
         width: 100%;
-        margin-top: -40px;
+        margin-top: -33px;
         justify-content: center;
         display: flex;
+        @include fetch-bg-color('background-color4');
       }
     }
   }

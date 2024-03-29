@@ -8,5 +8,6 @@ export interface PackagesStoreType {
   newPhoto?: ConfigType,
   imageList: Array<ConfigType>,
   imagePayload: ImagePayloadType,
-  videoPayload: ImagePayloadType
+  videoPayload: ImagePayloadType,
+  txtPayload: ImagePayloadType
 }

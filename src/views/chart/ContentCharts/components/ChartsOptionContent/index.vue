@@ -81,7 +81,7 @@ const setSelectOptions = (categorys: any) => {
 
 watch(() => props.selectOptions && props.selectOptions.list, (newValue) => {
   // console.log(newValue, packages, props.selectOptions, 88888888888884)
-  if (props.selectOptions['key'] === PackagesCategoryEnum.IMAGES || props.selectOptions['key'] === PackagesCategoryEnum.VIDEOS) {
+  if (props.selectOptions['key'] === PackagesCategoryEnum.IMAGES || props.selectOptions['key'] === PackagesCategoryEnum.VIDEOS || props.selectOptions['key'] === PackagesCategoryEnum.TABLES) {
     packages.selectOptions = [...newValue]
   }
 })

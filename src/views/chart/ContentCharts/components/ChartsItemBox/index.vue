@@ -19,17 +19,18 @@
         <div class="list-header">
           <mac-os-control-btn class="list-header-control-btn" :mini="true" :disabled="true"></mac-os-control-btn>
           <n-text class="list-header-text" depth="3">
-            <n-ellipsis>{{ item.title }}</n-ellipsis>
+            <n-ellipsis>{{ item.name || item.title }}</n-ellipsis>
           </n-text>
         </div>
         <div class="list-center go-flex-center go-transition" draggable="true">
           <GoIconify v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="48" style="height: auto" />
-          <GoTxtBox v-else-if="item.txtContent" class="list-img" :txtContent="item.txtContent" color="#999" width="48" style="height: auto" />
+          <GoTxtBox v-else-if="item.txtContent" class="list-img" :chartConfig="item" color="#999" width="48" style="height: auto" />
+          <chart-dynamic-image v-else-if="item.dynamic" class="list-img" :chartConfig="item" />
           <chart-glob-image v-else class="list-img" :chartConfig="item" />
         </div>
         <div class="list-bottom">
           <n-text class="list-bottom-text" depth="3">
-            <n-ellipsis style="max-width: 90%">{{ item.title }}</n-ellipsis>
+            <n-ellipsis style="max-width: 90%">{{ item.name || item.title }}</n-ellipsis>
           </n-text>
         </div>
         <!-- 遮罩 -->
@@ -54,6 +55,7 @@
 import { PropType, watch, ref, Ref, computed, nextTick } from 'vue'
 import { MacOsControlBtn } from '@/components/Tips/MacOsControlBtn/index'
 import { ChartGlobImage } from '@/components/Pages/ChartGlobImage'
+import { ChartDynamicImage } from '@/components/Pages/ChartDynamicImage'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
 import { EditCanvasTypeEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
 import { ChartModeEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'

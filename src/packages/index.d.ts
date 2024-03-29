@@ -34,6 +34,8 @@ export type ConfigType = {
   // 预览图
   image: string
   txtContent?: string
+  name?: string
+  dynamic?: boolean
   // 从指定路径创建创建该组件
   redirectComponent?: string
   // 组件预设的 dataset 值(图片/图标)

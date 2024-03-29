@@ -317,6 +317,10 @@ const filterDevices = (val: string) => {
 
 
 const savePlayer = () => {
+  if (!checkedKeys.value.length) {
+    window['$message'].warning('请选择终端！')
+    return
+  }
   const syncUpdate: any = dataSyncUpdate(false);
   syncUpdate && syncUpdate().then((ledProgramId: string) => {
     if (ledProgramId) {

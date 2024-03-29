@@ -160,7 +160,7 @@ const list = reactive<ListType[]>([
     value: settingStore.getChartAlignRange,
     type: 'number',
     name: '吸附距离',
-    min: 10,
+    min: 0,
     step: 2,
     suffix: 'px',
     desc: '工作空间移动图表时的吸附距离'

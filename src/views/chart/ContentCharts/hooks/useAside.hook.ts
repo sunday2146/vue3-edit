@@ -59,7 +59,7 @@ const packagesListObj = {
   }
 }
 
-const getPlainText = (htmlContent: string) => {
+export const getPlainText = (htmlContent: string) => {
   // 创建一个新的DOM解析器
   var parser = new DOMParser();
   // 使用解析器解析HTML内容，并获取文档对象
@@ -117,10 +117,12 @@ export const useAsideHook = () => {
           category: PackagesCategoryEnum.IMAGES,
           categoryName: PackagesCategoryName.IMAGES,
           package: type,
+          dynamic: true,
           chartFrame: ChartFrameEnum.STATIC,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           dataset: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           title: i.storeFileName,
+          name: i.name,
           redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
         })
       })
@@ -160,9 +162,11 @@ export const useAsideHook = () => {
           categoryName: PackagesCategoryName.VIDEOS,
           package: PackagesCategoryEnum.INFORMATIONS,
           chartFrame: ChartFrameEnum.COMMON,
+          dynamic: true,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
           dataset: `${requestUrl}/system${i.downloadUrl}`,
           title: `${payload.pageNum + index + i.storeFileName}`,
+          name: i.name,
           redirectComponent: `${VideoConfig.package}/${VideoConfig.category}/${VideoConfig.key}`
         })
       })
@@ -181,7 +185,7 @@ export const useAsideHook = () => {
 
   const getTxtListReq = async (pageNum: number=1, isUp: boolean = false) => {
     const List: Array<ConfigType> = []
-    const payload = packagesStore.getVideoPayload
+    const payload = packagesStore.getTxtPayload
     const param = {
       condition: {
         appType: "led",
@@ -202,7 +206,8 @@ export const useAsideHook = () => {
           category: PackagesCategoryEnum.TABLES,
           categoryName: PackagesCategoryName.TABLES,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-          title: i.name,
+          title: i.storeFileName,
+          name: i.name,
           txtContent: txtContent,
           dataset: txtContent,
           redirectComponent: `${TextCommonConfig.package}/${TextCommonConfig.category}/${TextCommonConfig.key}`

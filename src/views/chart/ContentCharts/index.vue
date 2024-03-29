@@ -75,7 +75,7 @@ const changePage = async (pageNum: number) => {
     await getVideoListReq(PackagesCategoryEnum.VIDEOS, pageNum, true)
   } else {
     packagesStore.setTxtPayload('pageNum', pageNum)
-    await getTxtListReq(pageNum)
+    await getTxtListReq(pageNum, true)
   }
 }
 

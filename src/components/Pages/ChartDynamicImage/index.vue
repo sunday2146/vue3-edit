@@ -1,7 +1,5 @@
 <template>
-  <div :key="props.chartConfig.title">
-    {{props.chartConfig.txtContent}}
-  </div>
+  <img class="list-img" :src="props.chartConfig.image" :key="props.chartConfig.title" :title="props.chartConfig.title" alt="图表图片" />
 </template>
 
 <script setup lang="ts">

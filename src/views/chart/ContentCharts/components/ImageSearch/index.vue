@@ -37,7 +37,7 @@
             >
               <GoIconify v-if="item.icon" class="list-img" :icon="item.icon" color="#999" width="20" />
               <chart-glob-image v-else class="list-item-img" :chartConfig="item" />
-              <n-text class="list-item-fs" depth="2">{{ item.title }}</n-text>
+              <n-text class="list-item-fs" depth="2">{{ item.txtContent || item.name || item.title }}</n-text>
             </div>
           </n-scrollbar>
           <div class="popover-modal"></div>
@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, computed } from 'vue'
+import { ref, onUnmounted, computed, unref } from 'vue'
 import { icon } from '@/plugins'
 import { createComponent } from '@/packages'
 import { ConfigType, CreateComponentType } from '@/packages/index.d'
@@ -80,11 +80,12 @@ import { ChartGlobImage } from '@/components/Pages/ChartGlobImage'
 import { GoIconify } from '@/components/GoIconify'
 import { PackagesCategoryEnum } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
-import {useAsideHook} from "@/views/chart/ContentCharts/hooks/useAside.hook";
+import {getPlainText, useAsideHook} from "@/views/chart/ContentCharts/hooks/useAside.hook";
 import {getMediaInfo} from "@/api/path";
 import {ResultEnum} from "@/enums/httpEnum";
 import {TextCommonConfig} from "@/packages/components/Informations/Texts/TextCommon/index";
 import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
+import {VideoConfig} from "@/packages/components/Informations/Mores/Video/index";
 
 const requestUrl = import.meta.env.VITE_PRO_PATH
 
@@ -109,6 +110,8 @@ const loading = ref<boolean | undefined>(undefined)
 const fileName = ref<string>('')
 const searchRes = ref<ConfigType[]>([])
 const chartMode = ref<ChartModeEnum>(chartLayoutStore.getChartType)
+
+let toFetch: any = null
 
 const chartModeList = [
   { label: '单列', icon: AlbumsIcon, value: ChartModeEnum.SINGLE },
@@ -152,9 +155,10 @@ const updateHandle = (key: string) => {
 }
 
 const placeholder = computed(() => `搜索${props.menuKey === 'Images' ? '图片' : props.menuKey === 'Videos' ? '视频' : '文本'}`)
+const typeConfig = computed(() => props.menuKey === 'Images' ? ImageConfig : props.menuKey === 'Videos' ? VideoConfig : TextCommonConfig)
 
 // 搜索处理
-const searchHandle =async (fileName: string | null) => {
+const searchHandle =(fileName: string | null) => {
   if (!isString(fileName) || !fileName.length) {
     closeHandle()
     return
@@ -172,22 +176,27 @@ const searchHandle =async (fileName: string | null) => {
     pageNum: 1,
     pageSize: 10
   }
-  console.log(props.menuKey, 99999)
-  const res = await getMediaInfo(param)
-  if (res && res.code === ResultEnum.SUCCESS) {
-    searchRes.value = res.data.data.map((i: any) => {
-      return {
-        ...ImageConfig,
-        image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-        dataset: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-        title: i.storeFileName,
-        redirectComponent: `${ImageConfig.package}/${ImageConfig.category}/${ImageConfig.key}`
-      }
-    })
-  }
-  setTimeout(() => {
+  clearTimeout(toFetch)
+  toFetch = setTimeout(async () => {
+    const res = await getMediaInfo(param)
+    if (res && res.code === ResultEnum.SUCCESS) {
+      searchRes.value = res.data.data.map((i: any) => {
+        return {
+          ...unref(typeConfig),
+          category: props.menuKey,
+          image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
+          dataset: props.menuKey === 'Images' ? `${requestUrl}/system${i.coverImagePreviewUrl}` : props.menuKey === 'Videos' ? `${requestUrl}/system${i.downloadUrl}` :  getPlainText(i.txtContent),
+          title: i.storeFileName,
+          name: i.name,
+          txtContent: getPlainText(i.txtContent),
+          redirectComponent: `${typeConfig.value.package}/${typeConfig.value.category}/${typeConfig.value.key}`
+        }
+      })
+    }
     loading.value = undefined
   }, 500)
+  // setTimeout(() => {
+  // }, 500)
 }
 
 // 关闭处理

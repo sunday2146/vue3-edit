@@ -26,24 +26,6 @@
         <span>{{ item.title }}</span>
       </n-tooltip>
 
-      <n-divider vertical />
-
-      <div>
-        <n-text @click="handleFocusTimeTotal">
-          播放时长
-        </n-text>
-        <n-input
-            ref="inputTimeTotalRef"
-            size="small"
-            type="text"
-            style="width: 90px"
-            maxlength="9"
-            placeholder="请输入项目名称"
-            v-model:value.trim="timeTotal"
-            @keyup.enter="handleBlurTimeTotal"
-            @blur="handleBlurTimeTotal"
-        ></n-input>
-      </div>
       <!-- 保存 -->
 <!--      <n-tooltip placement="bottom" trigger="hover">-->
 <!--        <template #trigger>-->
@@ -78,11 +60,11 @@ import { EditCanvasConfigEnum } from '@/store/modules/chartEditStore/chartEditSt
 import {updateProjectApi} from "@/api/path";
 import {ResultEnum} from "@/enums/httpEnum";
 
-const { LayersIcon, BarChartIcon, PrismIcon, HomeIcon, ArrowBackIcon, ArrowForwardIcon } = icon.ionicons5
+const { LayersIcon, BarChartIcon, PrismIcon, HomeIcon, ArrowBackIcon, ArrowForwardIcon, BrowsersOutlineIcon } = icon.ionicons5
 const { SaveIcon } = icon.carbon
 const { setItem } = useChartLayoutStore()
 const { dataSyncUpdate } = useSync()
-const { getLayers, getCharts, getDetails } = toRefs(useChartLayoutStore())
+const { getLayers, getCharts, getDetails, getPages } = toRefs(useChartLayoutStore())
 const chartEditStore = useChartEditStore()
 const chartHistoryStore = useChartHistoryStore()
 
@@ -102,6 +84,12 @@ const btnList = reactive<ItemType<ChartLayoutStoreEnum>[]>([
     select: getCharts,
     title: '图表组件',
     icon: renderIcon(BarChartIcon)
+  },
+  {
+    key: ChartLayoutStoreEnum.PAGES,
+    select: getPages,
+    title: '分页管理',
+    icon: renderIcon(BrowsersOutlineIcon)
   },
   {
     key: ChartLayoutStoreEnum.LAYERS,

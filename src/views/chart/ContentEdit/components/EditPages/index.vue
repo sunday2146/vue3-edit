@@ -15,7 +15,7 @@
               :key="index"
               :title="item.title"
           >
-            <n-button @click="changePage(index)" text :type="pageConfig.activeIndex === index ? 'warning': ''">
+            <n-button @click="changePage(index)" text :type="pageConfig.activeIndex === index ? 'warning': 'default'">
               {{ item.title }}
             </n-button>
             <n-space style="gap: 4px">
@@ -25,7 +25,7 @@
               <n-icon class="item-icon" size="16" title="复制页面" :depth="2" @click="addPages(index, true)">
                 <duplicate-outline-icon></duplicate-outline-icon>
               </n-icon>
-              <n-icon class="item-icon" size="16" title="移除页面" :depth="2" @click="removePages(index)">
+              <n-icon class="item-icon" size="16" title="移除页面" :depth="2" @click="removePages(item, index)">
                 <trash-icon></trash-icon>
               </n-icon>
             </n-space>
@@ -48,10 +48,12 @@ import { ref, computed, h } from 'vue'
 import { icon } from '@/plugins'
 import { usePagesStore } from '@/store/modules/pagesStore/pagesStore'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
+import { PageListType } from '@/store/modules/chartEditStore/chartEditStore.d'
 import { useDialog, NInput } from 'naive-ui'
-import { getUUID } from '@/utils'
+import {getUUID, goDialog} from '@/utils'
 import { historyActionTypeName } from '@/store/modules/chartHistoryStore/chartHistoryDefine'
 import {useSync} from "@/views/chart/hooks/useSync.hook";
+
 
 const { updateComponent } = useSync()
 const {
@@ -83,18 +85,26 @@ const  pageConfig = computed(() => chartEditStore.getPageConfig)
 // const  { pageList } = pageConfig
 const pageList = computed(() => chartEditStore.getPageList)
 
-const removePages = (index: number) => {
-  chartEditStore.removePageByIndex(index)
-  // pages.splice(index, 1)
-  // chartPagesStore.changePages(pages)
-  // pageList.splice(index, 1)
+const removePages = (item: PageListType, index: number) => {
+  goDialog({
+    message: `确定要删除【${item.title}】？`,
+    onPositiveCallback: () => {
+      try {
+        chartEditStore.removePageByIndex(index)
+      } catch (D) {
+        window.$message.error("删除失败, 请稍后重试!")
+      }
+    }
+  })
 }
 
 const changePage = (index: number) => {
   // pageList[pageConfig.activeIndex] = {...pageList[pageConfig.activeIndex], editCanvasConfig, componentList}
   // chartEditStore.setPageConfig('activeIndex', index)
   // updateComponent(pageList[index], true)
-  chartEditStore.setCurrentPage(index)
+  setTimeout(()=>{
+    chartEditStore.setCurrentPage(index)
+    }, 0)
 }
 
 const addPages = (index: number, copy?: boolean) => {
@@ -148,6 +158,7 @@ const editPages = (index: number) => {
     negativeText: '取消',
     onPositiveClick: () => {
       pageList.value[index].title = inputVal.value
+      chartEditStore.setPageConfig('pageList', pageList.value)
       window['$message'].success('确定')
     },
     onNegativeClick: () => {

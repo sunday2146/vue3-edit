@@ -38,6 +38,8 @@ import {
   PageConfigType,
   PageListType
 } from './chartEditStore.d'
+import html2canvas from "html2canvas";
+import {uploadImageByBase64} from "@/api/path";
 
 const chartHistoryStore = useChartHistoryStore()
 const settingStore = useSettingStore()
@@ -161,7 +163,12 @@ export const useChartEditStore = defineStore({
     componentList: [],
     pageConfig: {
       activeIndex: 0,
-      pageList: []
+      pageList: [{
+        id: getUUID(),
+        title: '分页1',
+        editCanvasConfig: initEditCanvasConfig,
+        componentList: []
+      }]
     }
   }),
   getters: {
@@ -197,7 +204,12 @@ export const useChartEditStore = defineStore({
     },
     getPageList(): Array<PageListType> {
       return this.pageConfig.pageList
-    }
+    },
+    getCurrentPage(): PageListType {
+      const e = this.pageConfig.pageList
+          , n = this.pageConfig.activeIndex;
+      return e[n]
+    },
   },
   actions: {
     // * 获取需要存储的数据项
@@ -707,7 +719,6 @@ export const useChartEditStore = defineStore({
       }
 
       // 处理分页
-      console.log(HistoryItem, 9999999999997777)
       if (HistoryItem.targetType === HistoryTargetTypeEnum.PAGE) {
         if ( HistoryItem.actionType === HistoryPageTypeEnum.PAGE_SWITCH )
           if (isForward){
@@ -1036,7 +1047,7 @@ export const useChartEditStore = defineStore({
         this.getEditCanvas.scale = scale
       }
     },
-    addPageList(componentList?: Array<CreateComponentType | CreateComponentGroupType>, editCanvasConfig?: EditCanvasConfigType, title?: string, copy?: boolean) {
+    addPageList(componentList?: Array<CreateComponentType | CreateComponentGroupType>, editCanvasConfig?: EditCanvasConfigType, pageItem?: PageListType, copy?: boolean) {
       let compList = componentList || []
       const canvasConfig = editCanvasConfig || initEditCanvasConfig
       const canvasConfigNew = cloneDeep(canvasConfig)
@@ -1047,24 +1058,39 @@ export const useChartEditStore = defineStore({
         })
         compList= list
       }
+      const pageParam = pageItem ? {...pageItem, title: copy ? `${pageItem.title} 副本` : pageItem.title} : {title: '分页' + (this.pageConfig.pageList.length + 1)}
       const pageData = {
+        ...pageParam,
         id: getUUID(),
-        title: title ? `${title} 副本` : '分页' + (this.pageConfig.pageList.length + 1),
-        times: '00:00:15',
-        time: 15,
-        componentList: compList,
+        componentList: cloneDeep(compList),
         editCanvasConfig: canvasConfigNew
       }
-      this.pageConfig.pageList.push(pageData)
-      chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD)
+      return this.pageConfig.pageList.push(pageData),
+          chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD),
+          this.pageConfig.pageList
     },
-    setCurrentPage(index: number = 0, isActive: boolean = true): void {
+    async setCurrentPage(index: number = 0, flag: boolean = true): Promise<void> {
       this.saveCurrentPage()
       let a;
-      isActive && (a = this.pageConfig.activeIndex);
+      flag && (a = this.pageConfig.activeIndex);
       const oldActive = this.pageConfig.activeIndex;
       if (oldActive === index) {
         return
+      }
+      try {
+        // 获取缩略图片
+        const range = document.querySelector('.go-edit-range') as HTMLElement
+        // 生成图片
+        const canvasImage: HTMLCanvasElement = await html2canvas(range, {
+          backgroundColor: null,
+          allowTaint: true, useCORS: true
+        })
+        // 上传预览图
+        uploadImageByBase64(canvasImage.toDataURL()).then((result: any) => {
+          this.pageConfig.pageList[oldActive].previewUrl = result.data?.downloadUrl || ''
+        })
+      } catch (e) {
+        console.log(e)
       }
       this.setTargetSelectChart()
       const i = index === void 0 ? oldActive : index
@@ -1072,7 +1098,7 @@ export const useChartEditStore = defineStore({
       this.componentList = newData.componentList
       this.editCanvasConfig = newData.editCanvasConfig
       this.pageConfig.activeIndex = index
-      if (isActive) {
+      if (flag) {
         const newIndex = this.pageConfig.activeIndex;
         chartHistoryStore.createPageConfig([oldActive, newIndex], HistoryPageTypeEnum.PAGE_SWITCH)
       }
@@ -1083,11 +1109,16 @@ export const useChartEditStore = defineStore({
         console.warn("复制页面不存!");
         return
       }
-      this.addPageList(n.componentList, n.editCanvasConfig, n.title, true)
+      this.addPageList(n.componentList, n.editCanvasConfig, n, true)
     },
     removePageByIndex(index: number) {
-      if (this.pageConfig.pageList.length === 1)
+      if (this.pageConfig.pageList.length === 1) {
+        window.$message.error("删除失败, 已经没有多余的页面!")
         return;
+      }
+      if (this.pageConfig.activeIndex === index) {
+        this.setCurrentPage(index === 0 ? 1 : index - 1)
+      }
       const oldPageConfig = cloneDeep(this.pageConfig);
       this.pageConfig.pageList.splice(index, 1),
       index <= this.pageConfig.activeIndex && (this.pageConfig.activeIndex -= 1);
@@ -1106,6 +1137,8 @@ export const useChartEditStore = defineStore({
     saveCurrentPage() {
       const currentIndex = this.pageConfig.activeIndex || 0
       const currentData= this.pageConfig.pageList[currentIndex]
+      if (!currentData)
+        return false;
       this.pageConfig.pageList[currentIndex] = {
         ...currentData,
         id: currentData.id || getUUID(),

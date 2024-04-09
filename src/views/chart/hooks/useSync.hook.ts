@@ -112,9 +112,10 @@ export const useSync = () => {
    */
   const updateComponent = async (projectData: ChartEditStorage, isReplace = false, changeId = false) => {
     if (!isReplace) {
+      chartEditStore.setPageConfig('pageList', [])
       if (projectData.pageConfig && projectData.pageConfig.pageList && projectData.pageConfig.pageList.length) {
         projectData.pageConfig.pageList.map(item =>{
-          chartEditStore.addPageList(item.componentList, item.editCanvasConfig)
+          chartEditStore.addPageList(item.componentList, item.editCanvasConfig, item)
         })
       } else {
         chartEditStore.addPageList(projectData.componentList, projectData.editCanvasConfig)
@@ -315,9 +316,11 @@ export const useSync = () => {
     }
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.START)
 
-    // 异常处理：缩略图上传失败不影响JSON的保存
-    try {
-      if (updateImg) {
+    if (updateImg) {
+      // 异常处理：缩略图上传失败不影响JSON的保存
+      try {
+        const {activeIndex} = chartEditStore.getPageConfig
+        const pageList = chartEditStore.getPageList
         // 获取缩略图片
         const range = document.querySelector('.go-edit-range') as HTMLElement
         // 生成图片
@@ -332,27 +335,13 @@ export const useSync = () => {
         // uploadParams.append('object', base64toFile(canvasImage.toDataURL(), `${fetchRouteParamsLocation()}_index_preview.png`))
         // const uploadRes = await uploadFile(uploadParams)
         await uploadImageByBase64(canvasImage.toDataURL()).then((result: any) => {
-          uploadRes = result
           postObj = result.data
+          pageList[activeIndex] && (pageList[activeIndex].previewUrl = result.data?.downloadUrl || '',
+          chartEditStore.setPageConfig('pageList', pageList))
         })
-        // 保存预览图
-        // console.log(uploadRes,uploadRes.data, 7777)
-        // if(uploadRes && uploadRes.code === ResultEnum.SUCCESS) {
-        //   if (uploadRes.data.fileurl) {
-        //     await updateProjectApi({
-        //       id: fetchRouteParamsLocation(),
-        //       indexImage: `${uploadRes.data.fileurl}`
-        //     })
-        //   } else {
-        //     await updateProjectApi({
-        //       id: fetchRouteParamsLocation(),
-        //       indexImage: `${systemStore.getFetchInfo.OSSUrl}${uploadRes.data.fileName}`
-        //     })
-        //   }
-        // }
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
     }
 
     // 保存数据

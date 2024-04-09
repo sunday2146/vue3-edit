@@ -57,13 +57,26 @@
       <n-space>
         <n-text>应用类型</n-text>
         <n-select
-          size="small"
-          style="width: 250px"
-          v-model:value="selectColorValue"
-          :disabled="!canvasConfig.backgroundImage"
-          :options="selectColorOptions"
-          @update:value="selectColorValueHandle"
+            size="small"
+            style="width: 250px"
+            v-model:value="selectColorValue"
+            :disabled="!canvasConfig.backgroundImage"
+            :options="selectColorOptions"
+            @update:value="selectColorValueHandle"
         />
+      </n-space>
+      <n-space>
+        <n-text>播放时长</n-text>
+        <n-input
+            size="small"
+            v-model:value="canvasConfig.timeTotal"
+            maxlength="9"
+            @update:value="changeTimeHandle"
+        >
+          <template #suffix>
+            秒
+          </template>
+        </n-input>
       </n-space>
       <n-space>
         <n-text>背景控制</n-text>
@@ -126,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, computed } from 'vue'
 import { backgroundImageSize } from '@/settings/designSetting'
 import { swatchesColors } from '@/settings/chartThemes/index'
 import { FileTypeEnum } from '@/enums/fileTypeEnum'
@@ -140,13 +153,16 @@ import { PreviewScaleEnum } from '@/enums/styleEnum'
 import { ResultEnum } from '@/enums/httpEnum'
 import { icon } from '@/plugins'
 import { uploadFile } from '@/api/path'
+import {useSync} from "@/views/chart/hooks/useSync.hook";
 
 const { ColorPaletteIcon } = icon.ionicons5
 const { ScaleIcon, FitToScreenIcon, FitToHeightIcon, FitToWidthIcon } = icon.carbon
 
+const { dataSyncUpdate } = useSync()
 const chartEditStore = useChartEditStore()
 const systemStore = useSystemStore()
-const canvasConfig = chartEditStore.getEditCanvasConfig
+// const canvasConfig = chartEditStore.getEditCanvasConfig
+const canvasConfig = computed(() => chartEditStore.getEditCanvasConfig)
 const editCanvas = chartEditStore.getEditCanvas
 
 const uploadFileListRef = ref()
@@ -204,7 +220,7 @@ const previewTypeList = [
 ]
 
 watch(
-  () => canvasConfig.selectColor,
+  () => canvasConfig.value.selectColor,
   newValue => {
     selectColorValue.value = newValue ? 0 : 1
   },
@@ -219,6 +235,10 @@ const validator = (x: number) => x > 50
 // 修改尺寸
 const changeSizeHandle = () => {
   chartEditStore.computedScale()
+}
+
+const changeTimeHandle = (time: string) => {
+  chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, time)
 }
 
 // 上传图片前置处理
@@ -241,7 +261,7 @@ const beforeUploadHandle = async ({ file }) => {
 
 // 应用颜色
 const selectColorValueHandle = (value: number) => {
-  canvasConfig.selectColor = value == 0
+  canvasConfig.value.selectColor = value == 0
 }
 
 // 清除背景
@@ -261,7 +281,7 @@ const switchSelectColorHandle = () => {
 // 清除颜色
 const clearColor = () => {
   chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.BACKGROUND, undefined)
-  if (canvasConfig.backgroundImage) {
+  if (canvasConfig.value.backgroundImage) {
     chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.SELECT_COLOR, false)
   }
   switchSelectColorHandle()
@@ -277,19 +297,19 @@ const customRequest = (options: UploadCustomRequestOptions) => {
         type: file.file.type
       })
       let uploadParams = new FormData()
-      uploadParams.append('object', newNameFile)
+      uploadParams.append('file', newNameFile)
       const uploadRes = await uploadFile(uploadParams)
 
       if (uploadRes && uploadRes.code === ResultEnum.SUCCESS) {
-        if (uploadRes.data.fileurl) {
+        if (uploadRes.data.downloadUrl) {
           chartEditStore.setEditCanvasConfig(
             EditCanvasConfigEnum.BACKGROUND_IMAGE,
-            `${uploadRes.data.fileurl}?time=${new Date().getTime()}`
+            `/system${uploadRes.data.downloadUrl}?time=${new Date().getTime()}`
           )
         } else {
           chartEditStore.setEditCanvasConfig(
             EditCanvasConfigEnum.BACKGROUND_IMAGE,
-            `${systemStore.getFetchInfo.OSSUrl || ''}${uploadRes.data.fileName}?time=${new Date().getTime()}`
+            `${systemStore.getFetchInfo.OSSUrl || ''}${uploadRes.data.name}?time=${new Date().getTime()}`
           )
         }
         chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.SELECT_COLOR, false)

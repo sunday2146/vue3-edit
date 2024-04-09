@@ -10,10 +10,12 @@ export enum LayerModeEnum {
 
 export enum ChartLayoutStoreEnum {
   LAYERS = 'layers',
+  PAGES = 'pages',
   CHARTS = 'charts',
   DETAILS = 'details',
   Chart_TYPE = 'chartType',
   LAYER_TYPE = 'layerType',
+  PAGE_TYPE = 'pageType',
   PERCENTAGE = 'percentage',
   RE_POSITION_CANVAS = 'rePositionCanvas'
 }
@@ -21,6 +23,7 @@ export enum ChartLayoutStoreEnum {
 export interface ChartLayoutType {
   // 图层控制
   [ChartLayoutStoreEnum.LAYERS]: boolean
+  [ChartLayoutStoreEnum.PAGES]: boolean
   // 图表组件
   [ChartLayoutStoreEnum.CHARTS]: boolean
   // 详情设置
@@ -29,6 +32,7 @@ export interface ChartLayoutType {
   [ChartLayoutStoreEnum.Chart_TYPE]: ChartModeEnum
   // 层级展示方式
   [ChartLayoutStoreEnum.LAYER_TYPE]: LayerModeEnum
+  [ChartLayoutStoreEnum.PAGE_TYPE]: LayerModeEnum
   // 当前正在加载的数量
   [ChartLayoutStoreEnum.PERCENTAGE]: number
   // 是否重置当前画布位置

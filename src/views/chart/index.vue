@@ -16,6 +16,7 @@
       <n-layout-content content-style="overflow:hidden; display: flex">
         <div style="overflow:hidden; display: flex">
           <content-charts></content-charts>
+          <content-pages></content-pages>
           <content-layers></content-layers>
         </div>
         <content-configurations></content-configurations>
@@ -58,6 +59,7 @@ const HeaderLeftBtn = loadAsyncComponent(() => import('./ContentHeader/headerLef
 const HeaderRightBtn = loadAsyncComponent(() => import('./ContentHeader/headerRightBtn/index.vue'))
 const HeaderTitle = loadAsyncComponent(() => import('./ContentHeader/headerTitle/index.vue'))
 const ContentLayers = loadAsyncComponent(() => import('./ContentLayers/index.vue'))
+const ContentPages = loadAsyncComponent(() => import('./ContentPages/index.vue'))
 const ContentCharts = loadAsyncComponent(() => import('./ContentCharts/index.vue'))
 const ContentConfigurations = loadAsyncComponent(() => import('./ContentConfigurations/index.vue'))
 const ContentLoad = loadAsyncComponent(() => import('./ContentLoad/index.vue'))

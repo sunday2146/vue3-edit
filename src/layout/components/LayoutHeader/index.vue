@@ -12,10 +12,12 @@
       <div class="header-item right">
         <n-space>
           <slot name="ri-left"> </slot>
-<!--          <go-lang-select></go-lang-select>-->
-<!--          <theme-color-select></theme-color-select>-->
+          <!--          <go-lang-select></go-lang-select>-->
+          <!--          <theme-color-select></theme-color-select>-->
           <go-theme-select></go-theme-select>
           <slot name="ri-right"> </slot>
+
+          <n-button round @click="exitClick">退出</n-button>
         </n-space>
       </div>
     </header>
@@ -35,31 +37,46 @@ const route = useRoute()
 const isProject = computed(() => {
   return route.fullPath === PageEnum.BASE_HOME_ITEMS
 })
+
+
+// 模态弹窗
+const exitClick = () => {
+  window.close();
+  console.log('退出概念')
+}
+
 </script>
 
 <style lang="scss" scoped>
 $min-width: 520px;
+
 @include go(header) {
   &-box {
     display: grid;
     grid-template-columns: repeat(3, 33%);
+
     &.is-project {
       grid-template-columns: none;
     }
+
     .header-item {
       display: flex;
       align-items: center;
       min-width: $min-width;
+
       &.left {
         justify-content: start;
       }
+
       &.center {
         justify-content: center;
       }
+
       &.right {
         justify-content: end;
       }
     }
+
     height: $--header-height;
     padding: 0 20px 0 60px;
   }

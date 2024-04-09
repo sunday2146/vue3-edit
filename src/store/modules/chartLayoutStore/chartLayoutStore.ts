@@ -15,7 +15,8 @@ export const useChartLayoutStore = defineStore({
   id: 'useChartLayoutStore',
   state: (): ChartLayoutType => ({
     // 图层控制
-    layers: true,
+    layers: false,
+    pages: false,
     // 图表组件
     charts: true,
     // 详情设置（收缩为true）
@@ -24,6 +25,7 @@ export const useChartLayoutStore = defineStore({
     chartType: ChartModeEnum.SINGLE,
     // 图层类型（默认图片）
     layerType: LayerModeEnum.THUMBNAIL,
+    pageType: LayerModeEnum.THUMBNAIL,
     // 当前加载数量
     percentage: 0,
     // 是否重置当前画布位置
@@ -34,6 +36,9 @@ export const useChartLayoutStore = defineStore({
   getters: {
     getLayers(): boolean {
       return this.layers
+    },
+    getPages(): boolean {
+      return this.pages
     },
     getCharts(): boolean {
       return this.charts
@@ -46,6 +51,9 @@ export const useChartLayoutStore = defineStore({
     },
     getLayerType(): LayerModeEnum {
       return this.layerType
+    },
+    getPageType(): LayerModeEnum {
+      return this.pageType
     },
     getPercentage(): number {
       return this.percentage

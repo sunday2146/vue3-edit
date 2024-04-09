@@ -254,8 +254,7 @@ export interface ChartEditStoreType {
 export type PageListType = {
   id: string
   title: string,
-  times: string,
-  time: number,
+  previewUrl?: string,
   componentList: Array<CreateComponentType | CreateComponentGroupType>,
   editCanvasConfig: EditCanvasConfigType
 }

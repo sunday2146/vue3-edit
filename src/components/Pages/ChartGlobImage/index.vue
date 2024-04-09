@@ -1,5 +1,5 @@
 <template>
-  <img class="list-img" v-if="props.chartConfig.key !== 'TextCommon'" v-lazy="imageInfo" alt="图表图片" />
+  <img class="list-img" v-if="props.chartConfig.key !== 'TextCommon' || props.chartConfig.category !== 'Tables'" v-lazy="imageInfo" alt="图表图片" />
 </template>
 
 <script setup lang="ts">
@@ -22,14 +22,14 @@ const fetchImageUrl = async () => {
 }
 
 watch(
-  () => props.chartConfig.key,
-  () => {
-    if (props.chartConfig.key !== 'TextCommon') {
-      fetchImageUrl()
+    () => props.chartConfig.key,
+    () => {
+      if (props.chartConfig.key !== 'TextCommon' || props.chartConfig.category !== 'Tables' ) {
+        fetchImageUrl()
+      }
+    },
+    {
+      immediate: true
     }
-  },
-  {
-    immediate: true
-  }
 )
 </script>

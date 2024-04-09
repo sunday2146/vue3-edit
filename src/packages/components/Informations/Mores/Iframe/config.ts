@@ -3,10 +3,11 @@ import { CreateComponentType } from '@/packages/index.d'
 import { chartInitConfig } from '@/settings/designSetting'
 import { IframeConfig } from './index'
 import cloneDeep from 'lodash/cloneDeep'
+const dataset = import.meta.env.VITE_PRO_PATH
 
 export const option = {
   // 网站路径
-  dataset: "https://www.mtruning.club/",
+  dataset,
   // 圆角
   borderRadius: 10
 }

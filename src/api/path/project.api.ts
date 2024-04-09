@@ -110,9 +110,13 @@ export const uploadFile = async (data: object) => {
       /**
        * 文件地址
        */
-      fileName: string,
-      fileurl: string,
-    }>(`${ModuleTypeEnum.PROJECT}/upload`, data, ContentTypeEnum.FORM_DATA)
+      id: string,
+      tenantId: string,
+      name: string,
+      downloadUrl: string,
+      previewUrl: string,
+      storeFileName: string,
+    }>(`${ModuleTypeEnum.SYSTEM}/mediaInfo/upload?appType=led&directoryId=0`, data, ContentTypeEnum.FORM_DATA)
     return res
   } catch {
     httpErrorHandle()

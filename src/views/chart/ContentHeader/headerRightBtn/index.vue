@@ -81,7 +81,7 @@ import {
   setSessionStorage,
   getLocalStorage,
   httpErrorHandle,
-  fetchRouteParamsLocation
+  fetchRouteParamsLocation, getAuth
 } from '@/utils'
 import { optionsDeviceState, typeOptions } from "@/enums/configForm";
 import { icon } from '@/plugins'
@@ -413,14 +413,14 @@ const btnList = [
     event: dataSyncUpdate(false)
   },
   {
-    key: 'save',
+    key: 'template',
     title: () => '存为模板',
     type: () => 'default',
     icon: renderIcon(SaveIcon),
     event: dataSyncUpdate(true)
   },
   {
-    key: 'save',
+    key: 'insert',
     title: () => '保存并插播',
     type: () => 'default',
     icon: renderIcon(SendIcon),
@@ -434,6 +434,9 @@ const comBtnList = computed(() => {
   }
   const cloneList = cloneDeep(btnList)
   cloneList.shift()
+  if (!getAuth('3000101')) {
+    cloneList.pop()
+  }
   return cloneList
 })
 </script>

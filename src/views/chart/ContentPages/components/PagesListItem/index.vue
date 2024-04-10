@@ -232,6 +232,7 @@ $textSize: 12px;
       }
       span {
         font-size: 12px;
+        font-style: normal;
       }
     }
   }

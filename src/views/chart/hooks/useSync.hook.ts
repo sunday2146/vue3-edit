@@ -315,6 +315,7 @@ export const useSync = () => {
       return
     }
     chartEditStore.setEditCanvas(EditCanvasTypeEnum.SAVE_STATUS, SyncEnum.START)
+    chartEditStore.saveCurrentPage()
 
     if (updateImg) {
       // 异常处理：缩略图上传失败不影响JSON的保存

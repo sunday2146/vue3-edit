@@ -11,6 +11,7 @@ import { WinKeyboard } from '@/enums/editPageEnum'
 import { RequestHttpIntervalEnum, RequestParamsObjType } from '@/enums/httpEnum'
 import { CreateComponentType, CreateComponentGroupType } from '@/packages/index.d'
 import { excludeParseEventKeyList, excludeParseEventValueList } from '@/enums/eventEnum'
+import {getLocalStorage} from "@/utils/storage";
 
 /**
  * * 判断是否是开发环境
@@ -28,6 +29,11 @@ export const getUUID = (randomLength = 10) => {
   return Number(Math.random().toString().substring(2, randomLength) + Date.now()).toString(36)
 }
 
+export const getAuth = (id: string, tag = 'func') => {
+  const authMap = getLocalStorage('authMap') || {}
+  return authMap[tag] != undefined &&
+      authMap[tag][id] !== undefined
+}
 /**
  * * render 图标
  *  @param icon 图标

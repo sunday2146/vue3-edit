@@ -5,7 +5,7 @@ import { themeColor, setItem, getCharts } from './useLayout.hook'
 import { PackagesCategoryEnum, PackagesCategoryName, ConfigType, ChartFrameEnum, PackagesType } from '@/packages/index.d'
 import { usePackagesStore } from '@/store/modules/packagesStore/packagesStore'
 import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'
-import {getMediaInfo} from "@/api/path";
+import {getMediaInfo, getTreeApi} from "@/api/path";
 import {ResultEnum} from "@/enums/httpEnum";
 import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
 import {VideoConfig} from "@/packages/components/Informations/Mores/Video/index";
@@ -97,13 +97,13 @@ export const useAsideHook = () => {
 
   const getImageListReq = async <T extends keyof PackagesType>(type: T, pageNum: number=1, isUp: boolean = false) => {
     const imageList: Array<ConfigType> = []
-    const payload = PackagesCategoryEnum.IMAGES ? packagesStore.getImagePayload : packagesStore.getVideoPayload
+    const payload = packagesStore.getImagePayload
     const param = {
       condition: {
         appType: "led",
-        directoryId: "",
+        directoryIds: payload.directoryIds,
         examineState: 1,
-        type: type === PackagesCategoryEnum.IMAGES ? "IMG" : 'VIDEO',
+        type: "IMG",
         fileName: payload.fileName || ''
       },
       pageNum: payload.pageNum || 1,
@@ -145,7 +145,7 @@ export const useAsideHook = () => {
     const param = {
       condition: {
         appType: "led",
-        directoryId: "",
+        directoryIds: payload.directoryIds,
         examineState: 1,
         type: 'VIDEO',
         fileName: payload.fileName || ''
@@ -164,7 +164,7 @@ export const useAsideHook = () => {
           chartFrame: ChartFrameEnum.COMMON,
           dynamic: true,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-          dataset: `${requestUrl}/system${i.downloadUrl}`,
+          dataset: `${requestUrl}/system${i.coverVideoPreviewUrl}`,
           title: `${payload.pageNum + index + i.storeFileName}`,
           name: i.name,
           redirectComponent: `${VideoConfig.package}/${VideoConfig.category}/${VideoConfig.key}`
@@ -189,7 +189,7 @@ export const useAsideHook = () => {
     const param = {
       condition: {
         appType: "led",
-        directoryId: "",
+        directoryIds: payload.directoryIds,
         examineState: 1,
         type: 'Txt',
         fileName: payload.fileName || ''
@@ -226,6 +226,14 @@ export const useAsideHook = () => {
     })
   }
 
+  const getGroupTree = async () => {
+    await getTreeApi({appType: 'led'}).then((res: any)=> {
+      if (res && res.code === ResultEnum.SUCCESS) {
+        packagesStore.setGroupTree([res.data])
+      }
+    })
+  }
+
   // 记录选中值
   let beforeSelect: string = menuOptions[0]['key']
   const selectValue = ref<string>(menuOptions[0]['key'])
@@ -257,6 +265,7 @@ export const useAsideHook = () => {
     menuOptions,
     getImageListReq,
     getVideoListReq,
-    getTxtListReq
+    getTxtListReq,
+    getGroupTree
   }
 }

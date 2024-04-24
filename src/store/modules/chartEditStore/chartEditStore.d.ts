@@ -120,7 +120,7 @@ export type EditCanvasConfigType = {
   [FilterEnum.BLEND_MODE]: string
   // 大屏名称
   [EditCanvasConfigEnum.PROJECT_NAME]?: string
-  [EditCanvasConfigEnum.TIME_TOTAL]: number | string
+  [EditCanvasConfigEnum.TIME_TOTAL]: number
   // 大屏宽度
   [EditCanvasConfigEnum.WIDTH]: number
   // 大屏高度
@@ -180,6 +180,7 @@ export enum ChartEditStoreEnum {
   EDIT_RANGE = 'editRange',
   EDIT_CANVAS = 'editCanvas',
   RIGHT_MENU_SHOW = 'rightMenuShow',
+  SHOW_PAGE_LOADING = 'showPageLoading',
   MOUSE_POSITION = 'mousePosition',
   TARGET_CHART = 'targetChart',
   RECORD_CHART = 'recordChart',
@@ -243,6 +244,7 @@ export interface ChartEditStoreType {
   [ChartEditStoreEnum.EDIT_CANVAS]: EditCanvasType
   [ChartEditStoreEnum.EDIT_CANVAS_CONFIG]: EditCanvasConfigType
   [ChartEditStoreEnum.RIGHT_MENU_SHOW]: boolean
+  [ChartEditStoreEnum.SHOW_PAGE_LOADING]: boolean
   [ChartEditStoreEnum.MOUSE_POSITION]: MousePositionType
   [ChartEditStoreEnum.TARGET_CHART]: TargetChartType
   [ChartEditStoreEnum.RECORD_CHART]?: RecordChartType

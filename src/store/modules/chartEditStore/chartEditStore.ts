@@ -47,7 +47,7 @@ const settingStore = useSettingStore()
 const initEditCanvasConfig: EditCanvasConfigType = {
       // 项目名称
       projectName: undefined,
-      timeTotal: '15',
+      timeTotal: 15,
       // 默认宽度
       width: 1920,
       // 默认高度
@@ -125,6 +125,7 @@ export const useChartEditStore = defineStore({
     },
     // 右键菜单
     rightMenuShow: false,
+    showPageLoading: false,
     // 鼠标定位
     mousePosition: {
       startX: 0,
@@ -141,7 +142,7 @@ export const useChartEditStore = defineStore({
     recordChart: undefined,
     // -----------------------
     // 画布属性（需存储给后端）
-    editCanvasConfig: initEditCanvasConfig,
+    editCanvasConfig: cloneDeep(initEditCanvasConfig),
     // 数据请求处理（需存储给后端）
     requestGlobalConfig: {
       requestDataPond: [],
@@ -166,7 +167,7 @@ export const useChartEditStore = defineStore({
       pageList: [{
         id: getUUID(),
         title: '分页1',
-        editCanvasConfig: initEditCanvasConfig,
+        editCanvasConfig: cloneDeep(initEditCanvasConfig),
         componentList: []
       }]
     }
@@ -205,6 +206,9 @@ export const useChartEditStore = defineStore({
     getPageList(): Array<PageListType> {
       return this.pageConfig.pageList
     },
+    getShowPageLoading(): boolean {
+      return this.showPageLoading
+    },
     getCurrentPage(): PageListType {
       const e = this.pageConfig.pageList
           , n = this.pageConfig.activeIndex;
@@ -220,6 +224,9 @@ export const useChartEditStore = defineStore({
         [ChartEditStoreEnum.REQUEST_GLOBAL_CONFIG]: this.getRequestGlobalConfig,
         [ChartEditStoreEnum.PAGE_CONFIG]: this.getPageConfig
       }
+    },
+    handleLoading (show: boolean = true) {
+      this.showPageLoading = show
     },
     // * 设置 editCanvasConfig（需保存后端） 数据项
     setPageConfig<T extends keyof PageConfigType, K extends PageConfigType[T]>(key: T, value: K) {
@@ -1021,6 +1028,10 @@ export const useChartEditStore = defineStore({
       } else {
         window['$message'].warning('请先创建画布，再进行缩放')
       }
+      this.pageConfig.pageList.map((item: PageListType) => {
+        item.editCanvasConfig.width = this.editCanvasConfig.width
+        item.editCanvasConfig.height = this.editCanvasConfig.height
+      })
     },
     // * 监听缩放
     listenerScale(): Function {
@@ -1049,7 +1060,7 @@ export const useChartEditStore = defineStore({
     },
     addPageList(componentList?: Array<CreateComponentType | CreateComponentGroupType>, editCanvasConfig?: EditCanvasConfigType, pageItem?: PageListType, copy?: boolean) {
       let compList = componentList || []
-      const canvasConfig = editCanvasConfig || initEditCanvasConfig
+      const canvasConfig = editCanvasConfig || {...initEditCanvasConfig, width: this.editCanvasConfig.width, height: this.editCanvasConfig.height}
       const canvasConfigNew = cloneDeep(canvasConfig)
       if (copy) {
         const list: Array<CreateComponentType | CreateComponentGroupType>= []
@@ -1070,6 +1081,7 @@ export const useChartEditStore = defineStore({
           this.pageConfig.pageList
     },
     async setCurrentPage(index: number = 0, flag: boolean = true): Promise<void> {
+      // loadingStart()
       this.saveCurrentPage()
       let a;
       flag && (a = this.pageConfig.activeIndex);
@@ -1077,6 +1089,7 @@ export const useChartEditStore = defineStore({
       if (oldActive === index) {
         return
       }
+      this.handleLoading(true)
       try {
         // 获取缩略图片
         const range = document.querySelector('.go-edit-range') as HTMLElement
@@ -1087,10 +1100,11 @@ export const useChartEditStore = defineStore({
         })
         // 上传预览图
         uploadImageByBase64(canvasImage.toDataURL()).then((result: any) => {
-          this.pageConfig.pageList[oldActive].previewUrl = result.data?.downloadUrl || ''
+          result.data?.downloadUrl && (this.pageConfig.pageList[oldActive].previewUrl = result.data.downloadUrl || '')
         })
       } catch (e) {
         console.log(e)
+        // loadingError()
       }
       this.setTargetSelectChart()
       const i = index === void 0 ? oldActive : index
@@ -1098,10 +1112,12 @@ export const useChartEditStore = defineStore({
       this.componentList = newData.componentList
       this.editCanvasConfig = newData.editCanvasConfig
       this.pageConfig.activeIndex = index
+      this.handleLoading(false)
       if (flag) {
         const newIndex = this.pageConfig.activeIndex;
         chartHistoryStore.createPageConfig([oldActive, newIndex], HistoryPageTypeEnum.PAGE_SWITCH)
       }
+      // loadingFinish()
     },
     copyPageByIndex(index: number) {
       const n = this.pageConfig.pageList[index];
@@ -1116,9 +1132,9 @@ export const useChartEditStore = defineStore({
         window.$message.error("删除失败, 已经没有多余的页面!")
         return;
       }
-      if (this.pageConfig.activeIndex === index) {
-        this.setCurrentPage(index === 0 ? 1 : index - 1)
-      }
+      // if (this.pageConfig.activeIndex === index) {
+      //   this.setCurrentPage(index === 0 ? 1 : index - 1)
+      // }
       const oldPageConfig = cloneDeep(this.pageConfig);
       this.pageConfig.pageList.splice(index, 1),
       index <= this.pageConfig.activeIndex && (this.pageConfig.activeIndex -= 1);
@@ -1133,6 +1149,17 @@ export const useChartEditStore = defineStore({
       this.componentList = a.componentList,
       this.editCanvasConfig = a.editCanvasConfig,
       this.pageConfig.activeIndex = n
+    },
+    switchPreviewPage(index: number){
+      if (index < 0 || index >= this.pageConfig.pageList.length) {
+        window.$message.warning("切换失败, 页面不存在!")
+        return
+      }
+      const newData = this.pageConfig.pageList[index]
+      this.componentList = newData.componentList
+      this.editCanvasConfig = newData.editCanvasConfig
+      this.pageConfig.activeIndex = index
+      // this.handleLoading(false)
     },
     saveCurrentPage() {
       const currentIndex = this.pageConfig.activeIndex || 0

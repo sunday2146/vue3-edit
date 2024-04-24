@@ -113,6 +113,7 @@ export const useSync = () => {
   const updateComponent = async (projectData: ChartEditStorage, isReplace = false, changeId = false) => {
     if (!isReplace) {
       chartEditStore.setPageConfig('pageList', [])
+      chartEditStore.setPageConfig('activeIndex', projectData.pageConfig?.activeIndex || 0)
       if (projectData.pageConfig && projectData.pageConfig.pageList && projectData.pageConfig.pageList.length) {
         projectData.pageConfig.pageList.map(item =>{
           chartEditStore.addPageList(item.componentList, item.editCanvasConfig, item)
@@ -248,7 +249,7 @@ export const useSync = () => {
     name: string,
     indexImage: string,
     remarks: string,
-    timeTotal: string,
+    timeTotal: number,
     state: number
   }) => {
     const { id, name, remarks, indexImage, state, timeTotal } = projectData
@@ -310,7 +311,7 @@ export const useSync = () => {
     //   window['$message'].error('数据初未始化成功,请刷新页面！')
     //   return
     // }
-    if(nameTitle === null || nameTitle === ''){
+    if(!nameTitle){
       window['$message'].error('请输入节目名称！')
       return
     }
@@ -348,7 +349,8 @@ export const useSync = () => {
     // 保存数据
     const data = {
       id: editId.value,
-      name: nameTitle,
+      // name: nameTitle,
+      name: `${nameTitle.includes('new') ? '' : 'new'}${nameTitle}`,
       isTemplate,
       coverImage: postObj.id,
       coverImagePreviewUrl: postObj.downloadUrl,

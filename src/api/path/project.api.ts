@@ -3,6 +3,17 @@ import { httpErrorHandle } from '@/utils'
 import { ContentTypeEnum, RequestHttpEnum, ModuleTypeEnum } from '@/enums/httpEnum'
 import { ProjectItem, ProjectDetail } from './project'
 
+
+// * 左侧树列表
+export const getTreeApi = async (data: object) => {
+  try {
+    const res = await http(RequestHttpEnum.GET)<ProjectItem[]>(`${ModuleTypeEnum.SYSTEM}/directory/tree`, data)
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}
+
 // * 项目列表
 export const projectListApi = async (data: object) => {
   try {
@@ -143,7 +154,7 @@ export const uploadImageByBase64 = async (data: string) => {
 // * 获取资源库素材
 export const getMediaInfo = async (data: object) => {
   try {
-    const res = await http(RequestHttpEnum.POST)(`${ModuleTypeEnum.SYSTEM}/mediaInfo/pageList`, data)
+    const res = await http(RequestHttpEnum.POST)(`${ModuleTypeEnum.SYSTEM}/mediaInfo/pageList2`, data)
     return res
   } catch {
     httpErrorHandle()

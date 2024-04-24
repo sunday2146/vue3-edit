@@ -23,6 +23,15 @@
         </div>
       </div>
     </template>
+    <n-button-group vertical class="floatBtn">
+      <n-button round class="itBtn" type="primary" :disabled="pageConfig.activeIndex == 0" @click="changePage(pageConfig.activeIndex - 1)">
+        上一页
+      </n-button>
+<!--      <n-float-button> {{pageConfig.activeIndex}} </n-float-button>-->
+      <n-button round class="itBtn" type="primary" :disabled="pageConfig.activeIndex == pageConfig.pageList.length - 1" @click="changePage(pageConfig.activeIndex + 1)" >
+        下一页
+      </n-button>
+    </n-button-group>
   </div>
 </template>
 
@@ -52,6 +61,13 @@ const previewRefStyle = computed(() => {
     ...getFilterStyle(chartEditStore.editCanvasConfig)
   }
 })
+
+const pageConfig = computed(() => chartEditStore.pageConfig)
+
+const changePage = (index: number) => {
+  chartEditStore.switchPreviewPage(index)
+  console.log('changePage', index, pageConfig)
+}
 
 const showEntity = computed(() => {
   const type = chartEditStore.editCanvasConfig.previewScaleType
@@ -96,6 +112,18 @@ keyRecordHandle()
   }
   .go-preview-entity {
     overflow: hidden;
+  }
+  .floatBtn {
+    position: fixed;
+    right: 0;
+    top: calc(50% - 90px);
+    text-align: center;
+    writing-mode: vertical-rl; /* 文字从右到左竖排 */
+    /* writing-mode: vertical-lr; 如果你想从左到右竖排 */
+    text-orientation: upright; /* 保持文字正向 */
+    .itBtn {
+      height: 80px;
+    }
   }
 }
 </style>

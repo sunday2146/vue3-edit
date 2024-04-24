@@ -27,10 +27,11 @@ export const getSessionStorageInfo = async () => {
         return { isRelease: false }
       }
       const parseData = { ...JSONParse(content), id }
-      const { editCanvasConfig, requestGlobalConfig, componentList } = parseData
+      const { editCanvasConfig, requestGlobalConfig, componentList, pageConfig } = parseData
       chartEditStore.editCanvasConfig = editCanvasConfig
       chartEditStore.requestGlobalConfig = requestGlobalConfig
       chartEditStore.componentList = componentList
+      chartEditStore.pageConfig = pageConfig
       return parseData
     } else {
       httpErrorHandle()
@@ -39,10 +40,11 @@ export const getSessionStorageInfo = async () => {
     // 本地读取
     for (let i = 0; i < storageList.length; i++) {
       if (id.toString() === storageList[i]['id']) {
-        const { editCanvasConfig, requestGlobalConfig, componentList } = storageList[i]
+        const { editCanvasConfig, requestGlobalConfig, componentList, pageConfig } = storageList[i]
         chartEditStore.editCanvasConfig = editCanvasConfig
         chartEditStore.requestGlobalConfig = requestGlobalConfig
         chartEditStore.componentList = componentList
+        chartEditStore.pageConfig = pageConfig
         return storageList[i]
       }
     }

@@ -107,8 +107,6 @@ export const useChartDataFetch = (
         // 开启轮询
         if (time) {
           fetchInterval = setInterval(fetchFn, intervalUnitHandle(time, unit))
-        } else {
-          fetchFn()
         }
       }
       // eslint-disable-next-line no-empty

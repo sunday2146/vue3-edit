@@ -9,6 +9,7 @@
     <edit-select></edit-select>
     <!-- 拖拽时的遮罩 -->
     <div class="go-edit-range-model" :style="rangeModelStyle"></div>
+    <page-loading-box></page-loading-box>
   </div>
 </template>
 
@@ -21,6 +22,7 @@ import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore
 import { EditAlignLine } from '../EditAlignLine'
 import { EditWatermark } from '../EditWatermark'
 import { EditSelect } from '../EditSelect'
+import { PageLoadingBox } from '../PageLoadingBox'
 
 const chartEditStore = useChartEditStore()
 
@@ -55,7 +57,6 @@ const rangeModelStyle = computed(() => {
   position: relative;
   transform-origin: left top;
   background-size: cover;
-  border-radius: 10px;
   overflow: hidden;
   @include fetch-border-color('hover-border-color');
   @include fetch-bg-color('background-color2');

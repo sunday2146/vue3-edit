@@ -8,6 +8,7 @@
         <span class="list-text">
           {{ props.pageData.title }}
         </span>
+        <n-tag size="small" class="famatTime" v-if="!selectText"> {{ famatTime(props.pageData?.editCanvasConfig.timeTotal) }} </n-tag>
       </n-ellipsis>
       <img v-if="!selectText && props.pageData.previewUrl" class="previewUrl" :src="`${requestUrl}/system${props.pageData.previewUrl}`" :key="props.pageData.id" :title="props.pageData.title" />
       <div :class="[selectText ? 'list-icon' : 'list-tools', 'go-transition']">
@@ -67,6 +68,11 @@ const themeColor = computed(() => {
 })
 
 const copyPage = () => chartEditStore.copyPageByIndex(props.index)
+
+const famatTime = (time: number = 15) =>  time > 60
+    ? `${Math.floor(time / 60)}分${time % 60}秒`
+    : `${time}秒`
+
 
 const removePages = () => {
   const index = props.index
@@ -192,6 +198,11 @@ $textSize: 12px;
     height: 100%;
     opacity: 0.3;
     background-color: v-bind('themeColor');
+  }
+  .famatTime{
+    position: absolute;
+    right: 2px;
+    top: 2px;
   }
 
   .list-img {

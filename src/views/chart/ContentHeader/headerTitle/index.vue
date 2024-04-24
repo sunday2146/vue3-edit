@@ -1,31 +1,31 @@
 <template>
-  <n-space>
-    <n-image
-        width="20"
-        src="/system/mediaInfo/preview/1166808443746693120"
-    />
-    <n-text @click="handleFocus">
-      节目制作 工作空间 -
-      <n-button v-show="!focus" secondary size="tiny">
+    <n-space>
+      <n-image
+          width="20" preview-disabled
+          src="/system/mediaInfo/preview/1166808443746693120"
+      />
+      <n-text @click="handleFocus">
+        工作空间 -
+        <n-button v-show="!focus" secondary size="tiny">
         <span class="title">
           {{ comTitle || '新项目' }}
         </span>
-      </n-button>
-    </n-text>
-
-    <n-input
-      v-show="focus"
-      ref="inputInstRef"
-      size="small"
-      type="text"
-      maxlength="16"
-      show-count
-      placeholder="请输入项目名称"
-      v-model:value.trim="title"
-      @keyup.enter="handleBlur"
-      @blur="handleBlur"
-    ></n-input>
-  </n-space>
+        </n-button>
+      </n-text>
+      <n-input
+          v-show="focus"
+          ref="inputInstRef"
+          size="small"
+          type="text"
+          maxlength="16"
+          width="160px"
+          show-count
+          placeholder="请输入项目名称"
+          v-model:value.trim="title"
+          @keyup.enter="handleBlur"
+          @blur="handleBlur"
+      ></n-input>
+    </n-space>
 </template>
 
 <script setup lang="ts">
@@ -41,11 +41,18 @@ import { icon } from '@/plugins'
 const chartEditStore = useChartEditStore()
 const { dataSyncUpdate } = useSync()
 const { FishIcon } = icon.ionicons5
+const canvasConfig = computed(() => chartEditStore.getEditCanvasConfig)
+const editCanvas = chartEditStore.getEditCanvas
 
 const focus = ref<boolean>(false)
 const inputInstRef = ref(null)
 
 const title = ref<string>(fetchRouteParamsLocation())
+
+const validator = (x: number) => x > 50
+const changeSizeHandle = () => {
+  chartEditStore.computedScale()
+}
 
 watchEffect(() => {
   title.value = chartEditStore.getProjectInfo.projectName || ''

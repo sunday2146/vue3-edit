@@ -23,6 +23,9 @@
                 <n-icon v-show="!loading" :component="SearchIcon" />
               </template>
             </n-input>
+            <n-button type="primary" ghost @click="groupHandle">
+              <n-icon v-show="!loading" :component="FilterIcon" />
+            </n-button>
           </n-input-group>
         </template>
         <div class="search-list-box">
@@ -61,11 +64,21 @@
         </n-tooltip>
       </n-button>
     </n-button-group>
+    <n-modal v-model:show="groupModelShow" title="筛选" preset="dialog" positive-text="确定" negative-text="取消" @positive-click="submitCallback"
+             @negative-click="cancelCallback" :show-icon="false">
+      <n-space class="groupTreee" v-if="treeData.length" style="height: 580px; overflow: auto">
+        <n-tree :data="treeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
+                class="groupListTree"  label-field="name" key-field="id"
+                :show-irrelevant-nodes="false" expand-on-click :render-switcher-icon="renderSwitcherIcon"
+                checkable default-expand-all :cascade="true" block-line>
+        </n-tree>
+      </n-space>
+    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, computed, unref } from 'vue'
+import {ref, onUnmounted, computed, unref, watch, h} from 'vue'
 import { icon } from '@/plugins'
 import { createComponent } from '@/packages'
 import { ConfigType, CreateComponentType } from '@/packages/index.d'
@@ -86,6 +99,8 @@ import {ResultEnum} from "@/enums/httpEnum";
 import {TextCommonConfig} from "@/packages/components/Informations/Texts/TextCommon/index";
 import {ImageConfig} from "@/packages/components/Informations/Mores/Image/index";
 import {VideoConfig} from "@/packages/components/Informations/Mores/Video/index";
+import {NIcon, TreeOption} from "naive-ui";
+import { ChevronForward } from '@vicons/ionicons5'
 
 const requestUrl = import.meta.env.VITE_PRO_PATH
 
@@ -100,14 +115,18 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['updateOption'])
+
 const packagesStore = usePackagesStore()
 const chartEditStore = useChartEditStore()
 const chartLayoutStore = useChartLayoutStore()
-const { SearchIcon, AlbumsIcon, GridIcon } = icon.ionicons5
+const { SearchIcon, AlbumsIcon, GridIcon, FilterIcon } = icon.ionicons5
 const isFocus = ref<boolean>(false)
 const showPopover = ref<boolean>(false)
 const loading = ref<boolean | undefined>(undefined)
 const fileName = ref<string>('')
+const groupModelShow = ref<boolean>(false)
+const checkedKeys = ref<string[]>([])
 const searchRes = ref<ConfigType[]>([])
 const chartMode = ref<ChartModeEnum>(chartLayoutStore.getChartType)
 
@@ -117,6 +136,31 @@ const chartModeList = [
   { label: '单列', icon: AlbumsIcon, value: ChartModeEnum.SINGLE },
   { label: '双列', icon: GridIcon, value: ChartModeEnum.DOUBLE }
 ]
+
+const treeData = packagesStore.getGroupTree
+
+const updateCheckedKeys = (keys: Array<string>) => {
+  checkedKeys.value = keys
+  console.log('updateCheckedKeys', keys, treeData)
+}
+
+const cancelCallback = () => {
+  window['$message'].info('取消')
+}
+
+const renderSwitcherIcon = (props: { option: TreeOption }) => props.option.children?.length ? h(NIcon, null, {default: () => h(ChevronForward)}) : null
+
+
+const submitCallback =async () => {
+  if (props.menuKey === 'Images') {
+    packagesStore.setImagePayload('directoryIds', checkedKeys.value)
+  } else if(props.menuKey === 'Videos') {
+    packagesStore.setVideoPayload('directoryIds', checkedKeys.value)
+  } else {
+    packagesStore.setTxtPayload('directoryIds', checkedKeys.value)
+  }
+  emit('updateOption', checkedKeys.value)
+}
 
 // 组件数组提取
 const listFormatHandle = (options: any[]) => {
@@ -136,6 +180,10 @@ const closeHandle = () => {
   showPopover.value = false
   fileName.value = ''
   searchRes.value = []
+}
+
+const groupHandle = () => {
+  groupModelShow.value = true
 }
 
 const updateHandle = (key: string) => {
@@ -168,7 +216,7 @@ const searchHandle =(fileName: string | null) => {
   const param = {
     condition: {
       appType: "led",
-      directoryId: "",
+      directoryIds: checkedKeys.value,
       examineState: 1,
       type: props.menuKey === 'Images' ? 'IMG' : props.menuKey === 'Videos' ? 'VIDEO' : 'TXT',
       fileName,
@@ -254,6 +302,9 @@ addEventListener(document, 'click', (e: Event) => {
 onUnmounted(() => {
   removeEventListener(document, 'click', listenerCloseHandle)
 })
+watch(() => props.menuKey, () =>{
+  checkedKeys.value = []
+})
 </script>
 
 <style lang="scss" scoped>
@@ -335,6 +386,13 @@ $searchWidth: 236px;
     &.btn-group-focus {
       width: 0px;
     }
+  }
+  .n-dialog__content {
+    padding: 20px;
+    font-size: 14px;
+    word-break: break-all;
+    height: 580px;
+    overflow: auto;
   }
 }
 </style>

@@ -3,12 +3,14 @@
   <content-box class="go-content-charts" :class="{ scoped: !getCharts }" title="" :depth="1" :backIcon="false">
     <template #icon>
       <n-image
-          width="32"
+          width="32" preview-disabled
           src="/system/mediaInfo/preview/1166808443746693120"
       />
     </template>
     <template #top-right>
-      <image-search v-if="selectValue === 'Images' || selectValue === 'Videos' || selectValue === 'Tables'" v-show="getCharts" :menuOptions="menuOptions" :menuKey="selectValue"></image-search>
+      <image-search v-if="selectValue === 'Images' || selectValue === 'Videos' || selectValue === 'Tables'" v-show="getCharts" :menuOptions="menuOptions" :menuKey="selectValue"
+      @updateOption="updateOption"
+      ></image-search>
       <charts-search v-else v-show="getCharts" :menuOptions="menuOptions"></charts-search>
     </template>
     <!-- 图表 -->
@@ -25,6 +27,10 @@
         ></n-menu>
         <div class="menu-component-box">
           <go-skeleton :load="!selectOptions" round text :repeat="2" style="width: 90%"></go-skeleton>
+          <div v-if="!selectOptions.list.length" class="no-data go-flex-center">
+            <img :src="noData" alt="暂无数据" />
+            <n-text :depth="3">暂无数据</n-text>
+          </div>
           <charts-option-content
             v-if="selectOptions"
             :selectOptions="selectOptions"
@@ -48,18 +54,17 @@ import { ImageSearch } from './components/ImageSearch'
 import { useAsideHook } from './hooks/useAside.hook'
 import { PackagesCategoryEnum, ImagePayloadType } from '@/packages/index.d'
 import {usePackagesStore} from "@/store/modules/packagesStore/packagesStore";
+import noData from "@/assets/images/canvas/noData.png";
 
-const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq, getVideoListReq, getTxtListReq } = useAsideHook()
+const { getCharts, BarChartIcon, themeColor, selectOptions, selectValue, clickItemHandle, menuOptions, getImageListReq, getVideoListReq, getTxtListReq, getGroupTree } = useAsideHook()
 onMounted(async () => {
   await getImageListReq(PackagesCategoryEnum.IMAGES, 1)
   await getVideoListReq(PackagesCategoryEnum.VIDEOS, 1)
   await getTxtListReq(1)
+  await getGroupTree()
 })
 const packagesStore = usePackagesStore()
 const pageNum = ref(1)
-const imagesPayload = computed(() => packagesStore.getImagePayload)
-const videosPayload = computed(() => packagesStore.getVideoPayload)
-// const packagesList = computed(() => packagesStore.getPackagesList)
 
 const payload = computed(() => {
   return selectValue.value === 'Images' ? packagesStore.getImagePayload :
@@ -76,6 +81,19 @@ const changePage = async (pageNum: number) => {
   } else {
     packagesStore.setTxtPayload('pageNum', pageNum)
     await getTxtListReq(pageNum, true)
+  }
+}
+
+const updateOption =async (checkedKeys: string[]) => {
+  if (selectValue.value === 'Images') {
+    packagesStore.setImagePayload('directoryIds', checkedKeys)
+    await getImageListReq(PackagesCategoryEnum.IMAGES, 1, true)
+  } else if(selectValue.value === 'Videos') {
+    packagesStore.setVideoPayload('directoryIds', checkedKeys)
+    await getVideoListReq(PackagesCategoryEnum.VIDEOS, 1, true)
+  } else {
+    packagesStore.setTxtPayload('directoryIds', checkedKeys)
+    await getTxtListReq(1, true)
   }
 }
 
@@ -119,6 +137,14 @@ $topHeight: 40px;
         justify-content: center;
         display: flex;
         @include fetch-bg-color('background-color4');
+      }
+    }
+    .no-data {
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      img {
+        width: 200px;
       }
     }
   }

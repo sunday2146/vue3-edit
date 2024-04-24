@@ -219,5 +219,7 @@ export interface ImagePayloadType {
   pageNum: number,
   pageSize: number,
   totalPages: number,
+  directoryId: string,
+  directoryIds?: string[],
   fileName?: string
 }

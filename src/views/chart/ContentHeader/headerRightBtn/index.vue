@@ -14,16 +14,18 @@
       <n-space :size="10" class="deviceTitle">
         <n-text>设备终端：</n-text>
         <div>
-          <n-input round style="width:410px" v-model:value="facilityName" type="text" placeholder="请输入设备名称">
+          <n-input round style="width:410px" v-model:value.trim="facilityName" type="text" placeholder="请输入设备名称"
+                   @blur="proSizeChange('')"
+                   @keydown.enter="proSizeChange('')">
             <template #suffix>
               <n-icon :component="SearchIcon" />
             </template>
           </n-input>
         </div>
-        <n-select round v-model:value="selectedOption" :options="optionsDeviceState" @change="filterDevices"
+        <n-select round v-model:value="selectedOption" :options="optionsDeviceState" @change="proSizeChange('')"
           style="width: 90px" />
 
-        <n-select round style="width:100px;margin-left: 10px;" v-model:value="sizeTypeOption" @change="proSizeChange"
+        <n-select round style="width:100px;margin-left: 10px;" v-model:value="sizeType" @change="proSizeChange"
           :options="typeOptions" />
 
         <n-button quaternary type="info" @click="refreshFacility">
@@ -32,9 +34,9 @@
       </n-space>
       <n-space class="deviceTreee">
         <n-tree :data="filterTreeData" @update:checked-keys="updateCheckedKeys" :checked-keys="checkedKeys"
-          class="deviceListTree" :pattern="facilityName" children-field="deviceList" label-field="name" key-field="id"
+          class="deviceListTree" children-field="deviceList" label-field="name" key-field="id"
           :render-prefix="renderPrefix" :render-label="renderLabel" :show-irrelevant-nodes="false" expand-on-click
-          checkable default-expand-all check-strategy="parent">
+          checkable default-expand-all :cascade="true" block-line>
         </n-tree>
       </n-space>
       <n-space :size="10">
@@ -105,9 +107,9 @@ const filterTreeData = ref<any>([])
 const treeData = ref<any>([])
 const expandedKeys = ref([])
 const currentNodeKey = ref('')
-const selectedOption = ref<string>('online')//状态
-const sizeTypeOption = ref<string>('scale')//尺寸
-const facilityName = ref<string>('')
+const selectedOption = ref<string>('ONLINE')//状态
+const sizeType = ref<string>('scale')//尺寸
+const facilityName = ref<string>('')//搜索名称
 const playDurationMode = ref<string>('times')
 const times = ref<number>(1)
 const minutes = ref<string>('00:00:15')
@@ -119,20 +121,16 @@ watchEffect(() => {
   release.value = chartEditStore.getProjectInfo.release || false
 })
 
-const formInline = reactive({
-  username: 'admin',
-  password: 'admin',
-})
-const getFacilityList = async () => {
+const getFacilityList = async (size?: string) => {
   try {
-    let param ={
-       deviceTypeCode: 'AdvertisingScreen', 
-       deviceTypeEnum: 'IOTDEVICE', 
-       groupType: 'COMMON', 
-       sizeType: sizeTypeOption.value,
-       width:canvasConfig.width,
-       height:canvasConfig.height
-   }
+    let param = {
+      deviceTypeCode: 'AdvertisingScreen',
+      deviceTypeEnum: 'IOTDEVICE',
+      groupType: 'COMMON',
+      sizeType: size || sizeType.value,
+      width: canvasConfig.width,
+      height: canvasConfig.height
+    }
     await getFacilityListApi(param).then((result: any) => {
       const allNode = [{
         id: 'all',
@@ -143,23 +141,25 @@ const getFacilityList = async () => {
         deviceList: [] // 这里可以包含所有的设备
       }]
       if (result.data && result.data.length) {
-        result.data.map((deviceGroup: any) => {
-          allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup)
+        result.data.map((deviceGroup: any, Index: number) => {
+          const deviceList: any = deviceGroup.deviceList?.map((item: any, level: number)=>{return {...item, id: `${item.id}${level}${Index}`}})
+          allNode[0].deviceList = allNode[0].deviceList.concat({...deviceGroup, deviceList})
           allNode[0].offlineNum += deviceGroup.offlineNum
           allNode[0].onlineNum += deviceGroup.onlineNum
         })
       }
-      filterTreeData.value = allNode
-      treeData.value = allNode
-      console.log(result, 9998)
+      filterTreeData.value = cloneDeep(allNode)
+      treeData.value = cloneDeep(allNode)
     })
   } catch (e) {
     console.log(e)
   }
+  return true
 }
 
-onMounted(() => {
-  getFacilityList();
+onMounted(async () => {
+  await getFacilityList();
+  filterDevices();
 });
 
 // 关闭弹窗
@@ -167,15 +167,17 @@ const closeHandle = () => {
   modelShow.value = false
 }
 
-const refreshFacility = () => {
-  getFacilityList()
+const refreshFacility =async  () => {
+  // facilityName.value = ''
+  await getFacilityList();
+  filterDevices();
 }
 
 const handleNodeClick = (checked: boolean) => {
   console.log('点击树节点data', checked)
 }
 const renderLabel = ({ option }: { option: any, checked: boolean, selected: boolean }) => {
-  return option.groupType === 'COMMON' ? `${option.name}(${option.onlineNum} / ${option.offlineNum + option.onlineNum})` : option.name
+  return option.groupType === 'COMMON' ? `${option.name}(${selectedOption.value === 'OFFLINE'? '0' : option.onlineNum} / ${selectedOption.value === 'OFFLINE' ? option.offlineNum : selectedOption.value === 'ONLINE' ? option.onlineNum : option.offlineNum + option.onlineNum})` : option.name
 }
 const renderPrefix = ({ option }: { option: TreeOption }) => {
   return option.groupType === 'COMMON' ? null :
@@ -183,7 +185,6 @@ const renderPrefix = ({ option }: { option: TreeOption }) => {
 }
 const updateCheckedKeys = (keys: Array<string>) => {
   checkedKeys.value = keys
-  console.log('updateCheckedKeys', keys)
 }
 // 预览
 const previewHandle = () => {
@@ -226,92 +227,66 @@ const handleFocusFacilityName = () => {
 // 模态弹窗
 const modelShowHandle = () => {
   modelShow.value = !modelShow.value;
-  console.log('modelShowHandle', treeData.value[0].deviceList);
-  if (modelShow.value) {
-    // 弹框显示，在线
-    if (treeData.value[0].deviceList) {
-      const tempTree = treeData.value[0].deviceList;
-      let fTreeData = tempTree.filter((deviceGroup: any) => {
-        // 在设备组级别过滤
-        return deviceGroup.deviceList && deviceGroup.deviceList.some((device: any) => {
-          // 在设备级别过滤
-          return device.onlineStatus === 'ONLINE';
-        });
-      }).map((deviceGroup: any) => {
-        // 创建一个新的设备组对象，以避免修改原始数据
-        return {
-          ...deviceGroup,
-          // 在设备级别过滤
-          deviceList: deviceGroup.deviceList.filter((device: any) => {
-            return device.onlineStatus === 'ONLINE';
-          })
-        };
-      });
-
-      let allNode = [{
-        id: 'all',
-        name: '全部',
-        offlineNum: 0,
-        onlineNum: 0,
-        groupType: "COMMON",
-        deviceList: fTreeData // Assuming you want to include the filtered devices
-      }];
-      filterTreeData.value = allNode;
-    }
-  }
 };
 
 
 // 切换尺寸
-const proSizeChange = (val: string) => {
-   sizeTypeOption.value = val;
-  getFacilityList();
+const proSizeChange = async (size?: string) => {
+  await getFacilityList(size);
+  filterDevices();
 }
-const filterDevices = (val: string) => {
-  if (val === 'All') {
-    filterTreeData.value = treeData.value
-  } else {
-    const tempTree = treeData.value[0].deviceList
-    let fTreeData = tempTree.filter((deviceGroup: any) => {
-      // 在设备组级别过滤
-      if (deviceGroup.deviceList) {
-        return deviceGroup.deviceList.some((device: any) => {
-          // 在设备级别过滤
-          return val == 'online'
-            ? device.onlineStatus == 'ONLINE'
-            : device.onlineStatus == 'OFFLINE'
-        })
-      }
-    })
-      .map((deviceGroup: any) => {
-        // 创建一个新的设备组对象，以避免修改原始数据
-        return {
+const filterDevices = (val?: string, name?: string) => {
+  const filterName = name || facilityName.value
+  const onlineStatus = val || selectedOption.value
+  let offlineNum = 0
+  let onlineNum = 0
+  const deviceList: any[] = []
+  const tempTree = cloneDeep(treeData.value[0].deviceList)
+  let fTreeData = []
+  if (onlineStatus === 'All') {
+    fTreeData = tempTree.reduce((accumulator: any[], deviceGroup: any) => {
+      // 在设备级别过滤
+      const filteredDevices = deviceGroup.deviceList ? deviceGroup.deviceList.filter((device: any) => device.name.includes(filterName)) : [];
+      // 如果过滤后的设备列表不为空，则创建一个新的设备组对象
+      if (filteredDevices.length) {
+        accumulator.push({
           ...deviceGroup,
-          // 在设备级别过滤
-          deviceList: deviceGroup.deviceList.filter((device: any) => {
-            return val == 'online'
-              ? device.onlineStatus == 'ONLINE'
-              : device.onlineStatus == 'OFFLINE'
-          })
-        }
-      })
-
-    let allNode = [{
-      id: 'all',
-      name: '全部',
-      offlineNum: 0,
-      onlineNum: 0,
-      groupType: "COMMON",
-      deviceList: [] // 这里可以包含所有的设备
-    }]
-    fTreeData.forEach((deviceGroup: any) => {
-      allNode[0].deviceList = allNode[0].deviceList.concat(deviceGroup);
-      allNode[0].offlineNum += deviceGroup.offlineNum;
-      allNode[0].onlineNum += deviceGroup.onlineNum;
-    });
-    allNode[0].deviceList = fTreeData
-    filterTreeData.value = allNode;
+          deviceList: filteredDevices,
+        });
+      }
+      return accumulator;
+    }, []) // 过滤掉没有设备的设备组
+  } else {
+    fTreeData = tempTree.reduce((filteredTree: any[], deviceGroup: any) => {
+      // 在设备组级别过滤
+      const filteredDevices = deviceGroup.deviceList?.filter((device: any) => {
+        // 在设备级别过滤
+        return device.onlineStatus === onlineStatus && device.name.includes(filterName);
+      });
+      // 如果有设备满足条件，则添加到结果数组中
+      if (filteredDevices && filteredDevices.length > 0) {
+        filteredTree.push({
+          ...deviceGroup,
+          deviceList: filteredDevices,
+        });
+      }
+      return filteredTree;
+    }, [])
   }
+  fTreeData.map((deviceGroup: any) => {
+    deviceList.push(deviceGroup)
+    offlineNum += deviceGroup.offlineNum;
+    onlineNum += deviceGroup.onlineNum;
+  });
+  // allNode[0].deviceList = fTreeData
+  filterTreeData.value = [{
+    id: 'all',
+    name: '全部',
+    offlineNum,
+    onlineNum,
+    groupType: "COMMON",
+    deviceList
+  }]
 }
 
 
@@ -453,6 +428,15 @@ const comBtnList = computed(() => {
       border-bottom: 0;
     }
   }
+}
+
+.left_tree{
+  width: 300px;
+  border: 1px solid #f3f3f8;
+  padding: 10px;
+  margin-right: 20px;
+  float: left;
+  height: 650px;
 }
 
 .deviceTreee {

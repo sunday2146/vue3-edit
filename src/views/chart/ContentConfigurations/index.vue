@@ -150,12 +150,12 @@ const chartsTabList = [
     icon: FlashIcon,
     render: ChartData
   },
-  {
-    key: TabsEnum.CHART_EVENT,
-    title: '事件',
-    icon: RocketIcon,
-    render: ChartEvent
-  }
+  // {
+  //   key: TabsEnum.CHART_EVENT,
+  //   title: '事件',
+  //   icon: RocketIcon,
+  //   render: ChartEvent
+  // }
 ]
 </script>
 

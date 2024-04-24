@@ -41,6 +41,29 @@
 <!--        </template>-->
 <!--        <span>保存11</span>-->
 <!--      </n-tooltip>-->
+      <n-form inline :label-width="40" size="small" label-placement="left" style="width: 240px;height: 40px">
+        <n-form-item label="宽度">
+          <!-- 尺寸选择 -->
+          <n-input-number
+              size="small"
+              v-model:value="canvasConfig.width"
+              :disabled="editCanvas.lockScale"
+              :validator="validator"
+              :show-button="false"
+              @update:value="changeSizeHandle"
+          ></n-input-number>
+        </n-form-item>
+        <n-form-item label="高度">
+          <n-input-number
+              size="small"
+              v-model:value="canvasConfig.height"
+              :disabled="editCanvas.lockScale"
+              :validator="validator"
+              :show-button="false"
+              @update:value="changeSizeHandle"
+          ></n-input-number>
+        </n-form-item>
+      </n-form>
     </n-space>
   </n-space>
 </template>
@@ -67,6 +90,8 @@ const { dataSyncUpdate } = useSync()
 const { getLayers, getCharts, getDetails, getPages } = toRefs(useChartLayoutStore())
 const chartEditStore = useChartEditStore()
 const chartHistoryStore = useChartHistoryStore()
+const canvasConfig = computed(() => chartEditStore.getEditCanvasConfig)
+const editCanvas = chartEditStore.getEditCanvas
 
 const inputTimeTotalRef = ref(null)
 const timeTotal = ref(chartEditStore.getEditCanvasConfig.timeTotal)
@@ -76,6 +101,11 @@ interface ItemType<T> {
   select: Ref<boolean> | boolean
   title: string
   icon: any
+}
+
+const validator = (x: number) => x > 50
+const changeSizeHandle = () => {
+  chartEditStore.computedScale()
 }
 
 const btnList = reactive<ItemType<ChartLayoutStoreEnum>[]>([
@@ -110,18 +140,9 @@ const handleFocusTimeTotal = () => {
     inputTimeTotalRef.value && (inputTimeTotalRef.value as any).focus()
   })
 }
-const handleBlurTimeTotal = async () => {
-  chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, timeTotal.value || '')
-  // const res = (await updateProjectApi({
-  //   id: fetchRouteParamsLocation(),
-  //   projectName: title.value
-  // }))
-  // if (res && res.code === ResultEnum.SUCCESS) {
-  //   dataSyncUpdate()
-  // } else {
-  //   httpErrorHandle()
-  // }
-}
+// const handleBlurTimeTotal = async () => {
+//   chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, timeTotal.value || '')
+// }
 const isBackStack = computed(()=> chartHistoryStore.getBackStack.length> 1)
 
 const isForwardStack = computed(()=> chartHistoryStore.getForwardStack.length> 0)

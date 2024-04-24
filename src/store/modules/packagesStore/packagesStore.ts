@@ -12,28 +12,38 @@ export const usePackagesStore = defineStore({
     packagesList: packagesList,
     newPhoto: undefined,
     imageList: [],
+    groupTree: [],
     imagePayload: {
       pageNum: 1,
       pageSize: 10,
       totalPages: 1,
+      directoryId: '',
+      directoryIds: [],
       fileName: ''
     },
     videoPayload: {
       pageNum: 1,
       pageSize: 10,
       totalPages: 1,
+      directoryId: '',
+      directoryIds: [],
       fileName: ''
     },
     txtPayload: {
       pageNum: 1,
       pageSize: 10,
       totalPages: 1,
+      directoryId: '',
+      directoryIds: [],
       fileName: ''
     }
   }),
   getters: {
     getPackagesList(): PackagesType {
       return this.packagesList
+    },
+    getGroupTree(): any[] {
+      return this.groupTree
     },
     getImageList(): Array<ConfigType> {
       return this.imageList
@@ -59,6 +69,9 @@ export const usePackagesStore = defineStore({
       const userPhotosList = getLocalStorage(StoreKey)
       userPhotosList.splice(index - 1, 1)
       setLocalStorage(StoreKey, userPhotosList)
+    },
+    setGroupTree(data: any[]) {
+      this.groupTree = data
     },
     setUpdateList<T extends keyof PackagesType>(key: T, list: Array<ConfigType>): void {
       this.packagesList[key] = [...list]

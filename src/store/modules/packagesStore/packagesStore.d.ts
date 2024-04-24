@@ -5,6 +5,7 @@ export { ConfigType }
 export { PackagesType }
 export interface PackagesStoreType {
   packagesList: PackagesType,
+  groupTree: any[],
   newPhoto?: ConfigType,
   imageList: Array<ConfigType>,
   imagePayload: ImagePayloadType,

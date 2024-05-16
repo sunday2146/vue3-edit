@@ -11,18 +11,16 @@ import { useChartHistoryStore } from '@/store/modules/chartHistoryStore/chartHis
 // 全局设置
 import { useSettingStore } from '@/store/modules/settingStore/settingStore'
 // 历史类型
-import { HistoryActionTypeEnum, HistoryItemType, HistoryTargetTypeEnum, HistoryPageTypeEnum } from '@/store/modules/chartHistoryStore/chartHistoryStore.d'
+import {
+  HistoryActionTypeEnum,
+  HistoryItemType,
+  HistoryTargetTypeEnum,
+  HistoryPageTypeEnum
+} from '@/store/modules/chartHistoryStore/chartHistoryStore.d'
 // 画布枚举
 import { MenuEnum, SyncEnum } from '@/enums/editPageEnum'
 
-import {
-  getUUID,
-  loadingStart,
-  loadingFinish,
-  loadingError,
-  isString,
-  isArray
-} from '@/utils'
+import { getUUID, loadingStart, loadingFinish, loadingError, isString, isArray } from '@/utils'
 
 import {
   ProjectInfoType,
@@ -38,54 +36,54 @@ import {
   PageConfigType,
   PageListType
 } from './chartEditStore.d'
-import html2canvas from "html2canvas";
-import {uploadImageByBase64} from "@/api/path";
+import html2canvas from 'html2canvas'
+import { uploadImageByBase64 } from '@/api/path'
 
 const chartHistoryStore = useChartHistoryStore()
 const settingStore = useSettingStore()
 
 const initEditCanvasConfig: EditCanvasConfigType = {
-      // 项目名称
-      projectName: undefined,
-      timeTotal: 15,
-      // 默认宽度
-      width: 1920,
-      // 默认高度
-      height: 1080,
-      // 启用滤镜
-      filterShow: false,
-      // 色相
-      hueRotate: 0,
-      // 饱和度
-      saturate: 1,
-      // 对比度
-      contrast: 1,
-      // 亮度
-      brightness: 1,
-      // 透明度
-      opacity: 1,
-      // 变换（暂不更改）
-      rotateZ: 0,
-      rotateX: 0,
-      rotateY: 0,
-      skewX: 0,
-      skewY: 0,
-      // 混合模式
-      blendMode: 'normal',
-      // 默认背景色
-      background: undefined,
-      backgroundImage: undefined,
-      // 是否使用纯颜色
-      selectColor: true,
-      // chart 主题色
-      chartThemeColor: defaultTheme || 'dark',
-      // 自定义颜色列表
-      chartCustomThemeColorInfo: undefined,
-      // 全局配置
-      chartThemeSetting: globalThemeJson,
-      // 适配方式
-      previewScaleType: previewScaleType
-    }
+  // 项目名称
+  projectName: undefined,
+  timeTotal: 15,
+  // 默认宽度
+  width: 1920,
+  // 默认高度
+  height: 1080,
+  // 启用滤镜
+  filterShow: false,
+  // 色相
+  hueRotate: 0,
+  // 饱和度
+  saturate: 1,
+  // 对比度
+  contrast: 1,
+  // 亮度
+  brightness: 1,
+  // 透明度
+  opacity: 1,
+  // 变换（暂不更改）
+  rotateZ: 0,
+  rotateX: 0,
+  rotateY: 0,
+  skewX: 0,
+  skewY: 0,
+  // 混合模式
+  blendMode: 'normal',
+  // 默认背景色
+  background: undefined,
+  backgroundImage: undefined,
+  // 是否使用纯颜色
+  selectColor: true,
+  // chart 主题色
+  chartThemeColor: defaultTheme || 'dark',
+  // 自定义颜色列表
+  chartCustomThemeColorInfo: undefined,
+  // 全局配置
+  chartThemeSetting: globalThemeJson,
+  // 适配方式
+  previewScaleType: previewScaleType
+}
 
 // 编辑区域内容
 export const useChartEditStore = defineStore({
@@ -164,12 +162,14 @@ export const useChartEditStore = defineStore({
     componentList: [],
     pageConfig: {
       activeIndex: 0,
-      pageList: [{
-        id: getUUID(),
-        title: '分页1',
-        editCanvasConfig: cloneDeep(initEditCanvasConfig),
-        componentList: []
-      }]
+      pageList: [
+        {
+          id: getUUID(),
+          title: '分页1',
+          editCanvasConfig: cloneDeep(initEditCanvasConfig),
+          componentList: []
+        }
+      ]
     }
   }),
   getters: {
@@ -210,10 +210,10 @@ export const useChartEditStore = defineStore({
       return this.showPageLoading
     },
     getCurrentPage(): PageListType {
-      const e = this.pageConfig.pageList
-          , n = this.pageConfig.activeIndex;
+      const e = this.pageConfig.pageList,
+        n = this.pageConfig.activeIndex
       return e[n]
-    },
+    }
   },
   actions: {
     // * 获取需要存储的数据项
@@ -225,7 +225,7 @@ export const useChartEditStore = defineStore({
         [ChartEditStoreEnum.PAGE_CONFIG]: this.getPageConfig
       }
     },
-    handleLoading (show: boolean = true) {
+    handleLoading(show: boolean = true) {
       this.showPageLoading = show
     },
     // * 设置 editCanvasConfig（需保存后端） 数据项
@@ -727,8 +727,8 @@ export const useChartEditStore = defineStore({
 
       // 处理分页
       if (HistoryItem.targetType === HistoryTargetTypeEnum.PAGE) {
-        if ( HistoryItem.actionType === HistoryPageTypeEnum.PAGE_SWITCH )
-          if (isForward){
+        if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_SWITCH)
+          if (isForward) {
             const $ = historyData[1]
             this.setCurrentPage($, false)
           } else {
@@ -737,16 +737,15 @@ export const useChartEditStore = defineStore({
           }
         if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_ADD)
           if (isForward) {
-            const $ = historyData[0];
+            const $ = historyData[0]
             this.pageConfig.pageList.push($)
-          } else
-            this.pageConfig.pageList.pop();
+          } else this.pageConfig.pageList.pop()
         if (HistoryItem.actionType === HistoryPageTypeEnum.PAGE_DELETE)
           if (isForward) {
-            const $ = historyData[1];
+            const $ = historyData[1]
             this.pageConfig = cloneDeep($)
           } else {
-            const $ = historyData[0];
+            const $ = historyData[0]
             this.pageConfig = cloneDeep($)
           }
         return
@@ -1025,9 +1024,10 @@ export const useChartEditStore = defineStore({
           const scaleHeight = parseFloat((width / baseProportion / editCanvasHeight).toFixed(5))
           this.setScale(scaleHeight > 1 ? 1 : scaleHeight)
         }
-      } else {
-        window['$message'].warning('请先创建画布，再进行缩放')
       }
+      // else {
+      //   window['$message'].warning('请先创建画布，再进行缩放')
+      // }
       this.pageConfig.pageList.map((item: PageListType) => {
         item.editCanvasConfig.width = this.editCanvasConfig.width
         item.editCanvasConfig.height = this.editCanvasConfig.height
@@ -1058,34 +1058,47 @@ export const useChartEditStore = defineStore({
         this.getEditCanvas.scale = scale
       }
     },
-    addPageList(componentList?: Array<CreateComponentType | CreateComponentGroupType>, editCanvasConfig?: EditCanvasConfigType, pageItem?: PageListType, copy?: boolean) {
+    addPageList(
+      componentList?: Array<CreateComponentType | CreateComponentGroupType>,
+      editCanvasConfig?: EditCanvasConfigType,
+      pageItem?: PageListType,
+      copy?: boolean
+    ) {
       let compList = componentList || []
-      const canvasConfig = editCanvasConfig || {...initEditCanvasConfig, width: this.editCanvasConfig.width, height: this.editCanvasConfig.height}
+      const canvasConfig = editCanvasConfig || {
+        ...initEditCanvasConfig,
+        width: this.editCanvasConfig.width,
+        height: this.editCanvasConfig.height
+      }
       const canvasConfigNew = cloneDeep(canvasConfig)
       if (copy) {
-        const list: Array<CreateComponentType | CreateComponentGroupType>= []
+        const list: Array<CreateComponentType | CreateComponentGroupType> = []
         compList.map(comp => {
-          list.push({...comp, id: getUUID()})
+          list.push({ ...comp, id: getUUID() })
         })
-        compList= list
+        compList = list
       }
-      const pageParam = pageItem ? {...pageItem, title: copy ? `${pageItem.title} 副本` : pageItem.title} : {title: '分页' + (this.pageConfig.pageList.length + 1)}
+      const pageParam = pageItem
+        ? { ...pageItem, title: copy ? `${pageItem.title} 副本` : pageItem.title }
+        : { title: '分页' + (this.pageConfig.pageList.length + 1) }
       const pageData = {
         ...pageParam,
         id: getUUID(),
         componentList: cloneDeep(compList),
         editCanvasConfig: canvasConfigNew
       }
-      return this.pageConfig.pageList.push(pageData),
-          chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD),
-          this.pageConfig.pageList
+      return (
+        this.pageConfig.pageList.push(pageData),
+        chartHistoryStore.createPageConfig([pageData], HistoryPageTypeEnum.PAGE_ADD),
+        this.pageConfig.pageList
+      )
     },
     async setCurrentPage(index: number = 0, flag: boolean = true): Promise<void> {
       // loadingStart()
       this.saveCurrentPage()
-      let a;
-      flag && (a = this.pageConfig.activeIndex);
-      const oldActive = this.pageConfig.activeIndex;
+      let a
+      flag && (a = this.pageConfig.activeIndex)
+      const oldActive = this.pageConfig.activeIndex
       if (oldActive === index) {
         return
       }
@@ -1096,7 +1109,8 @@ export const useChartEditStore = defineStore({
         // 生成图片
         const canvasImage: HTMLCanvasElement = await html2canvas(range, {
           backgroundColor: null,
-          allowTaint: true, useCORS: true
+          allowTaint: true,
+          useCORS: true
         })
         // 上传预览图
         uploadImageByBase64(canvasImage.toDataURL()).then((result: any) => {
@@ -1114,45 +1128,45 @@ export const useChartEditStore = defineStore({
       this.pageConfig.activeIndex = index
       this.handleLoading(false)
       if (flag) {
-        const newIndex = this.pageConfig.activeIndex;
+        const newIndex = this.pageConfig.activeIndex
         chartHistoryStore.createPageConfig([oldActive, newIndex], HistoryPageTypeEnum.PAGE_SWITCH)
       }
       // loadingFinish()
     },
     copyPageByIndex(index: number) {
-      const n = this.pageConfig.pageList[index];
+      const n = this.pageConfig.pageList[index]
       if (!n) {
-        console.warn("复制页面不存!");
+        console.warn('复制页面不存!')
         return
       }
       this.addPageList(n.componentList, n.editCanvasConfig, n, true)
     },
     removePageByIndex(index: number) {
       if (this.pageConfig.pageList.length === 1) {
-        window.$message.error("删除失败, 已经没有多余的页面!")
-        return;
+        window.$message.error('删除失败, 已经没有多余的页面!')
+        return
       }
       // if (this.pageConfig.activeIndex === index) {
       //   this.setCurrentPage(index === 0 ? 1 : index - 1)
       // }
-      const oldPageConfig = cloneDeep(this.pageConfig);
+      const oldPageConfig = cloneDeep(this.pageConfig)
       this.pageConfig.pageList.splice(index, 1),
-      index <= this.pageConfig.activeIndex && (this.pageConfig.activeIndex -= 1);
-      const newPageConfig = cloneDeep(this.pageConfig);
+        index <= this.pageConfig.activeIndex && (this.pageConfig.activeIndex -= 1)
+      const newPageConfig = cloneDeep(this.pageConfig)
       chartHistoryStore.createPageConfig([oldPageConfig, newPageConfig], HistoryPageTypeEnum.PAGE_DELETE)
     },
     initPageConfig(pageConfig: PageConfigType) {
-      this.pageConfig = pageConfig;
+      this.pageConfig = pageConfig
       const n = pageConfig.activeIndex || 0
-      const a = pageConfig.pageList[n];
-      a || console.warn("没有页面数据!"),
-      this.componentList = a.componentList,
-      this.editCanvasConfig = a.editCanvasConfig,
-      this.pageConfig.activeIndex = n
+      const a = pageConfig.pageList[n]
+      a || console.warn('没有页面数据!'),
+        (this.componentList = a.componentList),
+        (this.editCanvasConfig = a.editCanvasConfig),
+        (this.pageConfig.activeIndex = n)
     },
-    switchPreviewPage(index: number){
+    switchPreviewPage(index: number) {
       if (index < 0 || index >= this.pageConfig.pageList.length) {
-        window.$message.warning("切换失败, 页面不存在!")
+        window.$message.warning('切换失败, 页面不存在!')
         return
       }
       const newData = this.pageConfig.pageList[index]
@@ -1163,9 +1177,8 @@ export const useChartEditStore = defineStore({
     },
     saveCurrentPage() {
       const currentIndex = this.pageConfig.activeIndex || 0
-      const currentData= this.pageConfig.pageList[currentIndex]
-      if (!currentData)
-        return false;
+      const currentData = this.pageConfig.pageList[currentIndex]
+      if (!currentData) return false
       this.pageConfig.pageList[currentIndex] = {
         ...currentData,
         id: currentData.id || getUUID(),

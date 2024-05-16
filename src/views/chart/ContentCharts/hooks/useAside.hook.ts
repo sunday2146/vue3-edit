@@ -41,6 +41,10 @@ const packagesListObj = {
     icon: renderIcon(GraphicalDataFlowIcon),
     label: PackagesCategoryName.DECORATES
   },
+  [PackagesCategoryEnum.COMPS]: {
+    icon: renderIcon(GraphicalDataFlowIcon),
+    label: PackagesCategoryName.COMPS
+  },
   [PackagesCategoryEnum.PHOTOS]: {
     icon: renderIcon(ImageIcon),
     label: PackagesCategoryName.PHOTOS
@@ -164,7 +168,7 @@ export const useAsideHook = () => {
           chartFrame: ChartFrameEnum.COMMON,
           dynamic: true,
           image: `${requestUrl}/system${i.coverImagePreviewUrl}`,
-          dataset: `${requestUrl}/system${i.coverVideoPreviewUrl}`,
+          dataset: `${requestUrl}/system${i.streamUrl}`,
           title: `${payload.pageNum + index + i.storeFileName}`,
           name: i.name,
           redirectComponent: `${VideoConfig.package}/${VideoConfig.category}/${VideoConfig.key}`

@@ -45,7 +45,7 @@ export const dragHandle = async (e: DragEvent) => {
     loadingFinish()
   } catch (error) {
     loadingError()
-    window['$message'].warning(`图表正在研发中, 敬请期待...`)
+    window['$message'].warning(`图表正在研发中, 敬请期待1...`)
   }
 }
 

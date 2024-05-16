@@ -14,6 +14,16 @@ export const getTreeApi = async (data: object) => {
   }
 }
 
+// * 素材列表
+export const postMediaApi = async (data: object) => {
+  try {
+    const res = await http(RequestHttpEnum.POST)<ProjectItem[]>(`${ModuleTypeEnum.SYSTEM}/mediaInfo/pageList`, data)
+    return res
+  } catch {
+    httpErrorHandle()
+  }
+}
+
 // * 项目列表
 export const projectListApi = async (data: object) => {
   try {

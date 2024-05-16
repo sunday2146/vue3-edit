@@ -1,8 +1,8 @@
 <template>
   <n-space class="header-left-btn" :size="25">
-<!--    <n-button size="small">-->
-<!--      分页-->
-<!--    </n-button>-->
+    <!--    <n-button size="small">-->
+    <!--      分页-->
+    <!--    </n-button>-->
     <n-space>
       <!-- 模块展示按钮 -->
       <n-tooltip v-for="item in btnList" :key="item.key" placement="bottom" trigger="hover">
@@ -27,41 +27,29 @@
       </n-tooltip>
 
       <!-- 保存 -->
-<!--      <n-tooltip placement="bottom" trigger="hover">-->
-<!--        <template #trigger>-->
-<!--          <div class="save-btn" >-->
-<!--            <n-button size="small" type="primary" ghost @click="dataSyncUpdate()">-->
-<!--              <template #icon>-->
-<!--                <n-icon>-->
-<!--                  <SaveIcon></SaveIcon>-->
-<!--                </n-icon>-->
-<!--              </template>-->
-<!--            </n-button>-->
-<!--          </div>-->
-<!--        </template>-->
-<!--        <span>保存11</span>-->
-<!--      </n-tooltip>-->
+      <!--      <n-tooltip placement="bottom" trigger="hover">-->
+      <!--        <template #trigger>-->
+      <!--          <div class="save-btn" >-->
+      <!--            <n-button size="small" type="primary" ghost @click="dataSyncUpdate()">-->
+      <!--              <template #icon>-->
+      <!--                <n-icon>-->
+      <!--                  <SaveIcon></SaveIcon>-->
+      <!--                </n-icon>-->
+      <!--              </template>-->
+      <!--            </n-button>-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--        <span>保存11</span>-->
+      <!--      </n-tooltip>-->
       <n-form inline :label-width="40" size="small" label-placement="left" style="width: 240px;height: 40px">
         <n-form-item label="宽度">
           <!-- 尺寸选择 -->
-          <n-input-number
-              size="small"
-              v-model:value="canvasConfig.width"
-              :disabled="editCanvas.lockScale"
-              :validator="validator"
-              :show-button="false"
-              @update:value="changeSizeHandle"
-          ></n-input-number>
+          <n-input-number size="small" v-model:value="canvasConfig.width" :disabled="editCanvas.lockScale"
+            :validator="validator" :show-button="false" @update:value="changeSizeHandle"></n-input-number>
         </n-form-item>
         <n-form-item label="高度">
-          <n-input-number
-              size="small"
-              v-model:value="canvasConfig.height"
-              :disabled="editCanvas.lockScale"
-              :validator="validator"
-              :show-button="false"
-              @update:value="changeSizeHandle"
-          ></n-input-number>
+          <n-input-number size="small" v-model:value="canvasConfig.height" :disabled="editCanvas.lockScale"
+            :validator="validator" :show-button="false" @update:value="changeSizeHandle"></n-input-number>
         </n-form-item>
       </n-form>
     </n-space>
@@ -69,8 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import {toRefs, ref, Ref, reactive, computed, nextTick} from 'vue'
-import {renderIcon, goDialog, goHome, fetchRouteParamsLocation, httpErrorHandle} from '@/utils'
+import { toRefs, ref, Ref, reactive, computed, nextTick } from 'vue'
+import { renderIcon, goDialog, goHome, fetchRouteParamsLocation, httpErrorHandle } from '@/utils'
 import { icon } from '@/plugins'
 import { useRemoveKeyboard } from '../../hooks/useKeyboard.hook'
 import { useSync } from '../../hooks/useSync.hook'
@@ -80,8 +68,10 @@ import { HistoryStackEnum } from '@/store/modules/chartHistoryStore/chartHistory
 import { useChartLayoutStore } from '@/store/modules/chartLayoutStore/chartLayoutStore'
 import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'
 import { EditCanvasConfigEnum } from '@/store/modules/chartEditStore/chartEditStore.d'
-import {updateProjectApi} from "@/api/path";
-import {ResultEnum} from "@/enums/httpEnum";
+import { updateProjectApi } from "@/api/path";
+import { ResultEnum } from "@/enums/httpEnum";
+
+const chartLayoutStore = useChartLayoutStore()
 
 const { LayersIcon, BarChartIcon, PrismIcon, HomeIcon, ArrowBackIcon, ArrowForwardIcon, BrowsersOutlineIcon } = icon.ionicons5
 const { SaveIcon } = icon.carbon
@@ -103,8 +93,10 @@ interface ItemType<T> {
   icon: any
 }
 
-const validator = (x: number) => x > 50
+const validator = (x: number) => x > 300
 const changeSizeHandle = () => {
+  // chartEditStore.computedScale()
+  chartLayoutStore.setItemUnHandle(ChartLayoutStoreEnum.RE_POSITION_CANVAS, true)
   chartEditStore.computedScale()
 }
 
@@ -143,9 +135,9 @@ const handleFocusTimeTotal = () => {
 // const handleBlurTimeTotal = async () => {
 //   chartEditStore.setEditCanvasConfig(EditCanvasConfigEnum.TIME_TOTAL, timeTotal.value || '')
 // }
-const isBackStack = computed(()=> chartHistoryStore.getBackStack.length> 1)
+const isBackStack = computed(() => chartHistoryStore.getBackStack.length > 1)
 
-const isForwardStack = computed(()=> chartHistoryStore.getForwardStack.length> 0)
+const isForwardStack = computed(() => chartHistoryStore.getForwardStack.length > 0)
 
 const historyList = reactive<ItemType<HistoryStackEnum>[]>([
   {
@@ -204,5 +196,5 @@ const goHomeHandle = () => {
 <style lang="scss" scoped>
 .header-left-btn {
   margin-left: -37px;
- }
+}
 </style>

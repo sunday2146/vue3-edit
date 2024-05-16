@@ -18,6 +18,7 @@ const imageInfo = ref('')
 
 // 获取图片
 const fetchImageUrl = async () => {
+  console.log('fetchImageUrl', props.chartConfig)
   imageInfo.value = await fetchImages(props.chartConfig)
 }
 

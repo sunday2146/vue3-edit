@@ -68,9 +68,9 @@
         </n-button-group>
       </n-space>
     </n-space>
-          
+
     <!-- 选择背景图弹框 -->
-    <n-modal v-model:show="showModal" class="selectBg-modal" :style="{ width: '1500px' }" preset="dialog" title="添加素材"
+    <n-modal v-model:show="showModal" class="selectBg-modal" :style="{ width: '1500px' }" preset="dialog" title="添加背景"
       content="你确认?" positive-text="确定" negative-text="取消" @positive-click="submitCallback"
       @negative-click="cancelCallback">
 
@@ -99,7 +99,8 @@
                     </n-input>
                   </n-form-item>
                   <n-form-item label="素材类型">
-                    <n-select v-model:value="filter.type" style="width: 150px;" size="small" :options="materialTypes" clearable>
+                    <n-select v-model:value="filter.type" style="width: 150px;" size="small" :options="materialTypes"
+                      clearable>
                       <!-- <el-option v-for="item in materialTypes" :key="item.id" :label="item.name"
                         :value="item.id"></el-option> -->
                     </n-select>
@@ -112,15 +113,21 @@
               </div>
             </div>
           </div>
-          <n-data-table class="media-table" :columns="columns" :data="tableData" :pagination="pagination" :remote="true">
+          <n-data-table class="media-table" :columns="columns" :data="tableData" :pagination="pagination" :remote="true"
+            :row-class-name="rowClassName">
           </n-data-table>
         </div>
-
       </div>
-
-
     </n-modal>
 
+
+    <n-modal v-model:show="showPreviewModal" class="selectBg-modal" title="图片预览" :style="{ width: '1200px' }"
+      preset="dialog">
+      <div class="preview-image">
+        <img :src="previewImageUrl" alt="预览图" style="max-width: 100%; height: 400px;object-fit: contain;" />
+      </div>
+
+    </n-modal>
 
     <!-- 滤镜 -->
     <styles-setting :isCanvas="true" :chartStyles="canvasConfig"></styles-setting>
@@ -161,9 +168,13 @@ import { icon } from '@/plugins'
 import { uploadFile } from '@/api/path'
 import { useSync } from "@/views/chart/hooks/useSync.hook"
 import { TreeOption, useDialog, useMessage, NButton, FormInst } from 'naive-ui'
-import { getTreeApi, getMediaInfo } from '@/api/path'
+import { getTreeApi, postMediaApi } from '@/api/path'
 const { ColorPaletteIcon } = icon.ionicons5
 const { ScaleIcon, FitToScreenIcon, FitToHeightIcon, FitToWidthIcon } = icon.carbon
+import { ChartLayoutStoreEnum } from '@/store/modules/chartLayoutStore/chartLayoutStore.d'
+import { useChartLayoutStore } from '@/store/modules/chartLayoutStore/chartLayoutStore'
+
+const chartLayoutStore = useChartLayoutStore()
 
 const { dataSyncUpdate } = useSync()
 const chartEditStore = useChartEditStore()
@@ -309,7 +320,7 @@ const getData = async () => {
       pageSize: filter.value.pageSize
     };
 
-    const requestData: any = await getMediaInfo(params);
+    const requestData: any = await postMediaApi(params);
     tableData.value = requestData.data.data;
     filter.value.pageSize = requestData.data.pageSize;
     pagination.pageCount = requestData.data.totalPages;
@@ -319,14 +330,9 @@ const getData = async () => {
     // ... 错误处理
   }
 }
-
+const selectedRowKey = ref(null);
 const backgroundImage = ref<string>('');
-const sendMedia = (row: any) => {
-  // selectMediaObj = toRaw(row)
-  backgroundImage.value = '/system' + row.coverImagePreviewUrl
-  //设置在页面背景图
 
-}
 const cancelCallback = () => {
   message.success('Cancel')
 }
@@ -395,23 +401,54 @@ const createColumns = () => {
       title: '操作',
       key: 'actions',
       render(row: any) {
-        return h(
-          NButton,
-          {
-            size: 'small',
-            onClick: () => sendMedia(row)
-          },
-          { default: () => '选中' }
-        )
+        return h('div', [
+          h(
+            NButton,
+            {
+              size: 'small',
+              onClick: () => sendMedia(row)
+            },
+            { default: () => '选中' }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              style: 'margin-left: 8px;', // 添加左边距
+              onClick: () => previewMedia(row)
+            },
+            { default: () => '预览' }
+          )
+        ]);
       }
     }
   ]
 }
 
+// 选中按钮
+const sendMedia = (row: any) => {
+  selectedRowKey.value = row.id;
+  backgroundImage.value = '/system' + row.coverImagePreviewUrl
+  //设置在页面背景图
 
+}
 
+// 预览按钮
+const showPreviewModal = ref(false);
+const previewImageUrl = ref('');
+const previewMedia = (row: any) => {
+  previewImageUrl.value = '/system' + row.coverImagePreviewUrl; // 设置图片 URL
+  showPreviewModal.value = true; // 显示模态框
+}
 const data = ref([])
 const columns = createColumns();
+
+
+
+const rowClassName = (rowData: any) => {
+  return rowData.id === selectedRowKey.value ? 'selected-row' : '';
+};
+
 //背景图end
 
 // 默认应用类型
@@ -473,10 +510,13 @@ watch(
 )
 
 // 画布尺寸规则
-const validator = (x: number) => x > 50
+const validator = (x: number) => x > 300
 
 // 修改尺寸
 const changeSizeHandle = () => {
+  // chartEditStore.computedScale()
+  console.log("changeSizeHandle")
+  chartLayoutStore.setItemUnHandle(ChartLayoutStoreEnum.RE_POSITION_CANVAS, true)
   chartEditStore.computedScale()
 }
 
@@ -574,7 +614,6 @@ const selectPreviewType = (key: PreviewScaleEnum) => {
 <style lang="scss" scoped>
 $uploadWidth: 326px;
 $uploadHeight: 193px;
-
 
 
 

@@ -182,7 +182,8 @@ export enum PackagesCategoryEnum {
   IMAGES = 'Images',
   VIDEOS = 'Videos',
   ICONS = 'Icons',
-  DECORATES = 'Decorates'
+  DECORATES = 'Decorates',
+  COMPS = 'Comps'
 }
 
 // 包分类名称
@@ -194,7 +195,8 @@ export enum PackagesCategoryName {
   IMAGES = '图片2',
   VIDEOS = '视频',
   ICONS = '图标',
-  DECORATES = '小组件'
+  DECORATES = '小组件',
+  COMPS = '组件'
 }
 
 // 获取组件
@@ -211,6 +213,7 @@ export type PackagesType = {
   [PackagesCategoryEnum.PHOTOS]: ConfigType[]
   [PackagesCategoryEnum.ICONS]: ConfigType[]
   [PackagesCategoryEnum.DECORATES]: ConfigType[]
+  [PackagesCategoryEnum.COMPS]: ConfigType[]
   [PackagesCategoryEnum.IMAGES]: ConfigType[]
   [PackagesCategoryEnum.VIDEOS]: ConfigType[]
 }

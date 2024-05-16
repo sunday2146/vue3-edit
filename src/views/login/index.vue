@@ -18,18 +18,9 @@
     <layout-header></layout-header>
     <div class="go-login">
       <div class="go-login-carousel">
-        <n-carousel
-          autoplay
-          dot-type="line"
-          :interval="Number(carouselInterval)"
-        >
-          <img
-            v-for="(item, i) in carouselImgList"
-            :key="i"
-            class="go-login-carousel-img"
-            :src="getImageUrl(item, 'login')"
-            alt="image"
-          />
+        <n-carousel autoplay dot-type="line" :interval="Number(carouselInterval)">
+          <img v-for="(item, i) in carouselImgList" :key="i" class="go-login-carousel-img"
+            :src="getImageUrl(item, 'login')" alt="image" />
         </n-carousel>
       </div>
       <div class="login-account">
@@ -37,27 +28,13 @@
           <n-collapse-transition :appear="true" :show="show">
             <n-card class="login-account-card" :title="$t('login.desc')">
               <div class="login-account-top">
-                <img
-                  class="login-account-top-logo"
-                  src="~@/assets/images/login/input.png"
-                  alt="展示图片"
-                />
+                <n-image class="login-account-top-logo" src="/system/mediaInfo/preview/1166808443746693120"
+                  alt="展示图片" />
               </div>
-              <n-form
-                ref="formRef"
-                label-placement="left"
-                size="large"
-                :model="formInline"
-                :rules="rules"
-              >
+              <n-form ref="formRef" label-placement="left" size="large" :model="formInline" :rules="rules">
                 <n-form-item path="username">
-                  <n-input
-                    v-model:value="formInline.username"
-                    type="text"
-                    maxlength="16"
-                    :placeholder="$t('global.form_account')"
-                    @keydown.enter="handleSubmit"
-                  >
+                  <n-input v-model:value="formInline.username" type="text" maxlength="16"
+                    :placeholder="$t('global.form_account')" @keydown.enter="handleSubmit">
                     <template #prefix>
                       <n-icon size="18">
                         <PersonOutlineIcon></PersonOutlineIcon>
@@ -66,14 +43,8 @@
                   </n-input>
                 </n-form-item>
                 <n-form-item path="password">
-                  <n-input
-                    v-model:value="formInline.password"
-                    type="password"
-                    maxlength="16"
-                    show-password-on="click"
-                    :placeholder="$t('global.form_password')"
-                    @keydown.enter="handleSubmit"
-                  >
+                  <n-input v-model:value="formInline.password" type="password" maxlength="16" show-password-on="click"
+                    :placeholder="$t('global.form_password')" @keydown.enter="handleSubmit">
                     <template #prefix>
                       <n-icon size="18">
                         <LockClosedOutlineIcon></LockClosedOutlineIcon>
@@ -91,14 +62,8 @@
                   </div>
                 </n-form-item>
                 <n-form-item>
-                  <n-button
-                    type="primary"
-                    @click="handleSubmit"
-                    size="large"
-                    :loading="loading"
-                    block
-                    >{{ $t('login.form_button') }}</n-button
-                  >
+                  <n-button type="primary" @click="handleSubmit" size="large" :loading="loading" block>{{
+                    $t('login.form_button') }}</n-button>
                 </n-form-item>
               </n-form>
             </n-card>
@@ -207,7 +172,7 @@ const handleSubmit = async (e: Event) => {
         username,
         password
       })
-      if(res && res.data) {
+      if (res && res.data) {
         const { tokenValue, tokenName } = res.data.token
         const { nickname, username, id } = res.data.userinfo
 
@@ -220,7 +185,7 @@ const handleSubmit = async (e: Event) => {
           [SystemStoreUserInfoEnum.NICK_NAME]: nickname,
           t
         })
-        
+
         window['$message'].success(t('login.login_success'))
         routerTurnByName(PageEnum.BASE_HOME_NAME, true)
       }
@@ -255,10 +220,12 @@ $carousel-image-height: 60vh;
 * {
   box-sizing: border-box;
 }
+
 @include go(login-box) {
   height: $go-login-height;
   overflow: hidden;
   @include background-image('background-image');
+
   &-header {
     display: flex;
     justify-content: space-between;
@@ -266,6 +233,7 @@ $carousel-image-height: 60vh;
     padding: 0 40px;
     height: $--header-height;
   }
+
   &-divider {
     margin: 0;
     padding-top: 0;
@@ -279,20 +247,24 @@ $carousel-image-height: 60vh;
     margin-top: -$--header-height;
     height: $go-login-height;
     width: 100vw;
+
     &-carousel {
       width: $carousel-width;
       margin-top: 100px;
       min-width: 500px;
+
       &-img {
         display: block;
         margin: 0 auto;
         height: $carousel-image-height;
       }
     }
+
     .login-account {
       display: flex;
       flex-direction: column;
       margin: 0 160px;
+
       &-container {
         width: $width;
       }
@@ -328,15 +300,18 @@ $carousel-image-height: 60vh;
     width: 100vw;
     height: 100vh;
     background: url('@/assets/images/login/login-bg.png') no-repeat 0 -120px;
+
     .bg-slot {
       width: $carousel-width;
     }
+
     .bg-img-box {
       position: relative;
       display: flex;
       flex-wrap: wrap;
       width: 770px;
       margin-right: -20px;
+
       &-li {
         img {
           margin-right: 20px;
@@ -349,12 +324,15 @@ $carousel-image-height: 60vh;
     }
   }
 }
+
 @media only screen and (max-width: 1200px) {
+
   .bg-img-box,
   .bg-slot,
   .go-login-carousel {
     display: none !important;
   }
+
   .go-login-box-footer {
     position: relative;
   }

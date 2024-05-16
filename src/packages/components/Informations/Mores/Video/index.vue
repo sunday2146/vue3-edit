@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, toRefs, shallowReactive, watch, ref } from 'vue'
+import { PropType, toRefs, shallowReactive, watch, ref, onMounted, onUnmounted } from 'vue'
 import { useChartDataFetch } from '@/hooks'
 import { CreateComponentType } from '@/packages/index.d'
 import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
@@ -34,9 +34,60 @@ const { w, h } = toRefs(props.chartConfig.attr)
 let option = shallowReactive({ ...configOption })
 
 // 预览更新
-const vVideoRef = ref(null)
-useChartDataFetch(props.chartConfig, useChartEditStore, (newData: any) => {
+const vVideoRef = ref<any>(null)
+const mediaSource = new MediaSource();
+let sourceBuffer: any;
+// const videoSegments = ['video1.mp4', 'video2.mp4', 'video3.mp4'];
+const videoSegments: string[] = []
+let segmentIndex = 0; // 当前请求的视频片段索引
+
+// onMounted(() => {
+//   if (vVideoRef.value) {
+//     vVideoRef.value.src = URL.createObjectURL(mediaSource);
+//     mediaSource.addEventListener('sourceopen', sourceOpen);
+//   }
+// });
+//
+// onUnmounted(() => {
+//   if (mediaSource) {
+//     mediaSource.removeEventListener('sourceopen', sourceOpen);
+//   }
+// });
+function sourceOpen() {
+  sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"'); // 根据视频格式调整codecs
+  fetchNextSegment();
+}
+
+function fetchNextSegment() {
+  if (segmentIndex < videoSegments.length) {
+    const segmentUrl = videoSegments[segmentIndex]; // 获取当前片段的URL
+    fetch(segmentUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+          sourceBuffer.appendBuffer(data);
+          sourceBuffer.addEventListener('updateend', onSegmentAppended, { once: true });
+        })
+        .catch(error => {
+          console.error('Error fetching video segment:', error);
+        });
+  } else {
+    mediaSource.endOfStream(); // 所有片段都已添加
+    vVideoRef.value?.play();
+  }
+}
+
+function onSegmentAppended() {
+  segmentIndex++; // 移动到下一个片段
+  fetchNextSegment(); // 请求下一个片段
+}
+
+useChartDataFetch(props.chartConfig, useChartEditStore, (newData: string) => {
   option.dataset = newData
+  const Num = Number(newData[newData.length - 1])
+  const strUrl = newData.slice(0, -2)
+  for (let i = 1; i <= Num; i++) {
+    videoSegments.push(`${strUrl}/${i}`);
+  }
 })
 
 // 编辑更新

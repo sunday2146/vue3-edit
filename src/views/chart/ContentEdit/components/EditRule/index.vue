@@ -1,25 +1,12 @@
 <template>
   <div class="go-sketch-rule">
-    <sketch-rule
-      v-if="sketchRuleReDraw"
-      :thick="thick"
-      :scale="scale"
-      :width="canvasBox().width"
-      :height="canvasBox().height"
-      :startX="startX"
-      :startY="startY"
-      :lines="lines"
-      :palette="paletteStyle"
-    >
+    <sketch-rule v-if="sketchRuleReDraw" :thick="thick" :scale="scale" :width="canvasBox().width"
+      :height="canvasBox().height" :startX="startX" :startY="startY" :lines="lines" :palette="paletteStyle">
     </sketch-rule>
     <div ref="$app" class="edit-screens" @scroll="handleScroll">
       <div ref="$container" class="edit-screen-container" :style="{ width: width * 2 + 'px' }">
-        <div
-          ref="refSketchRuleBox"
-          class="canvas"
-          @mousedown="dragCanvas"
-          :style="{ marginLeft: '-' + (canvasBox().width / 2 - 25) + 'px' }"
-        >
+        <div ref="refSketchRuleBox" class="canvas" @mousedown="dragCanvas"
+          :style="{ marginLeft: '-' + (canvasBox().width / 2 - 25) + 'px' }">
           <div :style="{ pointerEvents: isPressSpace ? 'none' : 'auto' }">
             <slot></slot>
           </div>
@@ -72,14 +59,14 @@ const paletteStyle = computed(() => {
   const isDarkTheme = designStore.getDarkTheme
   return isDarkTheme
     ? {
-        bgColor: '#18181c',
-        longfgColor: '#4d4d4d',
-        shortfgColor: '#4d4d4d',
-        fontColor: '#4d4d4d',
-        shadowColor: '#18181c',
-        borderColor: '#18181c',
-        cornerActiveColor: '#18181c'
-      }
+      bgColor: '#18181c',
+      longfgColor: '#4d4d4d',
+      shortfgColor: '#4d4d4d',
+      fontColor: '#4d4d4d',
+      shadowColor: '#18181c',
+      borderColor: '#18181c',
+      cornerActiveColor: '#18181c'
+    }
     : {}
 })
 
@@ -226,6 +213,9 @@ onMounted(() => {
   if ($app.value) {
     $app.value.addEventListener('wheel', handleWheel, { passive: false })
     canvasPosCenter()
+    // 加载完后自适应布局 add by 王松柏
+    chartLayoutStore.setItemUnHandle(ChartLayoutStoreEnum.RE_POSITION_CANVAS, true)
+    chartEditStore.computedScale()
   }
 })
 
@@ -320,6 +310,7 @@ window.onKeySpacePressHold = (isHold: boolean) => {
       border-radius: 5px;
       background-color: rgba(144, 146, 152, 0.3);
     }
+
     // 修复右下角白点用的
     &::-webkit-scrollbar-corner {
       background-color: transparent;
@@ -344,7 +335,7 @@ window.onKeySpacePressHold = (isHold: boolean) => {
 
   .canvas {
     position: absolute;
-    top:50%;
+    top: 50%;
     left: 50%;
     transform-origin: 50% 0;
     transform: translateY(-50%);

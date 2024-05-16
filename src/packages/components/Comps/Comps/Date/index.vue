@@ -1,0 +1,75 @@
+<template>
+  <div class="go-decorates-number" :style="`width:${w}px;height:${h}px;`">
+    <div
+      :style="`color:${timeColor};font-size:${timeSize}px;line-height:${timeLineHeight}px;
+      letter-spacing:${timeTextIndent}px;font-weight:${fontWeight};
+      text-shadow: ${boxShadow}`"
+    >
+      {{ newData }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { PropType, toRefs, ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { CreateComponentType } from '@/packages/index.d'
+import { useChartEditStore } from '@/store/modules/chartEditStore/chartEditStore'
+import { useChartDataFetch } from '@/hooks'
+
+const props = defineProps({
+  chartConfig: {
+    type: Object as PropType<CreateComponentType>,
+    required: true
+  }
+})
+let yearMonthDay = ref('2021-2-3')
+let newData = ref('2021-2-3')
+let boxShadow = ref('none')
+const { w, h } = toRefs(props.chartConfig.attr)
+
+let {
+  timeColor,
+  timeSize,
+  timeLineHeight,
+  timeTextIndent,
+  fontWeight,
+  showShadow,
+  hShadow,
+  vShadow,
+  blurShadow,
+  colorShadow
+} = toRefs(props.chartConfig.option)
+
+watch(
+  props.chartConfig.option,
+  () => {
+    try {
+      if (props.chartConfig.option.showShadow) {
+        boxShadow.value = `${props.chartConfig.option.hShadow}px ${props.chartConfig.option.vShadow}px ${props.chartConfig.option.blurShadow}px ${props.chartConfig.option.colorShadow}`
+      } else {
+        boxShadow.value = 'none'
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  {
+    immediate: true
+  }
+)
+onMounted(() => {
+  var datetime = new Date()
+  var year = datetime.getFullYear()
+  var month = datetime.getMonth() + 1 < 10 ? '0' + (datetime.getMonth() + 1) : datetime.getMonth() + 1
+  var date = datetime.getDate() < 10 ? '0' + datetime.getDate() : datetime.getDate()
+  yearMonthDay.value = `${year}-${month}-${date}`
+  newData.value = yearMonthDay.value
+})
+useChartDataFetch(props.chartConfig, useChartEditStore)
+</script>
+
+<style lang="scss" scoped>
+@include go('decorates-number') {
+  text-align: center;
+}
+</style>
